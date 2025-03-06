@@ -5,9 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tank Trouble Remake</title>
     <link rel="stylesheet" href="style.css">
+
+    <!-- Favicon Links -->
+    <link rel="icon" type="image/x-icon" href="assets/logos/TankyTroubles-Logo-2048x.ico">
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
+    <header>
+        <h1>Tank Trouble Remake</h1>
+    </header>
+
+    <div id="main-container">
+        <!-- Left Container -->
+        <div id="left-container">
+            <h2>Left Sidebar</h2>
+            <p>Content goes here...</p>
+        </div>
+
+        <!-- Center Container -->
+        <div id="center-container">
+            <!-- Game Container (16:9 Aspect Ratio) -->
+            <div id="game-container">
+                <div id="gameCanvasContainer">
+                    <canvas id="gameCanvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Game Description -->
+            <div id="game-description">
+                <h2>About Tank Trouble Remake</h2>
+                <strong>This is a 2-player local game remake of the classic <em>Tank Trouble!</em></strong></p>
+                <p>In this game, you can control a tank and battle against other friend in an exciting arena. The goal is simple: destroy your opponent before they destroy you! The game features various mechanics, including power-ups and obstacles, that make each match unique.</p>
+                <br>
+                <p>I’ve taken the classic <em>Tank Trouble</em> and enhanced it with more game settings and features, while maintaining the same thrilling gameplay. By combining the best features from various versions and adding my own personal touch, this version brings together the best of both worlds for an even more exciting experience. Now, you can compete in intense battles and enjoy the retro feel of <em>Tank Trouble</em> right in your browser.</p>
+                <!-- Wanna play the original game? -->
+                <p>Wanna play the original game?
+                <br>
+                <a href="https://game-cdn.poki.com/v6/tanktrouble/index.html" target="_blank">Click Here</a></p>
+
+                <!-- Images side by side -->
+                <br>
+                <br>
+                <p>Here are some Images of the original Game</p>
+                <div class="image-container">
+                    <img src="assets/GameMenuPreview.png" alt="Game Menu Preview" class="side-by-side-image">
+                    <img src="assets/GamePreview.png" alt="Game Preview" class="side-by-side-image">
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Container -->
+        <div id="right-container">
+            <h2>Right Sidebar</h2>
+            <p>Content goes here...</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            Footer content | 
+            <a href="https://www.google.com/search?q=cats" target="_blank">Support</a> | 
+            <a href="assets/privacy-policy.pdf" target="_blank">Privacy Policy</a>
+        </p>
+    </footer>
     <script src="game.js"></script>
 </body>
 </html>
