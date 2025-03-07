@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
     <title>Tank Trouble Remake</title>
     <link rel="stylesheet" href="style.css">
 
@@ -10,11 +10,13 @@
     <link rel="icon" type="image/x-icon" href="assets/logos/TankyTroubles-Logo-2048x.ico">
 </head>
 <body>
-    <header>
+    <header class="header-container">
         <h1>Tank Trouble Remake</h1>
     </header>
 
+    <!-- Main Container -->
     <div id="main-container">
+
         <!-- Left Container -->
         <div id="left-container">
             <h2>Left Sidebar</h2>
@@ -23,10 +25,13 @@
 
         <!-- Center Container -->
         <div id="center-container">
-            <!-- Game Container (16:9 Aspect Ratio) -->
+
+            <!-- Game Container -->
             <div id="game-container">
-                <div id="gameCanvasContainer">
-                    <canvas id="gameCanvas"></canvas>
+
+                <!-- Game Canvas Container (16:9 Aspect Ratio) -->
+                <div id="game-canvas-container">
+                    <canvas id="game-canvas"></canvas>
                 </div>
             </div>
 
@@ -40,15 +45,21 @@
                 <!-- Wanna play the original game? -->
                 <p>Wanna play the original game?
                 <br>
-                <a href="https://game-cdn.poki.com/v6/tanktrouble/index.html" target="_blank">Click Here</a></p>
+                <a href="https://tanktrouble.com/" target="_blank">Click Here</a></p>
 
                 <!-- Images side by side -->
                 <br>
                 <br>
                 <p>Here are some Images of the original Game</p>
                 <div class="image-container">
-                    <img src="assets/GameMenuPreview.png" alt="Game Menu Preview" class="side-by-side-image">
-                    <img src="assets/GamePreview.png" alt="Game Preview" class="side-by-side-image">
+                    <div class="image-item">
+                        <img src="assets/GameMenuPreview.png" alt="Game Menu Preview" class="side-by-side-image">
+                        <p class="image-subtitle">Game Menu Preview</p>
+                    </div>
+                    <div class="image-item">
+                        <img src="assets/GamePreview.png" alt="Game Preview" class="side-by-side-image">
+                        <p class="image-subtitle">Game Preview</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -60,13 +71,18 @@
         </div>
     </div>
 
-    <footer>
+    <!-- Footer Container -->
+    <footer class="footer-container">
         <p>
-            Footer content | 
+            ©2069 I got absolutely no copyright! | 
             <a href="assets/privacy-policy.pdf" target="_blank">Privacy Policy</a> | 
             <a href="mailto:konstantin265001@gmail.com" target="_blank">Support</a> email me
         </p>
     </footer>
-    <script src="game.js"></script>
+    
+    <!-- Script -->
+    <script src="javascript scripts/tanky_troubles.js"></script>
+    <script src="javascript scripts/structure.js"></script>
+    
 </body>
 </html>
