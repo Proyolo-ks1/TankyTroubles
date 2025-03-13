@@ -20,41 +20,6 @@ body {
 
 
 
-/*      |====================| */
-/*      |      Defaults      | */
-/*      |====================| */
-
-
-
-/* Default button styles */
-button {
-    padding: 10px 20px;
-    background-color: #4CAF50; /* Green background */
-    border: none;
-    border-radius: 8px;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* Button hover effect */
-button:hover {
-    background-color: #45a049; /* Darker green on hover */
-}
-
-/* Button active (when pressed) effect */
-button:active {
-    background-color: #3e8e41; /* Even darker green when active */
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-
-
-
-
-
 /*      |==================| */
 /*      |      Layout      | */
 /*      |==================| */
@@ -131,8 +96,25 @@ button:active {
     background-color: #222;  /* Just for visualization */
     border-radius: 8px;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    transition: all 0.3s ease; /* Smooth transition for resizing */
+}
+
+/* Style when game is in theater mode */
+#game-container.theater-mode {
+    width: 100vw; /* Full width of the viewport */
+    height: 100vh; /* Full height of the viewport */
+    position: fixed; /* Sticks to the viewport even when scrolling */
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Slight dark overlay */
+    display: flex;
+    flex-direction: column; /* Stack game canvas and controls vertically */
+    justify-content: flex-start; /* Align from the top */
+    align-items: center;
+    border-radius: 0; /* Remove the rounded corners for full screen */
 }
 
 /* Game Canvas Container (16:9 ratio based on parent height) */
@@ -155,7 +137,8 @@ button:active {
 
 #game-controls {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
+    width: 100%;
     gap: 15px;
     margin-top: 10px;
 }
@@ -226,12 +209,39 @@ button:active {
 /*      |===================| */
 
 
-/* Optional: Custom button for theater mode */
-#theater-mode-btn {
-    background-color: #007BFF; /* Blue for theater mode */
+
+button {
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Optional: Custom button for fullscreen mode */
-#fullscreen-btn {
-    background-color: #FF6347; /* Tomato for fullscreen */
+button img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Ensure the icon stays within bounds */
 }
+
+button:hover { background-color: #45a049; }
+button:active { background-color: #3e8e41; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+
+#theater-mode { background-color: #007BFF; }
+#theater-mode:hover { background-color: #0066cc; }
+#theater-mode:active { background-color: #005bb5;  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+
+#fullscreen { background-color: #FF6347; }
+#fullscreen:hover { background-color: #e5533d; }
+#fullscreen:active { background-color: #cc4732; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+
+#mute-audio { background-color: #FF9800; }
+#mute-audio:hover { background-color: #fb8c00; }
+#mute-audio:active { background-color: #f57c00; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+
