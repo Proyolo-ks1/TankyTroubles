@@ -10,10 +10,56 @@ body {
     font-family: Arial, sans-serif;
     display: flex;
     flex-direction: column;
-    height: 100vh;  /* Ensure the body occupies the full height of the viewport */
+    height: 100vh;
     min-height: 256px;
     min-width: 450px;
 }
+
+
+
+
+
+
+/*      |====================| */
+/*      |      Defaults      | */
+/*      |====================| */
+
+
+
+/* Default button styles */
+button {
+    padding: 10px 20px;
+    background-color: #4CAF50; /* Green background */
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Button hover effect */
+button:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+/* Button active (when pressed) effect */
+button:active {
+    background-color: #3e8e41; /* Even darker green when active */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+
+
+
+
+
+/*      |==================| */
+/*      |      Layout      | */
+/*      |==================| */
+
+
 
 /* Header Container */
 .header-container {
@@ -107,6 +153,13 @@ body {
     object-fit: contain;  /* Ensure the aspect ratio of the canvas is preserved */
 }
 
+#game-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
 /* Game description */
 #game-description {
     width: 100%;  /* Full width of the parent container */
@@ -163,3 +216,22 @@ body {
     text-decoration: underline;
 }
 
+
+
+
+
+
+/*      |===================| */
+/*      |      Buttons      | */
+/*      |===================| */
+
+
+/* Optional: Custom button for theater mode */
+#theater-mode-btn {
+    background-color: #007BFF; /* Blue for theater mode */
+}
+
+/* Optional: Custom button for fullscreen mode */
+#fullscreen-btn {
+    background-color: #FF6347; /* Tomato for fullscreen */
+}

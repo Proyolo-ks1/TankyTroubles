@@ -1,4 +1,6 @@
-import { drawCircle, drawRect } from './graphics-utils.js';
+import { setCanvasScale, getCanvasScale } from './global-state.js';
+import { drawRect, drawCircle, drawRegPolygon} from './graphics-utils.js';
+
 
 
 
@@ -18,20 +20,14 @@ const ctx = canvas.getContext("2d");
 const WORLD_WIDTH = 1920;
 const WORLD_HEIGHT = 1080;
 
-// Canvas Scale factors
-let canvasScale, canvasOffsetX, canvasOffsetY;
-
 // Resize handler
 function resizeCanvas() {
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
 
     // Determine the scale factor to fit the game world inside the canvas
-    canvasScale = Math.min(canvas.width / WORLD_WIDTH, canvas.height / WORLD_HEIGHT);
-
-    // Center the game world within the canvas
-    canvasOffsetX = (canvas.width - WORLD_WIDTH * canvasScale) / 2;
-    canvasOffsetY = (canvas.height - WORLD_HEIGHT * canvasScale) / 2;
+    const scale = Math.min(canvas.width / WORLD_WIDTH, canvas.height / WORLD_HEIGHT)
+    setCanvasScale(scale);
 }
 
 resizeCanvas();
@@ -173,33 +169,26 @@ class Tank extends Shooter {
     // render tank
     render() {
         ctx.save();
-
+    
         // Transform to fit the game world into the canvas
-        ctx.translate(canvasOffsetX + this.x * canvasScale, canvasOffsetY + this.y * canvasScale);
+        const canvasScale = getCanvasScale();
+        ctx.translate(this.x * canvasScale, this.y * canvasScale);
         ctx.rotate(this.angle);
-        ctx.fillStyle = this.color;
-
+    
         // Draw main tank body
-        drawRect(ctx, -this.length / 2 * canvasScale, -this.width / 2 * canvasScale, this.length * canvasScale, this.width * canvasScale, this.color);
-
+        drawRect(ctx, -this.length / 2, -this.width / 2, this.length, this.width, this.color, "black");
+    
         // Draw dome (black circle) on top of the tank
-        const domeRadius = (this.width * 0.8) / 2 * canvasScale;
-        drawCircle(ctx, 0, -this.width / 2 * canvasScale - domeRadius, domeRadius, "black");
-
-        // Draw same-colored circle with black outline (tank color)
-        const innerDomeRadius = domeRadius - canvasScale;  // 1px smaller
-        drawCircle(ctx, 0, -this.width / 2 * canvasScale - domeRadius, innerDomeRadius, this.color, "black");
-
+        const domeRadius = (this.width * 0.8) / 2;
+        drawCircle(ctx, 0, -this.width / 2 - domeRadius, domeRadius, this.color, "black");
+    
         // Draw turret (same process as dome but slightly different positioning)
-        const turretRadius = (this.width * 0.4) / 2 * canvasScale; // Adjust turret size
-        drawCircle(ctx, 0, this.length / 2 * canvasScale + turretRadius, turretRadius, "black");
-
-        // Draw same-colored circle for turret with black outline
-        const innerTurretRadius = turretRadius - canvasScale;  // 1px smaller
-        drawCircle(ctx, 0, this.length / 2 * canvasScale + turretRadius, innerTurretRadius, this.color, "black");
-
+        const turretRadius = (this.width * 0.4) / 2; // Adjust turret size
+        drawCircle(ctx, 0, this.length / 2 + turretRadius, turretRadius, this.color, "black");
+    
         ctx.restore();
     }
+    
 }
 
 
@@ -290,6 +279,44 @@ class ChaingunBullet extends Bullet {
     }
 }
 
+class ShotgunBullet extends Bullet {
+    constructor(spawnX, spawnY, spawnAngle, owner, spawnSpeed = 10, scale = 1) {
+        super(spawnX, spawnY, spawnAngle, owner, spawnSpeed, scale);
+        this.type = "chaingun";
+        this.size = scale * 3;
+        this.lifeSpan = 1500;
+    }
+
+    update() {
+        super.update();
+    }
+
+    render(ctx) {
+        if (this.active) {
+            drawCircle(ctx, this.x, this.y, this.size / 2, "blue", "black");
+        }
+    }
+}
+
+class ShrapnelBullet extends Bullet {
+    constructor(spawnX, spawnY, spawnAngle, owner, spawnSpeed = 5, scale = 1) {
+        super(spawnX, spawnY, spawnAngle, owner, spawnSpeed, scale);
+        this.type = "shrapnel";
+        this.size = scale * 2;
+        this.lifeSpan = 1000;
+    }
+
+    update() {
+        super.update();
+    }
+
+    render(ctx) {
+        if (this.active) {
+            drawRegPolygon(ctx, this.x, this.y, 3, this.size / 2, "green", "black");
+        }
+    }
+}
+
 
 
 // |============|
@@ -327,7 +354,8 @@ class NoPowerUp extends PowerUp {
 
     hold() {
         // empty
-        this.tank.spawnRelativeBullet(DefaultBullet, 0, 0, 0, 10);
+        let randomBulletAngleOffset = Math.random() - 0.5 // -0.5 <-> 0.5 radians
+        this.tank.spawnRelativeBullet(DefaultBullet, 0, 0, randomBulletAngleOffset, 10);
     }
 
     release() {
@@ -362,6 +390,43 @@ class ChaingunPowerUp extends PowerUp {
     }
 }
 
+class ShotgunPowerUp extends PowerUp {
+    constructor(tank) {
+        super(tank);
+        this.isCharging = false;
+        this.chargeStartTime = 0;
+    }
+
+    press() {
+        const numBullets = 20;
+        const spreadAngle = 20; // Spread angle in degrees
+        const spreadAngleRadians = spreadAngle * (Math.PI / 180);
+        
+        for (let i = 0; i < numBullets; i++) {
+            // Randomize the angle offset for each bullet
+            let randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
+            this.tank.spawnRelativeBullet(ShotgunBullet, 0, 0, randomBulletAngleOffset, 10);
+        }
+    }
+
+    hold() {
+        // empty
+    }
+
+    release() {
+        // empty
+        const numBullets = 20;
+        const spreadAngle = 20; // Spread angle in degrees
+        const spreadAngleRadians = spreadAngle * (Math.PI / 180);
+        
+        for (let i = 0; i < numBullets; i++) {
+            // Randomize the angle offset for each bullet
+            let randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
+            this.tank.spawnRelativeBullet(ShrapnelBullet, 0, 0, randomBulletAngleOffset, 10);
+        }
+    }
+}
+
 
 
 
@@ -373,7 +438,7 @@ class ChaingunPowerUp extends PowerUp {
 
 
 // Create tanks with position, color, and controls
-angle = Math.random() * Math.PI * 2;
+let angle = Math.random() * Math.PI * 2;
 const tank1 = new Tank(500, 500, angle, 120, 90, 7, 5, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
 angle = Math.random() * Math.PI * 2;
 const tank2 = new Tank(1400, 500, angle, 120, 90, 7, 5, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
@@ -460,7 +525,8 @@ function updateStatistics(currentTime, deltaTime) {
     // Overlay settings
     const padding = 10;
     const width = 140;
-    const height = 50;
+    const linesOfText = 3
+    const height = padding + linesOfText * 20;
     const x = 5;
     const y = 5;
     const borderRadius = 10;
@@ -473,6 +539,11 @@ function updateStatistics(currentTime, deltaTime) {
     ctx.font = "16px Arial";
     ctx.fillText(`FPS: ${overlayFps.toFixed(0)}`, x + padding, y + 20);
     ctx.fillText(`ΔTime: ${overlayDeltaTime.toFixed(3)}s`, x + padding, y + 40);
+
+    // Display canvasScaler values
+    const canvasScale = getCanvasScale();
+    ctx.fillText(`Scale: ${canvasScale.toFixed(2)}`, x + padding, y + 60);
+
 }
 
 // Function to update and render bullets recursively
