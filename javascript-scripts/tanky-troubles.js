@@ -1,5 +1,6 @@
-import { setCanvasScale, getCanvasScale } from './global-state.js';
+import { setVariable, getVariable } from './global-state.js';
 import { drawRect, drawCircle, drawRegPolygon} from './graphics-utils.js';
+import { generateMaze} from './generate-maze.js';
 
 
 
@@ -27,7 +28,7 @@ function resizeCanvas() {
 
     // Determine the scale factor to fit the game world inside the canvas
     const scale = Math.min(canvas.width / WORLD_WIDTH, canvas.height / WORLD_HEIGHT)
-    setCanvasScale(scale);
+    setVariable("canvasScale", scale);
 }
 
 resizeCanvas();
@@ -89,8 +90,6 @@ class Shooter {
         let absX = this.x + Math.cos(this.angle) * relX - Math.sin(this.angle) * relY;
         let absY = this.y + Math.sin(this.angle) * relX + Math.cos(this.angle) * relY;
         let absAngle = this.angle + relAngle;
-
-        console.log(`%c${shooterType} ${shooterId}: new BulletClass(absX = ${absX}, absY = ${absY}, absAngle = ${absAngle}, speed = ${speed}, scale = ${scale}`, "color: green;");
         let bullet = new BulletClass(absX, absY, absAngle, this, speed, scale);
         this.bullets.push(bullet);
     }
@@ -121,17 +120,14 @@ class Tank extends Shooter {
     }
     
     shootPress() {
-        console.log(`%cTank ${this.id} - Shoot Button pressed`, "color: aqua; font-weight: bold;");
         this.weapon.press();
     }
 
     shootHold() {
-        console.log(`%cTank ${this.id} - Shoot Button held`, "color: aqua; font-weight: bold;");
         this.weapon.hold();
     }
     
     shootRelease() {
-        console.log(`%cTank ${this.id} - Shoot Button released`, "color: aqua; font-weight: bold;");
         this.weapon.release();
     }
     
@@ -171,7 +167,7 @@ class Tank extends Shooter {
         ctx.save();
     
         // Transform to fit the game world into the canvas and have local tank coordinates and rotation
-        const canvasScale = getCanvasScale();
+        const canvasScale = getVariable("canvasScale");
         ctx.translate(this.x * canvasScale, this.y * canvasScale);
         ctx.rotate(this.angle);
     
@@ -240,8 +236,8 @@ class DefaultBullet extends Bullet {
     constructor(spawnX, spawnY, spawnAngle, owner, spawnSpeed = 10, scale = 1) {
         super(spawnX, spawnY, spawnAngle, owner, spawnSpeed, scale);
         this.type = "default";
-        this.size = scale * 5;
-        this.lifeSpan = 3000;
+        this.size = scale * 25;
+        this.lifeSpan = 1500;
     }
 
     update() {
@@ -250,7 +246,7 @@ class DefaultBullet extends Bullet {
 
     render(ctx) {
         if (this.active) {
-            drawCircle(ctx, this.x, this.y, this.size / 2, "blue", "black");
+            drawCircle(ctx, this.x, this.y, this.size / 2, "black", "black");
         }
     }
 }
@@ -259,7 +255,7 @@ class ChaingunBullet extends Bullet {
     constructor(spawnX, spawnY, spawnAngle, owner, spawnSpeed = 10, scale = 1) {
         super(spawnX, spawnY, spawnAngle, owner, spawnSpeed, scale);
         this.type = "chaingun";
-        this.size = scale * 3;
+        this.size = scale * 15;
         this.lifeSpan = 1500;
     }
 
@@ -278,7 +274,7 @@ class ShotgunBullet extends Bullet {
     constructor(spawnX, spawnY, spawnAngle, owner, spawnSpeed = 10, scale = 1) {
         super(spawnX, spawnY, spawnAngle, owner, spawnSpeed, scale);
         this.type = "chaingun";
-        this.size = scale * 3;
+        this.size = scale * 25;
         this.lifeSpan = 1500;
     }
 
@@ -297,8 +293,28 @@ class ShrapnelBullet extends Bullet {
     constructor(spawnX, spawnY, spawnAngle, owner, spawnSpeed = 5, scale = 1) {
         super(spawnX, spawnY, spawnAngle, owner, spawnSpeed, scale);
         this.type = "shrapnel";
-        this.size = scale * 2;
+        this.size = scale * 50;
         this.lifeSpan = 1000;
+    }
+
+    update() {
+        super.update();
+        this.angle += 0.1
+    }
+
+    render(ctx) {
+        if (this.active) {
+            drawRegPolygon(ctx, this.x, this.y, 3, this.size / 2, "green", "black");
+        }
+    }
+}
+
+class FireBullet extends Bullet {
+    constructor(spawnX, spawnY, spawnAngle, owner, spawnSpeed = 10, scale = 1) {
+        super(spawnX, spawnY, spawnAngle, owner, spawnSpeed, scale);
+        this.type = "default";
+        this.size = scale * 25;
+        this.lifeSpan = 500;
     }
 
     update() {
@@ -307,7 +323,7 @@ class ShrapnelBullet extends Bullet {
 
     render(ctx) {
         if (this.active) {
-            drawRegPolygon(ctx, this.x, this.y, 3, this.size / 2, "green", "black");
+            drawCircle(ctx, this.x, this.y, this.size / 2, "orange", "black");
         }
     }
 }
@@ -344,7 +360,7 @@ class NoPowerUp extends PowerUp {
     }
 
     press() {
-        this.tank.spawnRelativeBullet(DefaultBullet, 100, 0, 0, 10);
+        // this.tank.spawnRelativeBullet(DefaultBullet, 100, 0, 0, 10);
     }
 
     hold() {
@@ -352,8 +368,10 @@ class NoPowerUp extends PowerUp {
         const spreadAngle = 20; // Spread angle in degrees
         const spreadAngleRadians = spreadAngle * (Math.PI / 180);
 
-        let randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
-        this.tank.spawnRelativeBullet(DefaultBullet, 100, 0, randomBulletAngleOffset, 10);
+        let randomNumber = Math.random()
+        let randomBulletAngleOffset = (randomNumber - 0.5) * spreadAngleRadians;
+        randomNumber = Math.random()
+        this.tank.spawnRelativeBullet(ShrapnelBullet, 100, 0, randomBulletAngleOffset, 10 * (randomNumber + 0.5));
     }
 
     release() {
@@ -501,13 +519,21 @@ window.addEventListener("keyup", (e) => {
 
 
 
+// Settings
+let powerUpSpawnPeriod = 1; // seconds 
+let powerUpSpawnChance = 1;
+
+// Support Variables
 let lastTime = performance.now();
 let lastRenderStatisticsTime = performance.now();
+let lastPowerUpSpawnTime = 0;
 let frameCount = 0;
 let fps = 0;
 let overlayFps = 0;
 let overlayDeltaTime = 0;
 let statisticUpdatesPerSecond = 6
+
+let Maze = generateMaze()
 
 function updateStatistics(currentTime, deltaTime) {
     // Calculate FPS with smoothing
@@ -522,15 +548,15 @@ function updateStatistics(currentTime, deltaTime) {
 
     // Overlay settings
     const padding = 10;
-    const width = 140;
-    const linesOfText = 3
-    const height = padding + linesOfText * 20;
+    const width = 300;
+    const linesOfText = 3;
+    const height = padding + linesOfText * 50;
     const x = 5;
     const y = 5;
     const borderRadius = 10;
 
-    // Draw overlay background
-    drawRoundedRect(x, y, width, height, borderRadius, "rgba(0, 0, 0, 0.5)");
+    // Draw overlay background using the drawRect function
+    drawRect(ctx, x, y, width, height, "rgba(0, 0, 0, 0.5)", null, null, borderRadius);
 
     // Draw overlay text
     ctx.fillStyle = "#fff"; // White text
@@ -539,9 +565,8 @@ function updateStatistics(currentTime, deltaTime) {
     ctx.fillText(`ΔTime: ${overlayDeltaTime.toFixed(3)}s`, x + padding, y + 40);
 
     // Display canvasScaler values
-    const canvasScale = getCanvasScale();
+    const canvasScale = getVariable("canvasScale");
     ctx.fillText(`Scale: ${canvasScale.toFixed(2)}`, x + padding, y + 60);
-
 }
 
 // Function to update and render bullets recursively
@@ -554,6 +579,48 @@ function updateAndRenderBullets(shooter, deltaTime) {
 
     // Remove inactive bullets
     shooter.bullets = shooter.bullets.filter(bullet => bullet.active);
+}
+
+// Function to render the background theme and maze
+function renderBackground() {
+    let a = Maze
+
+    const tileSize = a; // Define the size of each square tile
+
+    // Loop through the rows and columns to draw the checkerboard pattern
+    for (let row = 0; row < Math.ceil(WORLD_HEIGHT / tileSize); row++) {
+        for (let col = 0; col < Math.ceil(WORLD_WIDTH / tileSize); col++) {
+            // Determine the color based on the row and column positions
+            const color = (row + col) % 2 === 0 ? "#E6E6E6" : "#D6D6D6";
+
+            // Draw the tile using the drawRect function
+            drawRect(ctx, col * tileSize, row * tileSize, tileSize, tileSize, color);
+        }
+    }
+}
+
+// Function to update game events like power-ups
+function updateGame(currentTime) {
+    // Calculate the time passed since the last power-up spawn check
+    const timeSinceLastPowerUpCheck = (currentTime - lastPowerUpSpawnTime) / 1000;  // in seconds
+    
+    // If enough time has passed, check for spawning a power-up
+    if (timeSinceLastPowerUpCheck >= powerUpSpawnPeriod) {
+        console.log(`%cPowerup spawn chance (${powerUpSpawnChance * 100}%)`, "color: magenta; font-weight: bold;");
+        // Random chance for power-up spawn
+        if (Math.random() < powerUpSpawnChance) {
+            spawnPowerUp();
+        }
+
+        // Update last power-up spawn check time
+        lastPowerUpSpawnTime = currentTime;
+    }
+}
+
+let spawns = 0;
+function spawnPowerUp() {
+    spawns += 1
+    console.log(`%cspawnPowerUp() (${spawns})`, "color: lime; font-weight: bold;");
 }
 
 
@@ -574,6 +641,8 @@ function gameLoop() {
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    renderBackground();
+
     // Update and render tanks + their bullets etc...
     tanks.forEach(tank => {
         tank.update(deltaTime);  // Pass deltaTime for tank movement and logic
@@ -581,12 +650,12 @@ function gameLoop() {
         updateAndRenderBullets(tank, deltaTime);
     });
 
+    updateGame(currentTime)
+
     updateStatistics(currentTime, deltaTime);
     
     lastTime = currentTime
-    requestAnimationFrame(gameLoop);  // Continue the game loop
-
-    
+    requestAnimationFrame(gameLoop);  // Continue the game loop 
 }
 
 gameLoop();

@@ -110,10 +110,6 @@ body {
     top: 0;
     left: 0;
     background-color: rgba(0, 0, 0, 0.5); /* Slight dark overlay */
-    display: flex;
-    flex-direction: column; /* Stack game canvas and controls vertically */
-    justify-content: flex-start; /* Align from the top */
-    align-items: center;
     border-radius: 0; /* Remove the rounded corners for full screen */
 }
 
@@ -141,6 +137,11 @@ body {
     width: 100%;
     gap: 15px;
     margin-top: 10px;
+    padding: 10px;
+}
+
+#game-container.theater-mode #game-controls {
+    background-color: #444;
 }
 
 /* Game description */
