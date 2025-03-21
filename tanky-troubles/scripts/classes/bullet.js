@@ -1,0 +1,159 @@
+//      |===================|
+//      |      BULLETS      |
+//      |===================|
+
+
+
+// Bullet class (base class for all types of bullets)
+class Bullet extends Shooter {
+    static BulletCount = 0;
+
+    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 100, scale = 1, rotationSpeed = 0, arcFactor = 0) {
+        super();
+        this.id = Bullet.BulletCount++;  // Assign a unique ID to each bullet
+        this.pos = posSpawn;
+        this.velocity = { vx: Math.cos(angleSpawn) * spawnSpeed, vy: Math.sin(angleSpawn) * spawnSpeed };
+        this.angle = angleSpawn;
+        this.rotationSpeed = rotationSpeed;
+        this.arcFactor = arcFactor;          // How much the bullet's path curves
+        this.owner = owner;
+        this.size = scale * 10;
+        this.active = true;
+        this.creationTime = Date.now();
+
+        bullets.push(this);
+    }
+
+    update(deltaTime) {
+
+        // Position
+        this.pos.x += this.velocity.vx * deltaTime;
+        this.pos.y += this.velocity.vy * deltaTime;
+
+        // Rotation - simulate frisbee-like spinning
+        this.angle += this.rotationSpeed * deltaTime;
+
+        // Adjusting velocity to simulate arc-like movement
+        // Slightly altering the velocity based on the rotation
+        let arcAdjustment = this.arcFactor * Math.cos(this.angle);
+        this.velocity.vx += arcAdjustment;
+        this.velocity.vy += arcAdjustment;
+        
+
+        // Check if bullet's lifespan is over and make it inactive
+        if (Date.now() - this.creationTime > this.lifeSpan) {
+            this.active = false;
+        }
+    }
+
+    render(ctx) {
+        if (this.active) {
+            drawCircle(ctx, this.pos, this.size / 2, "black", "black");
+        }
+    }
+
+    debugRender(ctx) {
+        if (this.active) {
+            if (debugMode) {
+                drawArrow(ctx, this.pos, this.velocity, 5, "blue");
+                console.log("debug Arrow ->")
+            }
+        }
+    }
+}
+
+class DefaultBullet extends Bullet {
+    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1) {
+        super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
+        this.type = "default";
+        this.size = scale * 25;
+        this.lifeSpan = 1500;
+    }
+
+    update() {
+        super.update();
+    }
+
+    render(ctx) {
+        if (this.active) {
+            drawCircle(ctx, this.pos, this.size / 2, "black", "black");
+        }
+    }
+}
+
+class ChaingunBullet extends Bullet {
+    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1) {
+        super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
+        this.type = "chaingun";
+        this.size = scale * 15;
+        this.lifeSpan = 1500;
+    }
+
+    update() {
+        super.update();
+    }
+
+    render(ctx) {
+        if (this.active) {
+            drawCircle(ctx, this.pos, this.size / 2, "blue", "black");
+        }
+    }
+}
+
+class ShotgunBullet extends Bullet {
+    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1) {
+        super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
+        this.type = "chaingun";
+        this.size = scale * 25;
+        this.lifeSpan = 1500;
+    }
+
+    update() {
+        super.update();
+    }
+
+    render(ctx) {
+        if (this.active) {
+            drawCircle(ctx, this.pos, this.size / 2, "pink", "black");
+        }
+    }
+}
+
+class ShrapnelBullet extends Bullet {
+    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1) {
+        super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
+        this.type = "shrapnel";
+        this.size = scale * 50;
+        this.lifeSpan = 1000;
+    }
+
+    update() {
+        super.update();
+        this.angle += 0.1
+    }
+
+    render(ctx) {
+        if (this.active) {
+            drawRegPolygon(ctx, this.pos, this.size / 2, 3, "green", "black");
+        }
+    }
+}
+
+class FireBullet extends Bullet {
+    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1) {
+        super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
+        this.type = "default";
+        this.size = scale * 25;
+        this.lifeSpan = 500;
+    }
+
+    update() {
+        super.update();
+    }
+
+    render(ctx) {
+        if (this.active) {
+            drawCircle(ctx, this.pos, this.size / 2, "orange", "black");
+        }
+    }
+}

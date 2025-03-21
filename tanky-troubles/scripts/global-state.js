@@ -1,9 +1,11 @@
-// This will hold the current canvas scale
-let canvasScale = 1;
-let tileSize = 0;
-
-
-
+// Define a state object to hold all global variables
+const state = {
+    canvasScale: 1,
+    tileSize: 0,
+    debugMode: true,
+    tanks: [],
+    bullets: [],
+};
 
 
 
@@ -15,11 +17,8 @@ let tileSize = 0;
 
 // Function to update a global variable dynamically
 export function setVariable(variableName, value) {
-    // Check which variable needs to be updated and set it
-    if (variableName === "canvasScale") {
-        canvasScale = value;
-    } else if (variableName === "tileSize") {
-        tileSize = value;
+    if (state.hasOwnProperty(variableName)) {
+        state[variableName] = value;
     } else {
         console.error(`Unknown variable: ${variableName}`);
     }
@@ -27,13 +26,15 @@ export function setVariable(variableName, value) {
 
 // Function to get a global variable dynamically
 export function getVariable(variableName) {
-    // Check which variable needs to be returned
-    if (variableName === "canvasScale") {
-        return canvasScale;
-    } else if (variableName === "tileSize") {
-        return tileSize;
+    if (state.hasOwnProperty(variableName)) {
+        return state[variableName];
     } else {
         console.error(`Unknown variable: ${variableName}`);
         return null;
     }
+}
+
+// Function to get all global state variables (optional, for debugging)
+export function getAllState() {
+    return { ...state };
 }
