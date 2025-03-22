@@ -1,3 +1,9 @@
+import { setGlobalVariable, getGlobalVariable, getAllState } from '../global-state.js';
+import { drawRect, drawCircle, drawRegPolygon, drawArrow} from '../graphics-utils.js';
+import { Shooter } from './shooter.js';
+
+
+
 //      |===================|
 //      |      BULLETS      |
 //      |===================|
@@ -21,7 +27,10 @@ class Bullet extends Shooter {
         this.active = true;
         this.creationTime = Date.now();
 
+        // Get current bullets array, add new bullet, and update state
+        const bullets = getGlobalVariable("bullets"); 
         bullets.push(this);
+        setGlobalVariable("bullets", bullets);
     }
 
     update(deltaTime) {
@@ -48,40 +57,40 @@ class Bullet extends Shooter {
 
     render(ctx) {
         if (this.active) {
-            drawCircle(ctx, this.pos, this.size / 2, "black", "black");
+            drawCircle(ctx, this.pos, this.size / 2, "#000", "#000");
         }
     }
 
     debugRender(ctx) {
+        console.log("debugRender(ctx)")
         if (this.active) {
-            if (debugMode) {
-                drawArrow(ctx, this.pos, this.velocity, 5, "blue");
-                console.log("debug Arrow ->")
-            }
+            console.log("if (this.active)")
+            drawArrow(ctx, this.pos, this.velocity, 5, "#0000FF");
+            console.log("debug Arrow ->")
         }
     }
 }
 
-class DefaultBullet extends Bullet {
-    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1) {
+export class DefaultBullet extends Bullet {
+    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 50, scale = 1) {
         super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
         this.type = "default";
         this.size = scale * 25;
         this.lifeSpan = 1500;
     }
 
-    update() {
-        super.update();
+    update(deltaTime) {
+        super.update(deltaTime);
     }
 
     render(ctx) {
         if (this.active) {
-            drawCircle(ctx, this.pos, this.size / 2, "black", "black");
+            drawCircle(ctx, this.pos, this.size / 2, "#000", "#000");
         }
     }
 }
 
-class ChaingunBullet extends Bullet {
+export class ChaingunBullet extends Bullet {
     constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1) {
         super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
         this.type = "chaingun";
@@ -89,18 +98,18 @@ class ChaingunBullet extends Bullet {
         this.lifeSpan = 1500;
     }
 
-    update() {
-        super.update();
+    update(deltaTime) {
+        super.update(deltaTime);
     }
 
     render(ctx) {
         if (this.active) {
-            drawCircle(ctx, this.pos, this.size / 2, "blue", "black");
+            drawCircle(ctx, this.pos, this.size / 2, "#40E0D0", "#000");
         }
     }
 }
 
-class ShotgunBullet extends Bullet {
+export class ShotgunBullet extends Bullet {
     constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1) {
         super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
         this.type = "chaingun";
@@ -108,18 +117,18 @@ class ShotgunBullet extends Bullet {
         this.lifeSpan = 1500;
     }
 
-    update() {
-        super.update();
+    update(deltaTime) {
+        super.update(deltaTime);
     }
 
     render(ctx) {
         if (this.active) {
-            drawCircle(ctx, this.pos, this.size / 2, "pink", "black");
+            drawCircle(ctx, this.pos, this.size / 2, "#FFC0CB", "#000");
         }
     }
 }
 
-class ShrapnelBullet extends Bullet {
+export class ShrapnelBullet extends Bullet {
     constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1) {
         super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
         this.type = "shrapnel";
@@ -127,19 +136,19 @@ class ShrapnelBullet extends Bullet {
         this.lifeSpan = 1000;
     }
 
-    update() {
-        super.update();
-        this.angle += 0.1
+    update(deltaTime) {
+        super.update(deltaTime);
+        this.angle += 50
     }
 
     render(ctx) {
         if (this.active) {
-            drawRegPolygon(ctx, this.pos, this.size / 2, 3, "green", "black");
+            drawRegPolygon(ctx, this.pos, this.size / 2, 3, "#32CD32", "#000");
         }
     }
 }
 
-class FireBullet extends Bullet {
+export class FireBullet extends Bullet {
     constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1) {
         super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
         this.type = "default";
@@ -147,13 +156,13 @@ class FireBullet extends Bullet {
         this.lifeSpan = 500;
     }
 
-    update() {
-        super.update();
+    update(deltaTime) {
+        super.update(deltaTime);
     }
 
     render(ctx) {
         if (this.active) {
-            drawCircle(ctx, this.pos, this.size / 2, "orange", "black");
+            drawCircle(ctx, this.pos, this.size / 2, "#FFA500", "#000");
         }
     }
 }

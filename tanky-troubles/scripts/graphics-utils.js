@@ -1,4 +1,4 @@
-import { getVariable } from './global-state.js';
+import { getGlobalVariable } from './global-state.js';
 
 
 
@@ -13,7 +13,7 @@ import { getVariable } from './global-state.js';
 
 // Function to draw a rectangle with optional rounded corners, applying canvas scaling
 export function drawRect(ctx, pos, size, fillColor, strokeColor = null, strokeWidth = 1, borderRadius = 0) {
-    const canvasScale = getVariable("canvasScale");
+    const canvasScale = getGlobalVariable("canvasScale");
 
     // Scale values
     const scaledX = pos.x * canvasScale;
@@ -58,7 +58,7 @@ export function drawRect(ctx, pos, size, fillColor, strokeColor = null, strokeWi
 
 // Function to draw a circle with optional outline, applying canvas scaling
 export function drawCircle(ctx, posCenter, radius, fillColor, strokeColor = null, strokeWidth = 1) {
-    const canvasScale = getVariable("canvasScale");
+    const canvasScale = getGlobalVariable("canvasScale");
 
     const scaledX = posCenter.x * canvasScale;
     const scaledY = posCenter.y * canvasScale;
@@ -78,7 +78,7 @@ export function drawCircle(ctx, posCenter, radius, fillColor, strokeColor = null
 
 // Function to draw a regular polygon with one flat side facing the bottom
 export function drawRegPolygon(ctx, posCenter, radius, n, fillColor, strokeColor = null, strokeWidth = 1) {
-    const canvasScale = getVariable("canvasScale");
+    const canvasScale = getGlobalVariable("canvasScale");
     const angleStep = (Math.PI * 2) / n;  // Angle between each vertex
     const rotationOffset = angleStep / 2;
 
@@ -120,7 +120,7 @@ export function drawRegPolygon(ctx, posCenter, radius, n, fillColor, strokeColor
 
 // Function to draw an arrow (velocity vector) on the canvas, using pos and canvas scaling
 export function drawArrow(ctx, pos, velocity, arrowSize = 5, color = "blue") {
-    const canvasScale = getVariable("canvasScale");
+    const canvasScale = getGlobalVariable("canvasScale");
 
     // Scale the position
     const scaledX = pos.x * canvasScale;

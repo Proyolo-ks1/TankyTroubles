@@ -1,3 +1,8 @@
+import { setGlobalVariable, getGlobalVariable, getAllState } from '../global-state.js';
+import { DefaultBullet, ChaingunBullet, ShotgunBullet, ShrapnelBullet, FireBullet } from './bullet.js';
+
+
+
 //      |====================|
 //      |      POWERUPS      |
 //      |====================|
@@ -22,7 +27,7 @@ class PowerUp {
     }
 }
 
-class NoPowerUp extends PowerUp {
+export class NoPowerUp extends PowerUp {
     constructor(tank) {
         super(tank);
         this.isCharging = false;
@@ -30,18 +35,18 @@ class NoPowerUp extends PowerUp {
     }
 
     press() {
-        this.tank.spawnRelativeBullet(DefaultBullet, { x: 0, y: 0 }, 0, 10);
+        this.tank.spawnRelativeBullet(ShrapnelBullet, { x: this.tank.width, y: 0 }, 0, 500);
     }
 
     hold() {
         // empty
-        const spreadAngle = 20; // Spread angle in degrees
-        const spreadAngleRadians = spreadAngle * (Math.PI / 180);
+        // const spreadAngle = 20; // Spread angle in degrees
+        // const spreadAngleRadians = spreadAngle * (Math.PI / 180);
 
         // let randomNumber = Math.random()
         // let randomBulletAngleOffset = (randomNumber - 0.5) * spreadAngleRadians;
         // randomNumber = Math.random()
-        // this.tank.spawnRelativeBullet(ShrapnelBullet, 100, 0, randomBulletAngleOffset, 10 * (randomNumber + 0.5));
+        // this.tank.spawnRelativeBullet(ShrapnelBullet, { x: this.tank.width, y: 0 }, randomBulletAngleOffset, 500 * (randomNumber + 0.5));
     }
 
     release() {
@@ -49,7 +54,7 @@ class NoPowerUp extends PowerUp {
     }
 }
 
-class ChaingunPowerUp extends PowerUp {
+export class ChaingunPowerUp extends PowerUp {
     constructor(tank) {
         super(tank);
         this.isCharging = false;
@@ -76,7 +81,7 @@ class ChaingunPowerUp extends PowerUp {
     }
 }
 
-class ShotgunPowerUp extends PowerUp {
+export class ShotgunPowerUp extends PowerUp {
     constructor(tank) {
         super(tank);
         this.isCharging = false;

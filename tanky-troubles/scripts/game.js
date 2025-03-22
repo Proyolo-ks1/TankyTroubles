@@ -1,6 +1,7 @@
-import { setVariable, getVariable } from './global-state.js';
+import { setGlobalVariable, getGlobalVariable, getAllState } from './global-state.js';
 import { drawRect, drawCircle, drawRegPolygon, drawArrow} from './graphics-utils.js';
 import { generateMaze} from './generate-maze.js';
+import { Tank } from './classes/tank.js';
 
 
 
@@ -28,7 +29,7 @@ function resizeCanvas() {
 
     // Determine the scale factor to fit the game world inside the canvas
     const scale = Math.min(canvas.width / WORLD_WIDTH, canvas.height / WORLD_HEIGHT)
-    setVariable("canvasScale", scale);
+    setGlobalVariable("canvasScale", scale);
 }
 
 resizeCanvas();
@@ -45,118 +46,7 @@ window.addEventListener("resize", resizeCanvas);
 
 
 
-function drawRoundedRect(x, y, width, height, borderRadius, color) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(x + borderRadius, y);
-    ctx.lineTo(x + width - borderRadius, y);
-    ctx.arcTo(x + width, y, x + width, y + borderRadius, borderRadius);
-    ctx.lineTo(x + width, y + height - borderRadius);
-    ctx.arcTo(x + width, y + height, x + width - borderRadius, y + height, borderRadius);
-    ctx.lineTo(x + borderRadius, y + height);
-    ctx.arcTo(x, y + height, x, y + height - borderRadius, borderRadius);
-    ctx.lineTo(x, y + borderRadius);
-    ctx.arcTo(x, y, x + borderRadius, y, borderRadius);
-    ctx.closePath();
-    ctx.fill();
-}
-
-
-
-
-
-
-//      |=====================|
-//      |      GAME SETUP     |
-//      |=====================|
-
-
-
-let tanks = [];
-let bullets = [];
-
-// Create tanks with position, color, and controls
-let angleSpawn = Math.random() * Math.PI * 2;
-angleSpawn = 0;
-const tank1 = new Tank({ x: WORLD_WIDTH / 4, y: WORLD_HEIGHT / 2 }, angleSpawn, 120, 90, 500, 1, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
-
-angleSpawn = Math.random() * Math.PI * 2;
-angleSpawn = 0;
-const tank2 = new Tank({ x: WORLD_WIDTH - WORLD_WIDTH / 4, y: WORLD_HEIGHT / 2 }, angleSpawn, 120, 90, 500, 1, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
-
-// Handle key events
-window.addEventListener("keydown", (e) => {
-    let handled = false;
-    
-    tanks.forEach(tank => {
-        if (e.key === tank.controls.up) {
-            tank.keys.up = true;
-            handled = true;
-        }
-        if (e.key === tank.controls.down) {
-            tank.keys.down = true;
-            handled = true;
-        }
-        if (e.key === tank.controls.left) {
-            tank.keys.left = true;
-            handled = true;
-        }
-        if (e.key === tank.controls.right) {
-            tank.keys.right = true;
-            handled = true;
-        }
-        
-        if (e.key === tank.controls.shoot) {
-            if (!tank.keys.shoot) {  // To prevent multiple triggers
-                tank.keys.shoot = true;
-                tank.shootPress();
-            }
-            handled = true;
-        }
-    });
-
-    if (handled) e.preventDefault(); // Prevent scrolling only if a movement or shoot key was pressed
-});
-
-window.addEventListener("keyup", (e) => {
-    tanks.forEach(tank => {
-        if (e.key === tank.controls.up) tank.keys.up = false;
-        if (e.key === tank.controls.down) tank.keys.down = false;
-        if (e.key === tank.controls.left) tank.keys.left = false;
-        if (e.key === tank.controls.right) tank.keys.right = false;
-        if (e.key === tank.controls.shoot) {
-            tank.keys.shoot = false;
-            tank.shootRelease();
-        }
-    });
-});
-
-
-
-
-
-
-//      |=================================|
-//      |      GAME LOOP PREPERATION      |
-//      |=================================|
-
-
-
-// Settings
-let powerUpSpawnPeriod = 1; // seconds 
-let powerUpSpawnChance = 1;
-
-// Support Variables
-let lastTime = performance.now();
-let lastRenderStatisticsTime = performance.now();
-let lastPowerUpSpawnTime = 0;
-let overlayFps = 0;
-let overlayDeltaTime = 0;
-let statisticUpdatesPerSecond = 6
-
-let Maze = generateMaze()
-
-function updateStatistics(currentTime, deltaTime) {
+function updateStatistics(currentTime, deltaTime, tanks, bullets) {
     // Calculate FPS with smoothing
     const fps = (overlayFps * 0.8) + (1 / deltaTime * 0.2);
 
@@ -170,7 +60,7 @@ function updateStatistics(currentTime, deltaTime) {
     // Overlay settings
     const padding = 10;
     const width = 300;
-    const linesOfText = 3;
+    const linesOfText = 4;
     const height = padding + linesOfText * 50;
     const pos = { x: 5, y: 5 };
     const size = { width: width, height: height };
@@ -180,14 +70,16 @@ function updateStatistics(currentTime, deltaTime) {
     drawRect(ctx, pos, size, "rgba(0, 0, 0, 0.5)", null, null, borderRadius);
 
     // Draw overlay text
-    ctx.fillStyle = "#fff"; // White text
-    ctx.font = "16px Arial";
-    ctx.fillText(`FPS: ${overlayFps.toFixed(0)}`, pos.x + padding, pos.y + 20);
-    ctx.fillText(`ΔTime: ${overlayDeltaTime.toFixed(3)}s`, pos.x + padding, pos.y + 40);
+    ctx.fillStyle = "#fff";
+    ctx.font = "16px Consolas";
+    
+    const canvasScale = getGlobalVariable("canvasScale");
 
-    // Display canvasScaler values
-    const canvasScale = getVariable("canvasScale");
-    ctx.fillText(`Scale: ${canvasScale.toFixed(2)}`, pos.x + padding, pos.y + 60);
+    ctx.fillText(`FPS:     ${overlayFps.toFixed(0)}`, pos.x + padding, pos.y + 20);
+    ctx.fillText(`ΔTime:   ${overlayDeltaTime.toFixed(3)}s`, pos.x + padding, pos.y + 40);
+    ctx.fillText(`Scale:   ${canvasScale.toFixed(2)}`, pos.x + padding, pos.y + 60);
+    ctx.fillText(`tanks:   ${tanks.length}`, pos.x + padding, pos.y + 80);
+    ctx.fillText(`bullets: ${bullets.length}`, pos.x + padding, pos.y + 100);
 }
 
 // Function to render the background theme and maze
@@ -242,6 +134,51 @@ function spawnPowerUp() {
 
 
 //      |=====================|
+//      |      GAME SETUP     |
+//      |=====================|
+
+
+
+// Create tanks with position, color, and controls
+let angleSpawn = Math.random() * Math.PI * 2;
+angleSpawn = 0;
+new Tank({ x: WORLD_WIDTH / 4, y: WORLD_HEIGHT / 2 }, angleSpawn, 120, 90, 500, 1, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
+
+angleSpawn = Math.random() * Math.PI * 2;
+angleSpawn = 0;
+new Tank({ x: WORLD_WIDTH - WORLD_WIDTH / 4, y: WORLD_HEIGHT / 2 }, angleSpawn, 120, 90, 500, 1, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
+
+
+
+
+
+
+//      |=================================|
+//      |      GAME LOOP PREPERATION      |
+//      |=================================|
+
+
+
+// Settings
+let powerUpSpawnPeriod = 1; // seconds 
+let powerUpSpawnChance = 1;
+
+// Support Variables
+let lastTime = performance.now();
+let lastRenderStatisticsTime = performance.now();
+let lastPowerUpSpawnTime = 0;
+let overlayFps = 0;
+let overlayDeltaTime = 0;
+let statisticUpdatesPerSecond = 6
+
+let Maze = generateMaze()
+
+
+
+
+
+
+//      |=====================|
 //      |      GAME LOOP      |
 //      |=====================|
 
@@ -257,18 +194,26 @@ function gameLoop(currentTime) {
     renderBackground();
 
     // Update and render tanks and bullets
+    const tanks = getGlobalVariable("tanks") || [];
     tanks.forEach(tank => {
         tank.update(deltaTime);
         tank.render(ctx);
+        if (getGlobalVariable("debugMode")) {
+            tank.debugRender(ctx);
+        }
     });
 
+    const bullets = getGlobalVariable("bullets") || [];
     bullets.forEach(bullet => {
         bullet.update(deltaTime);
         bullet.render(ctx);
+        if (getGlobalVariable("debugMode")) {
+            bullet.debugRender(ctx);
+        }
     });
 
-    updateGame(currentTime);
-    updateStatistics(currentTime, deltaTime);
+    // updateGame(currentTime);
+    updateStatistics(currentTime, deltaTime, tanks, bullets);
     
     lastTime = currentTime;
     requestAnimationFrame(gameLoop);  // Continue the game loop 

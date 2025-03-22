@@ -1,10 +1,13 @@
+import { setGlobalVariable, getGlobalVariable, getAllState } from '../global-state.js';
+
+
 //      |===================|
 //      |      SHOOTER      |
 //      |===================|
 
 
 
-class Shooter {
+export class Shooter {
     static shooterCount = 0;
 
     constructor(posSpawn = { x: 0, y: 0 }, angle = 0) {

@@ -16,7 +16,7 @@ const state = {
 
 
 // Function to update a global variable dynamically
-export function setVariable(variableName, value) {
+export function setGlobalVariable(variableName, value) {
     if (state.hasOwnProperty(variableName)) {
         state[variableName] = value;
     } else {
@@ -25,7 +25,7 @@ export function setVariable(variableName, value) {
 }
 
 // Function to get a global variable dynamically
-export function getVariable(variableName) {
+export function getGlobalVariable(variableName) {
     if (state.hasOwnProperty(variableName)) {
         return state[variableName];
     } else {

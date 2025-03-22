@@ -1,9 +1,11 @@
+import { setGlobalVariable, getGlobalVariable, getAllState } from '../global-state.js';
+import { drawRect, drawCircle, drawRegPolygon, drawArrow} from '../graphics-utils.js';
 import { Shooter } from './shooter.js';
-import { NoPowerUp, ChaingunPowerUp, ShotgunPowerUp } from './powerUp.js';
+import { NoPowerUp, ChaingunPowerUp, ShotgunPowerUp } from './power-up.js';
 
 
 
-class Tank extends Shooter {
+export class Tank extends Shooter {
     static tankCount = 0;
 
     constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, length = 120, width = length * 0.75, speed = 5, turningSpeed = 1, color = "#555", controls = { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }) {
@@ -24,7 +26,53 @@ class Tank extends Shooter {
         this.ammo = -1;            // -1 means infinite "default" ammo
         this.health = 1;
 
+        // Get current tanks array, add new tank, and update state
+        const tanks = getGlobalVariable("tanks"); 
         tanks.push(this);
+        setGlobalVariable("tanks", tanks);
+
+        // Bind the event handlers for keydown and keyup
+        this.handleKeyDown = this.handleKeyDown.bind(this);
+        this.handleKeyUp = this.handleKeyUp.bind(this);
+
+        // Add event listeners to listen for key events for each tank
+        window.addEventListener("keydown", this.handleKeyDown);
+        window.addEventListener("keyup", this.handleKeyUp);
+    }
+
+    // Keydown event handler
+    handleKeyDown(e) {
+        if (e.key === this.controls.up) {
+            this.keys.up = true;
+        }
+        if (e.key === this.controls.down) {
+            this.keys.down = true;
+        }
+        if (e.key === this.controls.left) {
+            this.keys.left = true;
+        }
+        if (e.key === this.controls.right) {
+            this.keys.right = true;
+        }
+        if (e.key === this.controls.shoot) {
+            if (!this.keys.shoot) {  // Prevent multiple triggers
+                this.keys.shoot = true;
+                this.shootPress();
+            }
+        }
+        e.preventDefault();  // Prevent default behavior (e.g., scrolling)
+    }
+
+    // Keyup event handler
+    handleKeyUp(e) {
+        if (e.key === this.controls.up) this.keys.up = false;
+        if (e.key === this.controls.down) this.keys.down = false;
+        if (e.key === this.controls.left) this.keys.left = false;
+        if (e.key === this.controls.right) this.keys.right = false;
+        if (e.key === this.controls.shoot) {
+            this.keys.shoot = false;
+            this.shootRelease();
+        }
     }
     
     shootPress() {
@@ -71,11 +119,11 @@ class Tank extends Shooter {
     }
 
     // render tank
-    render() {
+    render(ctx) {
         ctx.save();
 
         // Transform to fit the game world into the canvas and have local tank coordinates and rotation
-        const canvasScale = getVariable("canvasScale");
+        const canvasScale = getGlobalVariable("canvasScale");
         const pos = this.pos;
         const size = { width: this.length, height: this.width }; // Defining the size object for the tank body
         
@@ -94,5 +142,14 @@ class Tank extends Shooter {
         drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.color, "black", 5);
 
         ctx.restore();
+    }
+
+    debugRender(ctx) {
+        console.log("debugRender(ctx)")
+        if (this.active) {
+            console.log("if (this.active)")
+            drawArrow(ctx, this.pos, this.velocity, 5, "#0000FF");
+            console.log("debug Arrow ->")
+        }
     }
 }
