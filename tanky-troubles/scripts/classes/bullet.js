@@ -55,6 +55,8 @@ class Bullet extends Shooter {
         }
     }
 
+
+
     render(ctx) {
         if (this.active) {
             drawCircle(ctx, this.pos, this.size / 2, "#000", "#000");
@@ -62,11 +64,8 @@ class Bullet extends Shooter {
     }
 
     debugRender(ctx) {
-        console.log("debugRender(ctx)")
         if (this.active) {
-            console.log("if (this.active)")
-            drawArrow(ctx, this.pos, this.velocity, 5, "#0000FF");
-            console.log("debug Arrow ->")
+            drawArrow(ctx, this.pos, this.velocity, 50, "#0000FF");
         }
     }
 }
@@ -94,7 +93,7 @@ export class ChaingunBullet extends Bullet {
     constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1) {
         super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
         this.type = "chaingun";
-        this.size = scale * 15;
+        this.size = scale * 10;
         this.lifeSpan = 1500;
     }
 
@@ -112,7 +111,7 @@ export class ChaingunBullet extends Bullet {
 export class ShotgunBullet extends Bullet {
     constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1) {
         super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
-        this.type = "chaingun";
+        this.type = "shotgun";
         this.size = scale * 25;
         this.lifeSpan = 1500;
     }
@@ -151,9 +150,29 @@ export class ShrapnelBullet extends Bullet {
 export class FireBullet extends Bullet {
     constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1) {
         super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
-        this.type = "default";
+        this.type = "fire";
         this.size = scale * 25;
         this.lifeSpan = 500;
+    }
+
+    update(deltaTime) {
+        super.update(deltaTime);
+        this.size = this.size * 0.99;
+    }
+
+    render(ctx) {
+        if (this.active) {
+            drawCircle(ctx, this.pos, this.size / 2, "#FFA500", "#000");
+        }
+    }
+}
+
+export class HomingMissle extends Bullet {
+    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1) {
+        super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
+        this.type = "fire";
+        this.size = scale * 25;
+        this.lifeSpan = 5000;
     }
 
     update(deltaTime) {
@@ -162,7 +181,7 @@ export class FireBullet extends Bullet {
 
     render(ctx) {
         if (this.active) {
-            drawCircle(ctx, this.pos, this.size / 2, "#FFA500", "#000");
+            
         }
     }
 }

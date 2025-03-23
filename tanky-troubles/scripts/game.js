@@ -216,7 +216,11 @@ function gameLoop(currentTime) {
     updateStatistics(currentTime, deltaTime, tanks, bullets);
     
     lastTime = currentTime;
-    requestAnimationFrame(gameLoop);  // Continue the game loop 
+
+    // Simulate low FPS
+    const simFPS = 10;
+    const frameDelay = 1000 / simFPS;
+    setTimeout(() => requestAnimationFrame(gameLoop), frameDelay);
 }
 
 gameLoop();

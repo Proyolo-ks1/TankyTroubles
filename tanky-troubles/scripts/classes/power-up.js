@@ -35,18 +35,18 @@ export class NoPowerUp extends PowerUp {
     }
 
     press() {
-        this.tank.spawnRelativeBullet(ShrapnelBullet, { x: this.tank.width, y: 0 }, 0, 500);
+        this.tank.spawnRelativeBullet(DefaultBullet, { x: this.tank.width, y: 0 }, 0, 500);
     }
 
     hold() {
         // empty
-        // const spreadAngle = 20; // Spread angle in degrees
-        // const spreadAngleRadians = spreadAngle * (Math.PI / 180);
+        const spreadAngle = 20; // Spread angle in degrees
+        const spreadAngleRadians = spreadAngle * (Math.PI / 180);
 
-        // let randomNumber = Math.random()
-        // let randomBulletAngleOffset = (randomNumber - 0.5) * spreadAngleRadians;
-        // randomNumber = Math.random()
-        // this.tank.spawnRelativeBullet(ShrapnelBullet, { x: this.tank.width, y: 0 }, randomBulletAngleOffset, 500 * (randomNumber + 0.5));
+        let randomNumber = Math.random()
+        let randomBulletAngleOffset = (randomNumber - 0.5) * spreadAngleRadians;
+        randomNumber = Math.random()
+        this.tank.spawnRelativeBullet(ShrapnelBullet, { x: this.tank.width, y: 0 }, randomBulletAngleOffset, 500 * (randomNumber + 0.5));
     }
 
     release() {
@@ -58,26 +58,49 @@ export class ChaingunPowerUp extends PowerUp {
     constructor(tank) {
         super(tank);
         this.isCharging = false;
-        this.chargeStartTime = 0;
+        this.fireRate = 10; // Bullets per second
+        this.fireRateCooldown = 1 / this.fireRate; // Time between shots in seconds
+        this.timeSinceLastShot = 0; // Tracks time since last bullet
     }
 
     press() {
         // Start charging the chaingun when the button is pressed
         this.isCharging = true;
-        this.chargeStartTime = Date.now();
+        this.timeSinceLastShot = 0; // Reset firing timer
+        this.tank.spawnRelativeBullet(DefaultBullet, { x: this.tank.width, y: 0 }, 0, 500);
     }
 
-    hold() {
-        // If holding for more than 1 second, start rapid firing bullets
-        if (this.isCharging && Date.now() - this.chargeStartTime > 1000) {
-            this.tank.spawnRelativeBullet(ChaingunBullet, relX = 0, relY = 0, relAngle = 0, speed = 10);
+    hold(deltaTime) {
+        if (!this.isCharging) return;
+        console.log(deltaTime);
+
+        this.timeSinceLastShot += deltaTime; // Accumulate time
+
+        while (this.timeSinceLastShot > this.fireRateCooldown) { 
+            this.timeSinceLastShot -= this.fireRateCooldown; // Reduce accumulated time
+
+            // Calculate compensation distance
+            const extraTravelTime = this.timeSinceLastShot; // Time bullet is "late"
+            const bulletSpeed = 500; // Example speed in pixels per second
+            const extraDistance = bulletSpeed * extraTravelTime;
+
+            // Get initial bullet position
+            const spawnPos = { x: this.tank.width, y: 0 }; 
+
+            // Move bullet forward to compensate for delay
+            const angle = this.tank.angle; // Assuming tank has an angle
+            const compensatedPos = {
+                x: spawnPos.x + Math.cos(angle) * extraDistance,
+                y: spawnPos.y + Math.sin(angle) * extraDistance
+            };
+
+            // Fire the bullet at the corrected position
+            this.tank.spawnRelativeBullet(ChaingunBullet, compensatedPos, 0, bulletSpeed);
         }
     }
 
     release() {
-        // Reset the power-up after releasing the button
         this.isCharging = false;
-        this.tank.powerup = new NoPowerUp(this.tank); // Reset to default power-up
     }
 }
 
@@ -96,7 +119,8 @@ export class ShotgunPowerUp extends PowerUp {
         for (let i = 0; i < numBullets; i++) {
             // Randomize the angle offset for each bullet
             let randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
-            this.tank.spawnRelativeBullet(ShotgunBullet, 0, 0, randomBulletAngleOffset, 10);
+            let randomSpeedOffset = (Math.random() - 0.5) * 100
+            this.tank.spawnRelativeBullet(ShotgunBullet, { x: this.tank.width, y: 0 }, randomBulletAngleOffset, 500 + randomSpeedOffset);
         }
     }
 
@@ -106,14 +130,32 @@ export class ShotgunPowerUp extends PowerUp {
 
     release() {
         // empty
-        const numBullets = 20;
+    }
+}
+
+export class FlameThrowerPowerUp extends PowerUp {
+    constructor(tank) {
+        super(tank);
+        this.isCharging = false;
+        this.chargeStartTime = 0;
+    }
+
+    press() {
+        this.tank.spawnRelativeBullet(FireBullet, { x: this.tank.width, y: 0 }, 0, 500);
+    }
+
+    hold() {
+        // empty
         const spreadAngle = 20; // Spread angle in degrees
         const spreadAngleRadians = spreadAngle * (Math.PI / 180);
-        
-        for (let i = 0; i < numBullets; i++) {
-            // Randomize the angle offset for each bullet
-            let randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
-            this.tank.spawnRelativeBullet(ShrapnelBullet, 0, 0, randomBulletAngleOffset, 10);
-        }
+
+        let randomNumber = Math.random()
+        let randomBulletAngleOffset = (randomNumber - 0.5) * spreadAngleRadians;
+        randomNumber = Math.random()
+        this.tank.spawnRelativeBullet(FireBullet, { x: this.tank.width, y: 0 }, randomBulletAngleOffset, 500 * (randomNumber + 0.5));
+    }
+
+    release() {
+        // empty
     }
 }

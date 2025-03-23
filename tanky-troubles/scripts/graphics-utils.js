@@ -127,8 +127,8 @@ export function drawArrow(ctx, pos, velocity, arrowSize = 5, color = "blue") {
     const scaledY = pos.y * canvasScale;
 
     // Calculate the arrow tip position (scaled)
-    const arrowTipX = scaledX + velocity.vx * canvasScale;
-    const arrowTipY = scaledY + velocity.vy * canvasScale;
+    const arrowTipX = scaledX + 0.2 * velocity.vx * canvasScale;
+    const arrowTipY = scaledY + 0.2 * velocity.vy * canvasScale;
 
     // Draw the velocity vector as a line (scaled)
     ctx.beginPath();

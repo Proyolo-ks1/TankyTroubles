@@ -21,8 +21,8 @@ export class Shooter {
         // Dynamically get the class name of the current shooter
         const shooterType = this.constructor.name;
         const shooterId = this.id !== undefined ? this.id : 'N/A';
-
-        console.log(`%c${shooterType} ${shooterId}: spawnRelativeBullet(BulletClass = ${BulletClass.name}, relPos = ${JSON.stringify(relPos)}, relAngle = ${relAngle}, speed = ${speed}, scale = ${scale})`, "color: green;");
+        
+        console.log(`%cBullet Spawned: ${BulletClass.name}, ${speed}px/s, scale = ${scale})`, "color: #00FF00;");
 
         // Calculate the absolute position relative to the shooter's position and angle
         const absX = this.pos.x + Math.cos(this.angle) * relPos.x - Math.sin(this.angle) * relPos.y;

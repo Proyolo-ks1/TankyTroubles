@@ -1,7 +1,7 @@
 import { setGlobalVariable, getGlobalVariable, getAllState } from '../global-state.js';
 import { drawRect, drawCircle, drawRegPolygon, drawArrow} from '../graphics-utils.js';
 import { Shooter } from './shooter.js';
-import { NoPowerUp, ChaingunPowerUp, ShotgunPowerUp } from './power-up.js';
+import { NoPowerUp, ChaingunPowerUp, ShotgunPowerUp, FlameThrowerPowerUp } from './power-up.js';
 
 
 
@@ -20,8 +20,7 @@ export class Tank extends Shooter {
         this.color = color;
         this.controls = controls;
         this.keys = { up: false, down: false, left: false, right: false };
-        this.weaponClass = NoPowerUp;
-        this.weapon = new NoPowerUp(this); // Default weapon
+        this.weapon = new ChaingunPowerUp(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
         this.health = 1;
@@ -79,8 +78,8 @@ export class Tank extends Shooter {
         this.weapon.press();
     }
 
-    shootHold() {
-        this.weapon.hold();
+    shootHold(deltaTime) {
+        this.weapon.hold(deltaTime);
     }
     
     shootRelease() {
@@ -95,7 +94,7 @@ export class Tank extends Shooter {
     update(deltaTime) {
         // Shoot Held down
         if (this.keys.shoot) {
-            this.shootHold();
+            this.shootHold(deltaTime);
         }
 
         // Rotation - Turning
@@ -145,11 +144,8 @@ export class Tank extends Shooter {
     }
 
     debugRender(ctx) {
-        console.log("debugRender(ctx)")
         if (this.active) {
-            console.log("if (this.active)")
             drawArrow(ctx, this.pos, this.velocity, 5, "#0000FF");
-            console.log("debug Arrow ->")
         }
     }
 }
