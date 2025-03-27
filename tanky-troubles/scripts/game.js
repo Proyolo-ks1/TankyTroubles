@@ -2,6 +2,7 @@ import { setGlobalVariable, getGlobalVariable, getAllState } from './global-stat
 import { drawRect, drawCircle, drawRegPolygon, drawArrow} from './graphics-utils.js';
 import { generateMaze} from './generate-maze.js';
 import { Tank } from './classes/tank.js';
+import { preloadImages, rescaleImages, getImage } from "./asset-handler.js";
 
 
 
@@ -128,6 +129,15 @@ function spawnPowerUp() {
     console.log(`%cspawnPowerUp() (${spawns})`, "color: lime; font-weight: bold;");
 }
 
+async function startGame() {
+    await preloadImages(); // Load images before the game starts
+    rescaleImages(0.5);  // Example scale
+
+    // Example usage:
+    const missileImage = getImage("projectile", "missile");
+    console.log(missileImage); // Should log the cached scaled image
+}
+
 
 
 
@@ -172,6 +182,8 @@ let overlayDeltaTime = 0;
 let statisticUpdatesPerSecond = 6
 
 let Maze = generateMaze()
+
+startGame();
 
 
 
@@ -218,7 +230,7 @@ function gameLoop(currentTime) {
     lastTime = currentTime;
 
     // Simulate low FPS
-    const simFPS = 10;
+    const simFPS = 60;
     const frameDelay = 1000 / simFPS;
     setTimeout(() => requestAnimationFrame(gameLoop), frameDelay);
 }

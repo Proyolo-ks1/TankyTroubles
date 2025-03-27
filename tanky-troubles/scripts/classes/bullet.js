@@ -181,7 +181,7 @@ export class HomingMissle extends Bullet {
 
     render(ctx) {
         if (this.active) {
-            
+            drawCircle(ctx, this.pos, this.size / 2, "#ffffff", "#000");
         }
     }
 }
