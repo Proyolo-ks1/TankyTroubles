@@ -2,7 +2,7 @@ import { setGlobalVariable, getGlobalVariable, getAllState } from './global-stat
 import { drawRect, drawCircle, drawRegPolygon, drawArrow} from './graphics-utils.js';
 import { generateMaze} from './generate-maze.js';
 import { Tank } from './classes/tank.js';
-import { preloadImages, rescaleImages, getImage } from "./asset-handler.js";
+// import { preloadImages, rescaleImages, getImage } from "./asset-handler.js";
 
 
 
@@ -85,9 +85,7 @@ function updateStatistics(currentTime, deltaTime, tanks, bullets) {
 
 // Function to render the background theme and maze
 function renderBackground() {
-    let a = Maze
-
-    const tileSize = a; // Define the size of each square tile
+    const tileSize = Maze; // Define the size of each square tile
 
     // Loop through the rows and columns to draw the checkerboard pattern
     for (let row = 0; row < Math.ceil(WORLD_HEIGHT / tileSize); row++) {
@@ -129,13 +127,30 @@ function spawnPowerUp() {
     console.log(`%cspawnPowerUp() (${spawns})`, "color: lime; font-weight: bold;");
 }
 
-async function startGame() {
-    await preloadImages(); // Load images before the game starts
-    rescaleImages(0.5);  // Example scale
+// async function startGame() {
+//     await preloadImages(); // Load images before the game starts
+//     rescaleImages(0.5);  // Example scale
 
-    // Example usage:
-    const missileImage = getImage("projectile", "missile");
-    console.log(missileImage); // Should log the cached scaled image
+//     // Example usage:
+//     const missileImage = getImage("projectile", "missile");
+//     console.log(missileImage); // Should log the cached scaled image
+// }
+
+// Function to clean up inactive bullets
+function cleanupInactiveBullets(bullets) {
+    if (bullets.length === 0) {
+        return;  // Exit early if the array is empty
+    }
+    
+    let i = 0;
+    while (i < bullets.length) {
+        if (!bullets[i].active) {
+            bullets.splice(i, 1);  // Remove inactive bullet
+        } else {
+            i++;  // Only increment if bullet is active
+        }
+    }
+    setGlobalVariable("bullets", bullets);  // Update the global bullets array
 }
 
 
@@ -151,12 +166,12 @@ async function startGame() {
 
 // Create tanks with position, color, and controls
 let angleSpawn = Math.random() * Math.PI * 2;
-angleSpawn = 0;
-new Tank({ x: WORLD_WIDTH / 4, y: WORLD_HEIGHT / 2 }, angleSpawn, 120, 90, 500, 1, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
+// angleSpawn = 0;
+new Tank({ x: WORLD_WIDTH / 4, y: WORLD_HEIGHT / 2 }, angleSpawn, 120, 90, 500 * 1, 1, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
 
 angleSpawn = Math.random() * Math.PI * 2;
-angleSpawn = 0;
-new Tank({ x: WORLD_WIDTH - WORLD_WIDTH / 4, y: WORLD_HEIGHT / 2 }, angleSpawn, 120, 90, 500, 1, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
+// angleSpawn = 0;
+new Tank({ x: WORLD_WIDTH - WORLD_WIDTH / 4, y: WORLD_HEIGHT / 2 }, angleSpawn, 120, 90, 500 * 1, 1, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
 
 
 
@@ -183,7 +198,7 @@ let statisticUpdatesPerSecond = 6
 
 let Maze = generateMaze()
 
-startGame();
+// startGame();
 
 
 
@@ -205,6 +220,15 @@ function gameLoop(currentTime) {
 
     renderBackground();
 
+    const bullets = getGlobalVariable("bullets") || [];
+    bullets.forEach(bullet => {
+        bullet.update(deltaTime);
+        bullet.render(ctx);
+        if (getGlobalVariable("debugMode")) {
+            bullet.debugRender(ctx);
+        }
+    });
+
     // Update and render tanks and bullets
     const tanks = getGlobalVariable("tanks") || [];
     tanks.forEach(tank => {
@@ -214,15 +238,9 @@ function gameLoop(currentTime) {
             tank.debugRender(ctx);
         }
     });
-
-    const bullets = getGlobalVariable("bullets") || [];
-    bullets.forEach(bullet => {
-        bullet.update(deltaTime);
-        bullet.render(ctx);
-        if (getGlobalVariable("debugMode")) {
-            bullet.debugRender(ctx);
-        }
-    });
+    
+    // Cleanup inactive bullets (every frame)
+    cleanupInactiveBullets(bullets);
 
     // updateGame(currentTime);
     updateStatistics(currentTime, deltaTime, tanks, bullets);

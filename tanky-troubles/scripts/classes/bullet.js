@@ -1,4 +1,4 @@
-import { setGlobalVariable, getGlobalVariable, getAllState } from '../global-state.js';
+import { setGlobalVariable, getGlobalVariable } from '../global-state.js';
 import { drawRect, drawCircle, drawRegPolygon, drawArrow} from '../graphics-utils.js';
 import { Shooter } from './shooter.js';
 
@@ -34,7 +34,6 @@ class Bullet extends Shooter {
     }
 
     update(deltaTime) {
-
         // Position
         this.pos.x += this.velocity.vx * deltaTime;
         this.pos.y += this.velocity.vy * deltaTime;
@@ -103,7 +102,7 @@ export class ChaingunBullet extends Bullet {
 
     render(ctx) {
         if (this.active) {
-            drawCircle(ctx, this.pos, this.size / 2, "#40E0D0", "#000");
+            drawCircle(ctx, this.pos, this.size / 2, "#333", "#000");
         }
     }
 }

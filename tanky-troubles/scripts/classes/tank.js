@@ -1,7 +1,7 @@
-import { setGlobalVariable, getGlobalVariable, getAllState } from '../global-state.js';
+import { setGlobalVariable, getGlobalVariable } from '../global-state.js';
 import { drawRect, drawCircle, drawRegPolygon, drawArrow} from '../graphics-utils.js';
 import { Shooter } from './shooter.js';
-import { NoPowerUp, ChaingunPowerUp, ShotgunPowerUp, FlameThrowerPowerUp } from './power-up.js';
+import { NoPowerUp, Chaingun, Shotgun, FlameThrower, ExperimentalPowerUp } from './power-up.js';
 
 
 
@@ -20,7 +20,7 @@ export class Tank extends Shooter {
         this.color = color;
         this.controls = controls;
         this.keys = { up: false, down: false, left: false, right: false };
-        this.weapon = new ChaingunPowerUp(this); // Default weapon
+        this.weapon = new NoPowerUp(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
         this.health = 1;

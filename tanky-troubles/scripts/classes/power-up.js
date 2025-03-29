@@ -1,4 +1,4 @@
-import { setGlobalVariable, getGlobalVariable, getAllState } from '../global-state.js';
+import { setGlobalVariable, getGlobalVariable } from '../global-state.js';
 import { DefaultBullet, ChaingunBullet, ShotgunBullet, ShrapnelBullet, FireBullet } from './bullet.js';
 
 
@@ -40,13 +40,6 @@ export class NoPowerUp extends PowerUp {
 
     hold() {
         // empty
-        const spreadAngle = 20; // Spread angle in degrees
-        const spreadAngleRadians = spreadAngle * (Math.PI / 180);
-
-        let randomNumber = Math.random()
-        let randomBulletAngleOffset = (randomNumber - 0.5) * spreadAngleRadians;
-        randomNumber = Math.random()
-        this.tank.spawnRelativeBullet(ShrapnelBullet, { x: this.tank.width, y: 0 }, randomBulletAngleOffset, 500 * (randomNumber + 0.5));
     }
 
     release() {
@@ -54,11 +47,11 @@ export class NoPowerUp extends PowerUp {
     }
 }
 
-export class ChaingunPowerUp extends PowerUp {
+export class Chaingun extends PowerUp {
     constructor(tank) {
         super(tank);
         this.isCharging = false;
-        this.fireRate = 10; // Bullets per second
+        this.fireRate = 20; // Bullets per second
         this.fireRateCooldown = 1 / this.fireRate; // Time between shots in seconds
         this.timeSinceLastShot = 0; // Tracks time since last bullet
     }
@@ -72,7 +65,7 @@ export class ChaingunPowerUp extends PowerUp {
 
     hold(deltaTime) {
         if (!this.isCharging) return;
-        console.log(deltaTime);
+        // console.log(deltaTime);
 
         this.timeSinceLastShot += deltaTime; // Accumulate time
 
@@ -104,7 +97,7 @@ export class ChaingunPowerUp extends PowerUp {
     }
 }
 
-export class ShotgunPowerUp extends PowerUp {
+export class Shotgun extends PowerUp {
     constructor(tank) {
         super(tank);
         this.isCharging = false;
@@ -133,7 +126,7 @@ export class ShotgunPowerUp extends PowerUp {
     }
 }
 
-export class FlameThrowerPowerUp extends PowerUp {
+export class FlameThrower extends PowerUp {
     constructor(tank) {
         super(tank);
         this.isCharging = false;
@@ -153,6 +146,33 @@ export class FlameThrowerPowerUp extends PowerUp {
         let randomBulletAngleOffset = (randomNumber - 0.5) * spreadAngleRadians;
         randomNumber = Math.random()
         this.tank.spawnRelativeBullet(FireBullet, { x: this.tank.width, y: 0 }, randomBulletAngleOffset, 500 * (randomNumber + 0.5));
+    }
+
+    release() {
+        // empty
+    }
+}
+
+export class ExperimentalPowerUp extends PowerUp {
+    constructor(tank) {
+        super(tank);
+        this.isCharging = false;
+        this.chargeStartTime = 0;
+    }
+
+    press() {
+        this.tank.spawnRelativeBullet(DefaultBullet, { x: this.tank.width, y: 0 }, 0, 500);
+    }
+
+    hold() {
+        // empty
+        const spreadAngle = 20; // Spread angle in degrees
+        const spreadAngleRadians = spreadAngle * (Math.PI / 180);
+
+        let randomNumber = Math.random()
+        let randomBulletAngleOffset = (randomNumber - 0.5) * spreadAngleRadians;
+        randomNumber = Math.random()
+        this.tank.spawnRelativeBullet(ShrapnelBullet, { x: this.tank.width, y: 0 }, randomBulletAngleOffset, 500 * (randomNumber + 0.5));
     }
 
     release() {

@@ -1,8 +1,8 @@
 // Define a state object to hold all global variables
 const state = {
+    debugMode: false,
     canvasScale: 1,
     tileSize: 0,
-    debugMode: true,
     tanks: [],
     bullets: [],
 };
@@ -19,6 +19,11 @@ const state = {
 export function setGlobalVariable(variableName, value) {
     if (state.hasOwnProperty(variableName)) {
         state[variableName] = value;
+        if (Array.isArray(value)) {
+            console.log(`Variable '${variableName}' has been updated. New length: ${value.length}`);
+        } else {
+            console.log(`Variable '${variableName}' has been updated to: ${value}`);
+        }
     } else {
         console.error(`Unknown variable: ${variableName}`);
     }
