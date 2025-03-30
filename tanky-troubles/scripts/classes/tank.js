@@ -1,5 +1,5 @@
 import { setGlobalVariable, getGlobalVariable } from '../global-state.js';
-import { drawRect, drawCircle, drawText, drawRegPolygon, drawArrow} from '../graphics-utils.js';
+import { drawRect, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../graphics-utils.js';
 import { Shooter } from './shooter.js';
 import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ExperimentalWeapon, ShrepnalBombWeapon } from './weapons.js';
 
@@ -154,21 +154,15 @@ export class Tank extends Shooter {
     }
 
     debugRender(ctx) {
-        if (this.active) {
-            // Velocity Arrow
-            const endPos = {
-                x: this.pos.x + this.velocity.x / 4, 
-                y: this.pos.y + this.velocity.y / 4
-            };
-            drawArrow(ctx, this.pos, endPos, 50, Math.PI / 6, "#0000FF", 2);
+        // Velocity Arrow
+        drawVectorArrow(ctx, this.pos, this.velocity, "#0000FF", 2);
 
-            // Heading Line
-            const headingLength = 50; // Adjust this value to control the length of the heading line
-            const headingX = this.pos.x + Math.cos(this.angle) * headingLength;
-            const headingY = this.pos.y + Math.sin(this.angle) * headingLength;
+        // Heading Line
+        const headingLength = 50; // Adjust this value to control the length of the heading line
+        const headingX = this.pos.x + Math.cos(this.angle) * headingLength;
+        const headingY = this.pos.y + Math.sin(this.angle) * headingLength;
 
-            // Draw the heading line
-            drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#FF0000", 2); // Red color for the heading line
-        }
+        // Draw the heading line
+        drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#FF0000", 2); // Red color for the heading line
     }
 }

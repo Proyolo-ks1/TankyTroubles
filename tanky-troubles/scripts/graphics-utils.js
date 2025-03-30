@@ -166,8 +166,16 @@ export function drawLine(ctx, startPos, endPos, strokeColor = "#000000", strokeW
     ctx.stroke();
 }
 
-export function drawArrow(ctx, startPos, endPos, arrowHeadLength = 20, arrowAngle = Math.PI / 6, strokeColor = "#000000", strokeWidth = 1) {
+export function drawVectorArrow(ctx, startPos, vector, strokeColor = "#000000", strokeWidth = 1) {
     const canvasScale = getGlobalVariable("canvasScale");
+
+    
+    const endPos = {
+        x: startPos.x + vector.x / 4, 
+        y: startPos.y + vector.y / 4
+    };
+    const arrowAngle = Math.PI / 6
+    const arrowHeadLength = Math.sqrt(vector.x ** 2 + vector.y ** 2) / 8;
 
     ctx.beginPath();
     ctx.moveTo(startPos.x * canvasScale, startPos.y * canvasScale);

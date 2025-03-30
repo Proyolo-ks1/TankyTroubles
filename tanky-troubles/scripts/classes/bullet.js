@@ -1,5 +1,5 @@
 import { setGlobalVariable, getGlobalVariable } from '../global-state.js';
-import { drawRect, drawCircle, drawRegPolygon, drawLine, drawArrow} from '../graphics-utils.js';
+import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '../graphics-utils.js';
 import { Shooter } from './shooter.js';
 
 
@@ -60,11 +60,7 @@ class Bullet extends Shooter {
     debugRender(ctx) {
         if (this.active) {
             // Velocity Arrow
-            const endPos = {
-                x: this.pos.x + this.velocity.x / 4, 
-                y: this.pos.y + this.velocity.y / 4
-            };
-            drawArrow(ctx, this.pos, endPos, 50, Math.PI / 6, "#0000FF", 2);
+            drawVectorArrow(ctx, this.pos, this.velocity, "#0000FF", 2);
 
             // Heading Line
             const headingLength = 50; // Adjust this value to control the length of the heading line

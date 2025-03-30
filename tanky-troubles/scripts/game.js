@@ -1,5 +1,5 @@
 import { setGlobalVariable, getGlobalVariable, getAllState } from './global-state.js';
-import { drawRect, drawCircle, drawRegPolygon, drawArrow} from './graphics-utils.js';
+import { drawRect, drawCircle, drawRegPolygon, drawVectorArrow} from './graphics-utils.js';
 import { generateMaze} from './generate-maze.js';
 import { Tank } from './classes/tank.js';
 // import { preloadImages, rescaleImages, getImage } from "./asset-handler.js";
