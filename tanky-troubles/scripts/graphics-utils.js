@@ -77,22 +77,25 @@ export function drawCircle(ctx, posCenter, radius, fillColor, strokeColor = null
 }
 
 // Function to draw a regular polygon with one flat side facing the bottom
-export function drawRegPolygon(ctx, posCenter, radius, n, fillColor, strokeColor = null, strokeWidth = 1) {
+export function drawRegPolygon(ctx, posCenter, radius, n, direction = 0, fillColor, strokeColor = null, strokeWidth = 1) {
     const canvasScale = getGlobalVariable("canvasScale");
     const angleStep = (Math.PI * 2) / n;  // Angle between each vertex
-    const rotationOffset = angleStep / 2;
+    const rotationOffset = Math.PI / 2; // Start flat side facing down (90 degrees)
 
     // Scale the center position and radius early
     const scaledX = posCenter.x * canvasScale;
     const scaledY = posCenter.y * canvasScale;
     const scaledRadius = radius * canvasScale;
 
+    // Adjust the rotation offset based on the desired direction
+    const baseRotation = rotationOffset + direction; // Add direction to the base rotation
+
     ctx.beginPath();
 
     // Start at the rotated position
     for (let i = 0; i < n; i++) {
-        // Calculate the angle for each vertex, considering the rotation offset
-        const angle = rotationOffset + angleStep * i;
+        // Calculate the angle for each vertex, considering the rotation offset and direction
+        const angle = baseRotation + angleStep * i;
 
         // Calculate the x and y position using polar coordinates, already scaled
         const vx = scaledX + scaledRadius * Math.cos(angle);
@@ -118,41 +121,51 @@ export function drawRegPolygon(ctx, posCenter, radius, n, fillColor, strokeColor
     }
 }
 
-// Function to draw an arrow (velocity vector) on the canvas, using pos and canvas scaling
-export function drawArrow(ctx, pos, velocity, arrowSize = 5, color = "blue") {
+// Function to draw a line between two points
+export function drawLine(ctx, startPos, endPos, strokeColor = "#000000", strokeWidth = 1) {
     const canvasScale = getGlobalVariable("canvasScale");
+    
+    // Apply canvas scaling
+    const scaledStartX = startPos.x * canvasScale;
+    const scaledStartY = startPos.y * canvasScale;
+    const scaledEndX = endPos.x * canvasScale;
+    const scaledEndY = endPos.y * canvasScale;
 
-    // Scale the position
-    const scaledX = pos.x * canvasScale;
-    const scaledY = pos.y * canvasScale;
-
-    // Calculate the arrow tip position (scaled)
-    const arrowTipX = scaledX + 0.2 * velocity.vx * canvasScale;
-    const arrowTipY = scaledY + 0.2 * velocity.vy * canvasScale;
-
-    // Draw the velocity vector as a line (scaled)
     ctx.beginPath();
-    ctx.moveTo(scaledX, scaledY);  // Start at the bullet's position
-    ctx.lineTo(arrowTipX, arrowTipY);  // End at the arrow tip
-    ctx.strokeStyle = color;  // Set arrow color
-    ctx.lineWidth = 2;  // Set line width
-    ctx.stroke();
-
-    // Draw the arrowhead at the tip of the vector (scaled)
-    const angle = Math.atan2(velocity.vy, velocity.vx);  // Angle of the velocity vector
-
-    // Calculate the positions of the two arrowhead lines (scaled)
-    const leftX = arrowTipX - arrowSize * Math.cos(angle - Math.PI / 6) * canvasScale;
-    const leftY = arrowTipY - arrowSize * Math.sin(angle - Math.PI / 6) * canvasScale;
-    const rightX = arrowTipX - arrowSize * Math.cos(angle + Math.PI / 6) * canvasScale;
-    const rightY = arrowTipY - arrowSize * Math.sin(angle + Math.PI / 6) * canvasScale;
-
-    // Draw the arrowhead in one path (scaled)
-    ctx.moveTo(arrowTipX, arrowTipY);  // Start at the tip of the vector
-    ctx.lineTo(leftX, leftY);  // Left side of the arrowhead
-    ctx.moveTo(arrowTipX, arrowTipY);  // Move back to the tip of the arrow
-    ctx.lineTo(rightX, rightY);  // Right side of the arrowhead
+    ctx.moveTo(scaledStartX, scaledStartY);
+    ctx.lineTo(scaledEndX, scaledEndY);
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = strokeWidth * canvasScale; // Apply scaling to stroke width
     ctx.stroke();
 }
 
+export function drawArrow(ctx, startPos, endPos, arrowHeadLength = 20, arrowAngle = Math.PI / 6, strokeColor = "#000000", strokeWidth = 1) {
+    const canvasScale = getGlobalVariable("canvasScale");
 
+    ctx.beginPath();
+    ctx.moveTo(startPos.x * canvasScale, startPos.y * canvasScale);
+    ctx.lineTo(endPos.x * canvasScale, endPos.y * canvasScale);
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = strokeWidth * canvasScale;
+    ctx.stroke();
+
+    // Calculate angle of the line
+    const angle = Math.atan2(endPos.y - startPos.y, endPos.x - startPos.x);
+
+    // Calculate arrowhead positions
+    const arrowHead1 = {
+        x: endPos.x - arrowHeadLength * Math.cos(angle - arrowAngle),
+        y: endPos.y - arrowHeadLength * Math.sin(angle - arrowAngle)
+    };
+    const arrowHead2 = {
+        x: endPos.x - arrowHeadLength * Math.cos(angle + arrowAngle),
+        y: endPos.y - arrowHeadLength * Math.sin(angle + arrowAngle)
+    };
+
+    ctx.beginPath();
+    ctx.moveTo(endPos.x * canvasScale, endPos.y * canvasScale);
+    ctx.lineTo(arrowHead1.x * canvasScale, arrowHead1.y * canvasScale);
+    ctx.moveTo(endPos.x * canvasScale, endPos.y * canvasScale);
+    ctx.lineTo(arrowHead2.x * canvasScale, arrowHead2.y * canvasScale);
+    ctx.stroke();
+}

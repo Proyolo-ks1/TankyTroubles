@@ -1,5 +1,5 @@
 import { setGlobalVariable, getGlobalVariable } from '../global-state.js';
-import { drawRect, drawCircle, drawRegPolygon, drawArrow} from '../graphics-utils.js';
+import { drawRect, drawCircle, drawRegPolygon, drawLine, drawArrow} from '../graphics-utils.js';
 import { Shooter } from './shooter.js';
 
 
@@ -18,7 +18,7 @@ class Bullet extends Shooter {
         super();
         this.id = Bullet.BulletCount++;  // Assign a unique ID to each bullet
         this.pos = posSpawn;
-        this.velocity = { vx: Math.cos(angleSpawn) * spawnSpeed, vy: Math.sin(angleSpawn) * spawnSpeed };
+        this.velocity = { x: Math.cos(angleSpawn) * spawnSpeed, y: Math.sin(angleSpawn) * spawnSpeed };
         this.angle = angleSpawn;
         this.rotationSpeed = rotationSpeed;
         this.arcFactor = arcFactor;          // How much the bullet's path curves
@@ -35,8 +35,8 @@ class Bullet extends Shooter {
 
     update(deltaTime) {
         // Position
-        this.pos.x += this.velocity.vx * deltaTime;
-        this.pos.y += this.velocity.vy * deltaTime;
+        this.pos.x += this.velocity.x * deltaTime;
+        this.pos.y += this.velocity.y * deltaTime;
 
         // Rotation - simulate frisbee-like spinning
         this.angle += this.rotationSpeed * deltaTime;
@@ -44,8 +44,8 @@ class Bullet extends Shooter {
         // Adjusting velocity to simulate arc-like movement
         // Slightly altering the velocity based on the rotation
         let arcAdjustment = this.arcFactor * Math.cos(this.angle);
-        this.velocity.vx += arcAdjustment;
-        this.velocity.vy += arcAdjustment;
+        this.velocity.x += arcAdjustment;
+        this.velocity.y += arcAdjustment;
         
 
         // Check if bullet's lifespan is over and make it inactive
@@ -64,7 +64,20 @@ class Bullet extends Shooter {
 
     debugRender(ctx) {
         if (this.active) {
-            drawArrow(ctx, this.pos, this.velocity, 50, "#0000FF");
+            // Velocity Arrow
+            const endPos = {
+                x: this.pos.x + this.velocity.x / 4, 
+                y: this.pos.y + this.velocity.y / 4
+            };
+            drawArrow(ctx, this.pos, endPos, 50, Math.PI / 6, "#0000FF", 2);
+
+            // Heading Line
+            const headingLength = 50; // Adjust this value to control the length of the heading line
+            const headingX = this.pos.x + Math.cos(this.angle) * headingLength;
+            const headingY = this.pos.y + Math.sin(this.angle) * headingLength;
+
+            // Draw the heading line
+            drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#FF0000", 2); // Red color for the heading line
         }
     }
 }
@@ -108,11 +121,11 @@ export class ChaingunBullet extends Bullet {
 }
 
 export class ShotgunBullet extends Bullet {
-    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1) {
+    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, owner, spawnSpeed = 10, scale = 1, lifeSpan = 1750) {
         super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
         this.type = "shotgun";
         this.size = scale * 25;
-        this.lifeSpan = 1500;
+        this.lifeSpan = lifeSpan;
     }
 
     update(deltaTime) {
@@ -131,17 +144,17 @@ export class ShrapnelBullet extends Bullet {
         super(posSpawn, angleSpawn, owner, spawnSpeed, scale);
         this.type = "shrapnel";
         this.size = scale * 50;
-        this.lifeSpan = 1000;
+        this.lifeSpan = 2000;
     }
 
     update(deltaTime) {
         super.update(deltaTime);
-        this.angle += 50
+        this.angle += 0.05
     }
 
     render(ctx) {
         if (this.active) {
-            drawRegPolygon(ctx, this.pos, this.size / 2, 3, "#32CD32", "#000");
+            drawRegPolygon(ctx, this.pos, this.size / 2, 3, this.angle, "#32CD32", "#000"); // Triangle
         }
     }
 }

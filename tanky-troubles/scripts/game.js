@@ -109,7 +109,7 @@ function updateGame(currentTime) {
     const timeSinceLastPowerUpCheck = (currentTime - lastPowerUpSpawnTime) / 1000;  // in seconds
     
     // If enough time has passed, check for spawning a power-up
-    if (timeSinceLastPowerUpCheck >= powerUpSpawnPeriod) {
+    if (timeSinceLastPowerUpCheck >= powerUpSpawnCooldown) {
         console.log(`%cPowerup spawn chance (${powerUpSpawnChance * 100}%)`, "color: magenta; font-weight: bold;");
         // Random chance for power-up spawn
         if (Math.random() < powerUpSpawnChance) {
@@ -164,28 +164,8 @@ function cleanupInactiveBullets(bullets) {
 
 
 
-// Create tanks with position, color, and controls
-let angleSpawn = Math.random() * Math.PI * 2;
-// angleSpawn = 0;
-new Tank({ x: WORLD_WIDTH / 4, y: WORLD_HEIGHT / 2 }, angleSpawn, 120, 90, 500 * 1, 1, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
-
-angleSpawn = Math.random() * Math.PI * 2;
-// angleSpawn = 0;
-new Tank({ x: WORLD_WIDTH - WORLD_WIDTH / 4, y: WORLD_HEIGHT / 2 }, angleSpawn, 120, 90, 500 * 1, 1, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
-
-
-
-
-
-
-//      |=================================|
-//      |      GAME LOOP PREPERATION      |
-//      |=================================|
-
-
-
 // Settings
-let powerUpSpawnPeriod = 1; // seconds 
+let powerUpSpawnCooldown = 1; // seconds 
 let powerUpSpawnChance = 1;
 
 // Support Variables
@@ -199,6 +179,41 @@ let statisticUpdatesPerSecond = 6
 let Maze = generateMaze()
 
 // startGame();
+
+
+
+// Global keys object
+const globalKeys = {};
+
+// Add event listeners for keydown and keyup
+window.addEventListener("keydown", (e) => {
+    const blockedKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "]; // List of keys to block
+    if (blockedKeys.includes(e.key)) {
+        e.preventDefault(); // Prevent default for these keys
+    }
+    globalKeys[e.key] = true;
+});
+
+window.addEventListener("keyup", (e) => {
+    globalKeys[e.key] = false;
+});
+
+// Create tanks with position, color, and controls
+const tileSize = getGlobalVariable("tileSize");
+const defaultTankLength = tileSize * 2 / 5; // tiles
+const defaultTankWidth = tileSize / 3; // Tiles
+const defaultTankSpeed = tileSize * 1.6; // Tiles per second
+const defaultTankRotSpeed = 5; // radians per second
+
+let angleSpawn = Math.random() * Math.PI * 2;
+angleSpawn = 0;
+const posSpawn1 = { x: WORLD_WIDTH / 4, y: WORLD_HEIGHT / 2 }
+new Tank(posSpawn1, angleSpawn, defaultTankLength, defaultTankWidth, defaultTankSpeed, defaultTankRotSpeed, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" }, globalKeys);
+
+angleSpawn = Math.random() * Math.PI * 2;
+angleSpawn = 0;
+const posSpawn2 = { x: WORLD_WIDTH - WORLD_WIDTH / 4, y: WORLD_HEIGHT / 2 }
+new Tank(posSpawn2, angleSpawn, defaultTankLength, defaultTankWidth, defaultTankSpeed, defaultTankRotSpeed, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }, globalKeys);
 
 
 
@@ -253,4 +268,5 @@ function gameLoop(currentTime) {
     setTimeout(() => requestAnimationFrame(gameLoop), frameDelay);
 }
 
-gameLoop();
+const initialTime = performance.now();
+gameLoop(initialTime);

@@ -1,6 +1,6 @@
 // Define a state object to hold all global variables
 const state = {
-    debugMode: false,
+    debugMode: true,
     canvasScale: 1,
     tileSize: 0,
     tanks: [],
