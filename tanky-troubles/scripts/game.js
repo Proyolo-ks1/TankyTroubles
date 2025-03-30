@@ -47,7 +47,7 @@ window.addEventListener("resize", resizeCanvas);
 
 
 
-function updateStatistics(currentTime, deltaTime, tanks, bullets) {
+function renderOverlay(currentTime, deltaTime, tanks, bullets) {
     // Calculate FPS with smoothing
     const fps = (overlayFps * 0.8) + (1 / deltaTime * 0.2);
 
@@ -58,14 +58,16 @@ function updateStatistics(currentTime, deltaTime, tanks, bullets) {
         lastRenderStatisticsTime = currentTime;
     }
 
-    // Overlay settings
-    const padding = 10;
-    const width = 300;
+    const canvasScale = getGlobalVariable("canvasScale");
+
+    // Overlay settings with canvas scale adjustment
+    let padding = 10 / canvasScale;
+    const width = 200 / canvasScale;
     const linesOfText = 4;
-    const height = padding + linesOfText * 50;
-    const pos = { x: 5, y: 5 };
+    const height = (padding + linesOfText * 25) / canvasScale;
+    let pos = { x: 5 / canvasScale, y: 5 / canvasScale };
     const size = { width: width, height: height };
-    const borderRadius = 10;
+    const borderRadius = 10 / canvasScale;
 
     // Draw overlay background
     drawRect(ctx, pos, size, "rgba(0, 0, 0, 0.5)", null, null, borderRadius);
@@ -74,8 +76,9 @@ function updateStatistics(currentTime, deltaTime, tanks, bullets) {
     ctx.fillStyle = "#fff";
     ctx.font = "16px Consolas";
     
-    const canvasScale = getGlobalVariable("canvasScale");
-
+    
+    pos = { x: 5 , y: 5 };
+    padding = 10
     ctx.fillText(`FPS:     ${overlayFps.toFixed(0)}`, pos.x + padding, pos.y + 20);
     ctx.fillText(`ΔTime:   ${overlayDeltaTime.toFixed(3)}s`, pos.x + padding, pos.y + 40);
     ctx.fillText(`Scale:   ${canvasScale.toFixed(2)}`, pos.x + padding, pos.y + 60);
@@ -85,7 +88,7 @@ function updateStatistics(currentTime, deltaTime, tanks, bullets) {
 
 // Function to render the background theme and maze
 function renderBackground() {
-    const tileSize = Maze; // Define the size of each square tile
+    const tileSize = getGlobalVariable("tileSize");
 
     // Loop through the rows and columns to draw the checkerboard pattern
     for (let row = 0; row < Math.ceil(WORLD_HEIGHT / tileSize); row++) {
@@ -138,19 +141,22 @@ function spawnPowerUp() {
 
 // Function to clean up inactive bullets
 function cleanupInactiveBullets(bullets) {
-    if (bullets.length === 0) {
-        return;  // Exit early if the array is empty
-    }
-    
+    if (bullets.length === 0) return; // Exit early if empty
+
+    let originalLength = bullets.length;
     let i = 0;
     while (i < bullets.length) {
         if (!bullets[i].active) {
-            bullets.splice(i, 1);  // Remove inactive bullet
+            bullets.splice(i, 1); // Remove inactive bullet
         } else {
-            i++;  // Only increment if bullet is active
+            i++; // Only increment if bullet is active
         }
     }
-    setGlobalVariable("bullets", bullets);  // Update the global bullets array
+
+    // Only update global variable if the bullet list actually changed
+    if (bullets.length !== originalLength) {
+        setGlobalVariable("bullets", bullets);
+    }
 }
 
 
@@ -200,8 +206,8 @@ window.addEventListener("keyup", (e) => {
 
 // Create tanks with position, color, and controls
 const tileSize = getGlobalVariable("tileSize");
-const defaultTankLength = tileSize * 2 / 5; // tiles
-const defaultTankWidth = tileSize / 3; // Tiles
+const defaultTankLength = tileSize * 2 / 5; // Tiles
+const defaultTankWidth = defaultTankLength * 5 / 6
 const defaultTankSpeed = tileSize * 1.6; // Tiles per second
 const defaultTankRotSpeed = 5; // radians per second
 
@@ -258,7 +264,7 @@ function gameLoop(currentTime) {
     cleanupInactiveBullets(bullets);
 
     // updateGame(currentTime);
-    updateStatistics(currentTime, deltaTime, tanks, bullets);
+    renderOverlay(currentTime, deltaTime, tanks, bullets);
     
     lastTime = currentTime;
 

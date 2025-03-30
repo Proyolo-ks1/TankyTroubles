@@ -1,7 +1,7 @@
 import { setGlobalVariable, getGlobalVariable } from '../global-state.js';
-import { drawRect, drawCircle, drawRegPolygon, drawArrow} from '../graphics-utils.js';
+import { drawRect, drawCircle, drawText, drawRegPolygon, drawArrow} from '../graphics-utils.js';
 import { Shooter } from './shooter.js';
-import { NoWeapon, Chaingun, Shotgun, FlameThrower, ExperimentalWeapon, ExperimentalWeapon2 } from './weapons.js';
+import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ExperimentalWeapon, ShrepnalBombWeapon } from './weapons.js';
 
 
 
@@ -21,9 +21,10 @@ export class Tank extends Shooter {
         this.color = color;
         this.controls = controls;
         this.globalKeys = globalKeys;
-        this.weapon = new Shotgun(this); // Default weapon
+        this.weapon = new ShrepnalBombWeapon(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
+
         this.health = 1;
 
         // Get current tanks array, add new tank, and update state
@@ -52,6 +53,17 @@ export class Tank extends Shooter {
     }
 
     update(deltaTime) {
+        // Detect shooting press & release
+        const isShooting = this.globalKeys[this.controls.shoot];
+
+        if (isShooting && !this.wasShooting) {
+            this.shootPress();
+        }
+        if (!isShooting && this.wasShooting) {
+            this.shootRelease();
+        }
+        this.wasShooting = isShooting;
+
         // Handle shoot hold
         if (this.globalKeys[this.controls.shoot]) {
             this.shootHold(deltaTime);
@@ -101,6 +113,29 @@ export class Tank extends Shooter {
         if (this.weapon instanceof Shotgun) {
             turretSize = { width: this.length * 0.7, height: this.width / 3 };
             drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, this.color, "black", 5);
+        } else if (this.weapon instanceof Chaingun) {
+            // Draw the base of the chaingun turret
+            turretSize = { width: this.length * 0.7, height: this.width / 4 };
+            let dynColor = this.color
+            if (this.globalKeys[this.controls.shoot]) {
+                dynColor = "white"
+            }
+            drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, dynColor, "black", 5);
+        
+            // Calculate the number of barrels (e.g., 5 barrels)
+            const barrelCount = 5;
+            const barrelWidth = turretSize.width / barrelCount;
+            const barrelHeight = 10;  // The height of the barrels
+        
+            // Draw barrels spaced evenly across the turret
+            for (let i = 0; i < barrelCount; i++) {
+                const barrelX = -turretSize.width / 2 + barrelWidth * (i + 0.5); // Position each barrel evenly across the turret
+                const barrelPos = { x: barrelX, y: -turretSize.height / 2 };
+                drawRect(ctx, barrelPos, { width: barrelWidth, height: barrelHeight }, "gray", "black", 2); // thinner outline for barrels
+            } 
+        } else if (this.weapon instanceof FlameThrower) {
+            turretSize = { width: this.length * 0.7, height: this.width / 3 };
+            drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, "#FFA500", "black", 5);
         } else {
             turretSize = { width: this.length * 0.7, height: this.width / 4 };
             drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, this.color, "black", 5);
@@ -111,6 +146,11 @@ export class Tank extends Shooter {
         drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.color, "black", 5);
 
         ctx.restore();
+
+        // Player Name or ID
+        const text = `Tank ${this.id}`
+        const textPos = { x: this.pos.x, y: this.pos.y - 50 };
+        drawText(ctx, text, textPos, 25, this.color, "center", "bottom", "#000000", 5);
     }
 
     debugRender(ctx) {

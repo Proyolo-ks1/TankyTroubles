@@ -76,11 +76,37 @@ export function drawCircle(ctx, posCenter, radius, fillColor, strokeColor = null
     }
 }
 
+// Function to draw text with optional outline, applying canvas scaling
+export function drawText(ctx, text, pos, fontSize, color, align = "left", baseline = "top", outlineColor = null, outlineWidth = 1) {
+    const canvasScale = getGlobalVariable("canvasScale");
+
+    // Scale the position and font size according to the canvas scale
+    const scaledX = pos.x * canvasScale;
+    const scaledY = pos.y * canvasScale;
+    const scaledFontSize = fontSize * canvasScale;
+
+    // Set the font size and alignment for the text
+    ctx.font = `${scaledFontSize.toFixed(0)}px Consolas`;
+    ctx.fillStyle = color;
+    ctx.textAlign = align;
+    ctx.textBaseline = baseline;
+
+    // Draw the text outline if outlineColor is provided
+    if (outlineColor) {
+        ctx.strokeStyle = outlineColor;
+        ctx.lineWidth = outlineWidth * canvasScale; // Scale stroke width according to canvas scale
+        ctx.strokeText(text, scaledX, scaledY); // Draw the outline
+    }
+
+    // Draw the text on the canvas
+    ctx.fillText(text, scaledX, scaledY);
+}
+
+
 // Function to draw a regular polygon with one flat side facing the bottom
 export function drawRegPolygon(ctx, posCenter, radius, n, direction = 0, fillColor, strokeColor = null, strokeWidth = 1) {
     const canvasScale = getGlobalVariable("canvasScale");
-    const angleStep = (Math.PI * 2) / n;  // Angle between each vertex
-    const rotationOffset = Math.PI / 2; // Start flat side facing down (90 degrees)
+    const angleStep = (Math.PI * 2) / n;
 
     // Scale the center position and radius early
     const scaledX = posCenter.x * canvasScale;
@@ -88,14 +114,15 @@ export function drawRegPolygon(ctx, posCenter, radius, n, direction = 0, fillCol
     const scaledRadius = radius * canvasScale;
 
     // Adjust the rotation offset based on the desired direction
-    const baseRotation = rotationOffset + direction; // Add direction to the base rotation
+    const baseRotation = direction; // Add direction to the base rotation
+    const startRotation = baseRotation + Math.PI + angleStep / 2
 
     ctx.beginPath();
 
     // Start at the rotated position
     for (let i = 0; i < n; i++) {
         // Calculate the angle for each vertex, considering the rotation offset and direction
-        const angle = baseRotation + angleStep * i;
+        const angle = startRotation + angleStep * i;
 
         // Calculate the x and y position using polar coordinates, already scaled
         const vx = scaledX + scaledRadius * Math.cos(angle);

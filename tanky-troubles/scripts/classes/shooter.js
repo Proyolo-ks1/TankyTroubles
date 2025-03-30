@@ -17,12 +17,12 @@ export class Shooter {
         this.id = Shooter.shooterCount++;  // Assign a unique ID to each shooter
     }
 
-    spawnRelativeBullet(BulletClass, relPos = {x: 0, y: 0}, relAngle = 0, speed = null, scale = 1) {
+    spawnRelativeBullet(BulletClass, relPos = {x: 0, y: 0}, relAngle = 0, speed = null, scale = 1, lifeSpan = undefined) {
         // Dynamically get the class name of the current shooter
         const shooterType = this.constructor.name;
         const shooterId = this.id !== undefined ? this.id : 'N/A';
         
-        console.log(`%cBullet Spawned: ${BulletClass.name}, ${speed}px/s, scale = ${scale})`, "color: #00FF00;");
+        // console.log(`%cBullet Spawned: ${BulletClass.name}, ${speed}px/s, scale = ${scale})`, "color: #00FF00;");
 
         // Calculate the absolute position relative to the shooter's position and angle
         const absX = this.pos.x + Math.cos(this.angle) * relPos.x - Math.sin(this.angle) * relPos.y;
@@ -30,7 +30,7 @@ export class Shooter {
         const absAngle = this.angle + relAngle;
 
         // Create the bullet with the calculated position and angle
-        const bullet = new BulletClass({ x: absX, y: absY }, absAngle, this, speed, scale);
+        const bullet = new BulletClass({ x: absX, y: absY }, absAngle, this, speed, scale, lifeSpan);
         this.bullets.push(bullet); // Add the bullet to the shooter's bullet list
     }
 }
