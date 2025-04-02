@@ -30,14 +30,20 @@ body {
 .header-container {
     text-align: center;
     background-color: #333;
-    color: white;
     padding: 15px;
-    height: 64px;  /* Fixed header height */
+    height: 80px;  /* Fixed header height */
     flex-shrink: 0;  /* Prevent header from shrinking */
 }
 
 .header-container h1 {
+    color: white;
     font-size: 2em;
+    padding: 1px;
+}
+.header-container h2 {
+    color: gray;
+    font-size: 0.8em;
+    padding: 1px;
 }
 
 
@@ -88,40 +94,39 @@ body {
     display: none;
 }
 
-/* Game Container (16:9 ratio based on parent width, but max 100% height) */
 #game-container {
-    width: 100%;  /* Takes full width of center-container */
-    aspect-ratio: 16 / 9;  /* Automatically sets height based on width */
-    max-height: 100%;  /* Ensures height never exceeds 500px */
-    background-color: #222;  /* Just for visualization */
+    width: 100%;
+    max-height: 100%;
+    background-color: #222;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    transition: all 0.3s ease; /* Smooth transition for resizing */
+    transition: all 0.3s ease;
 }
 
 /* Style when game is in theater mode */
 #game-container.theater-mode {
-    width: 100vw; /* Full width of the viewport */
-    height: 100vh; /* Full height of the viewport */
-    position: fixed; /* Sticks to the viewport even when scrolling */
+    height: 100vh;
+    position: fixed;
     top: 0;
     left: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Slight dark overlay */
-    border-radius: 0; /* Remove the rounded corners for full screen */
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 0;
+    transition: all 0.3s ease;
 }
 
-/* Game Canvas Container (16:9 ratio based on parent height) */
+/* Game Canvas Container (now properly maintains 16:9 aspect ratio) */
 #game-canvas-container {
-    height: 100%;  /* Takes full height of game-container */
-    aspect-ratio: 16 / 9;  /* Automatically sets width based on height */
-    background-color: #444;  /* Just for visualization */
+    width: 100%; /* Make it take the full width of game-container */
+    aspect-ratio: 16 / 9; /* Maintain proper aspect ratio */
+    max-height: 100%;
+    background-color: #444;
     border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-grow: 1; /* Ensures it takes up remaining space */
 }
 
 #game-canvas {
@@ -131,6 +136,7 @@ body {
     object-fit: contain;  /* Ensure the aspect ratio of the canvas is preserved */
 }
 
+/* Game Controls (now properly positioned below the canvas) */
 #game-controls {
     display: flex;
     justify-content: flex-start;
@@ -138,6 +144,7 @@ body {
     gap: 15px;
     margin-top: 10px;
     padding: 10px;
+    box-sizing: border-box;
 }
 
 #game-container.theater-mode #game-controls {
