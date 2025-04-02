@@ -18,19 +18,17 @@ const theaterModeIcon = document.getElementById('theater-icon');
 const audioIcon = document.getElementById('audio-icon');
 
 let currentViewingMode = 'normal'; // default mode
-let isMuted = false;
+let theaterModeEnabled = false;
+    let isMuted = false;
 
 // Function to update the button icons
 function updateButtonIcons() {
     if (currentViewingMode === 'fullscreen') {
         fullscreenIcon.setAttribute('src', ICONS.fullscreenExit);
         theaterModeIcon.setAttribute('src', ICONS.theaterModeEnter);
-    } else if (currentViewingMode === 'theater') {
+    } else {
         fullscreenIcon.setAttribute('src', ICONS.fullscreenEnter);
-        theaterModeIcon.setAttribute('src', ICONS.theaterModeExit);
-    } else if (currentViewingMode === 'normal') {
-        fullscreenIcon.setAttribute('src', ICONS.fullscreenEnter);
-        theaterModeIcon.setAttribute('src', ICONS.theaterModeEnter);
+        theaterModeIcon.setAttribute('src', theaterModeEnabled ? ICONS.theaterModeExit : ICONS.theaterModeEnter);
     }
 
     if (isMuted) {
@@ -42,7 +40,6 @@ function updateButtonIcons() {
 
 // Function to toggle fullscreen mode
 function toggleFullscreen() {
-    console.log(`%cFunction -> toggleFullscreen()`, "color: lime; font-weight: bold;");
     if (!document.fullscreenElement) {
         document.getElementById('game-container').requestFullscreen()
             .catch(err => console.log("Error attempting to enable fullscreen mode: ", err));
@@ -50,39 +47,42 @@ function toggleFullscreen() {
     } else {
         document.exitFullscreen()
             .catch(err => console.log("Error attempting to exit fullscreen mode: ", err));
-        currentViewingMode = 'normal';
+        currentViewingMode = theaterModeEnabled ? 'theater' : 'normal';
     }
     
-    console.log(`toggleFullscreen() -> ${currentViewingMode}`);
+    console.log(`%cFunction: toggleFullscreen() -> currentViewingMode: ${currentViewingMode}`, "color: aqua; font-weight: bold;");
     updateButtonIcons();
 }
 
 // Function to toggle theater mode
 function toggleTheaterMode() {
-    console.log(`%cFunction -> toggleTheaterMode()`, "color: lime; font-weight: bold;");
     const gameContainer = document.getElementById('game-container');
     gameContainer.classList.toggle('theater-mode');
+
+    theaterModeEnabled = gameContainer.classList.contains('theater-mode');
     
     if (gameContainer.classList.contains('theater-mode')) {
+        if (document.fullscreenElement) {
+            document.exitFullscreen()
+            .catch(err => console.log("Error attempting to exit fullscreen mode: ", err));
+        }
         currentViewingMode = 'theater';
     } else {
         currentViewingMode = 'normal';
     }
 
-    console.log(`toggleTheaterMode() -> currentViewingMode: ${currentViewingMode}`);
+    console.log(`%cFunction: toggleTheaterMode() -> currentViewingMode: ${currentViewingMode}`, "color: aqua; font-weight: bold;");
     updateButtonIcons();
 }
 
 // Function to toggle audio (mute/unmute)
 function toggleAudio() {
-    console.log(`%cFunction -> toggleAudio()`, "color: lime; font-weight: bold;");
     isMuted = !isMuted;
     // If you're controlling actual audio (e.g., an audio element), you'd mute/unmute it here
     // For example:
     // document.getElementById('audio-element').muted = isMuted;
     
-    
-    console.log(`toggleAudio() -> isMuted: ${isMuted}`);
+    console.log(`%cFunction: toggleAudio() -> isMuted: ${isMuted}`, "color: aqua; font-weight: bold;");
     updateButtonIcons();
 }
 

@@ -1,5 +1,5 @@
 import { setGlobalVariable, getGlobalVariable, getAllState } from './global-state.js';
-import { drawRect, drawCircle, drawRegPolygon, drawVectorArrow} from './graphics-utils.js';
+import { drawRect, drawCircle, drawText, drawRegPolygon, drawVectorArrow} from './graphics-utils.js';
 import { generateMaze} from './generate-maze.js';
 import { Tank } from './classes/tank.js';
 // import { preloadImages, rescaleImages, getImage } from "./asset-handler.js";
@@ -60,30 +60,33 @@ function renderOverlay(currentTime, deltaTime, tanks, bullets) {
 
     const canvasScale = getGlobalVariable("canvasScale");
 
-    // Overlay settings with canvas scale adjustment
-    let padding = 10 / canvasScale;
-    const width = 200 / canvasScale;
-    const linesOfText = 4;
-    const height = (padding + linesOfText * 25) / canvasScale;
+    // Background
     let pos = { x: 5 / canvasScale, y: 5 / canvasScale };
-    const size = { width: width, height: height };
-    const borderRadius = 10 / canvasScale;
+    const padding = 10 / canvasScale;
+    const textSpacing = 2 / canvasScale;
+    const align = "left";
+    const baseline = "top";
+    const fontSize = 16 / canvasScale;
+    const font = "Consolas";
+    const textColor = "#fff";
+    const outlineColor = "#000";
+    const outlineWidth = 2;
+    const linesOfText = 5;
+    const backgroundWidth = 150 / canvasScale + 2 * padding;
+    const backgroundHeight = linesOfText * fontSize + (linesOfText - 1) * textSpacing + 2 * padding;
+    const size = { width: backgroundWidth, height: backgroundHeight };
+    const borderRadius = padding;
 
-    // Draw overlay background
     drawRect(ctx, pos, size, "rgba(0, 0, 0, 0.5)", null, null, borderRadius);
 
-    // Draw overlay text
-    ctx.fillStyle = "#fff";
-    ctx.font = "16px Consolas";
-    
-    
-    pos = { x: 5 , y: 5 };
-    padding = 10
-    ctx.fillText(`FPS:     ${overlayFps.toFixed(0)}`, pos.x + padding, pos.y + 20);
-    ctx.fillText(`ΔTime:   ${overlayDeltaTime.toFixed(3)}s`, pos.x + padding, pos.y + 40);
-    ctx.fillText(`Scale:   ${canvasScale.toFixed(2)}`, pos.x + padding, pos.y + 60);
-    ctx.fillText(`tanks:   ${tanks.length}`, pos.x + padding, pos.y + 80);
-    ctx.fillText(`bullets: ${bullets.length}`, pos.x + padding, pos.y + 100);
+    // Overlay text
+    pos = { x: pos.x + padding, y: pos.y + padding };
+
+    drawText(ctx, `FPS:     ${Math.round(overlayFps)}`, { x: pos.x, y: pos.y }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
+    drawText(ctx, `ΔTime:   ${Math.round(overlayDeltaTime * 1000)}ms`, { x: pos.x, y: pos.y + 1 * fontSize + 1 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
+    drawText(ctx, `Scale:   ${canvasScale.toFixed(2)}`, { x: pos.x, y: pos.y + 2 * fontSize + 2 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
+    drawText(ctx, `Tanks:   ${tanks.length}`, { x: pos.x, y: pos.y + 3 * fontSize + 3 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
+    drawText(ctx, `Bullets: ${bullets.length}`, { x: pos.x, y: pos.y + 4 * fontSize + 4 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
 }
 
 // Function to render the background theme and maze
@@ -180,7 +183,7 @@ let lastRenderStatisticsTime = performance.now();
 let lastPowerUpSpawnTime = 0;
 let overlayFps = 0;
 let overlayDeltaTime = 0;
-let statisticUpdatesPerSecond = 6
+let statisticUpdatesPerSecond = 10
 
 let Maze = generateMaze()
 
@@ -208,18 +211,19 @@ window.addEventListener("keyup", (e) => {
 const tileSize = getGlobalVariable("tileSize");
 const defaultTankLength = tileSize * 2 / 5; // Tiles
 const defaultTankWidth = defaultTankLength * 5 / 6
+const defaultTankSize = {length: defaultTankLength, width: defaultTankWidth}
 const defaultTankSpeed = tileSize * 1.6; // Tiles per second
 const defaultTankRotSpeed = 5; // radians per second
 
 let angleSpawn = Math.random() * Math.PI * 2;
 angleSpawn = 0;
 const posSpawn1 = { x: WORLD_WIDTH / 4, y: WORLD_HEIGHT / 2 }
-new Tank(posSpawn1, angleSpawn, defaultTankLength, defaultTankWidth, defaultTankSpeed, defaultTankRotSpeed, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" }, globalKeys);
+new Tank(posSpawn1, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 3, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" }, globalKeys);
 
 angleSpawn = Math.random() * Math.PI * 2;
 angleSpawn = 0;
 const posSpawn2 = { x: WORLD_WIDTH - WORLD_WIDTH / 4, y: WORLD_HEIGHT / 2 }
-new Tank(posSpawn2, angleSpawn, defaultTankLength, defaultTankWidth, defaultTankSpeed, defaultTankRotSpeed, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }, globalKeys);
+new Tank(posSpawn2, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 1, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }, globalKeys);
 
 
 
@@ -241,15 +245,6 @@ function gameLoop(currentTime) {
 
     renderBackground();
 
-    const bullets = getGlobalVariable("bullets") || [];
-    bullets.forEach(bullet => {
-        bullet.update(deltaTime);
-        bullet.render(ctx);
-        if (getGlobalVariable("debugMode")) {
-            bullet.debugRender(ctx);
-        }
-    });
-
     // Update and render tanks and bullets
     const tanks = getGlobalVariable("tanks") || [];
     tanks.forEach(tank => {
@@ -257,6 +252,15 @@ function gameLoop(currentTime) {
         tank.render(ctx);
         if (getGlobalVariable("debugMode")) {
             tank.debugRender(ctx);
+        }
+    });
+
+    const bullets = getGlobalVariable("bullets") || [];
+    bullets.forEach(bullet => {
+        bullet.update(deltaTime);
+        bullet.render(ctx);
+        if (getGlobalVariable("debugMode")) {
+            bullet.debugRender(ctx);
         }
     });
     
@@ -271,7 +275,7 @@ function gameLoop(currentTime) {
     // Simulate low FPS
     const simFPS = 60;
     const frameDelay = 1000 / simFPS;
-    setTimeout(() => requestAnimationFrame(gameLoop), frameDelay);
+    requestAnimationFrame(gameLoop);
 }
 
 const initialTime = performance.now();

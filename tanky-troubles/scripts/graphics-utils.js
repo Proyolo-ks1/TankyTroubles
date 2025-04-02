@@ -77,7 +77,7 @@ export function drawCircle(ctx, posCenter, radius, fillColor, strokeColor = null
 }
 
 // Function to draw text with optional outline, applying canvas scaling
-export function drawText(ctx, text, pos, fontSize, color, align = "left", baseline = "top", outlineColor = null, outlineWidth = 1) {
+export function drawText(ctx, text, pos, align = "left", baseline = "top", fontSize, font, color, outlineColor = null, outlineWidth = 1) {
     const canvasScale = getGlobalVariable("canvasScale");
 
     // Scale the position and font size according to the canvas scale
@@ -86,7 +86,7 @@ export function drawText(ctx, text, pos, fontSize, color, align = "left", baseli
     const scaledFontSize = fontSize * canvasScale;
 
     // Set the font size and alignment for the text
-    ctx.font = `${scaledFontSize.toFixed(0)}px Consolas`;
+    ctx.font = `${scaledFontSize.toFixed(0)}px ${font}`;
     ctx.fillStyle = color;
     ctx.textAlign = align;
     ctx.textBaseline = baseline;
@@ -203,4 +203,55 @@ export function drawVectorArrow(ctx, startPos, vector, strokeColor = "#000000", 
     ctx.moveTo(endPos.x * canvasScale, endPos.y * canvasScale);
     ctx.lineTo(arrowHead2.x * canvasScale, arrowHead2.y * canvasScale);
     ctx.stroke();
+}
+
+// Function to draw a polygon based on a list of positions relative to a position and angle
+export function drawPolygon(ctx, pos, angle, vertices, fillColor, strokeColor = null, strokeWidth = 1) {
+    if (vertices.length < 3) {
+        console.warn("A polygon must have at least 3 vertices.");
+        return;
+    }
+
+    const canvasScale = getGlobalVariable("canvasScale");
+
+    ctx.beginPath();
+
+    // Apply translation and rotation to each vertex
+    const angleInRadians = angle * (Math.PI / 180); // Convert to radians
+
+    // Start at the first transformed vertex
+    const firstVertex = transformVertex(vertices[0], pos, angleInRadians, canvasScale);
+    ctx.moveTo(firstVertex.x, firstVertex.y);
+
+    // Transform and draw lines to the remaining vertices
+    for (let i = 1; i < vertices.length; i++) {
+        const vertex = transformVertex(vertices[i], pos, angleInRadians, canvasScale);
+        ctx.lineTo(vertex.x, vertex.y);
+    }
+
+    ctx.closePath();
+
+    // Fill color
+    ctx.fillStyle = fillColor;
+    ctx.fill();
+
+    // Stroke color
+    if (strokeColor) {
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = strokeWidth * canvasScale;
+        ctx.stroke();
+    }
+}
+
+// Helper function to transform each vertex with a position and angle
+function transformVertex(vertex, pos, angle, canvasScale) {
+    // Rotate the vertex by the given angle
+    const rotatedX = vertex.x * Math.cos(angle) - vertex.y * Math.sin(angle);
+    const rotatedY = vertex.x * Math.sin(angle) + vertex.y * Math.cos(angle);
+
+    // Apply the position offset and scale
+    const finalX = (rotatedX + pos.x) * canvasScale;
+    const finalY = (rotatedY + pos.y) * canvasScale;
+
+    return { x: finalX, y: finalY };
 }
