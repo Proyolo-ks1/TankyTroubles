@@ -87,6 +87,18 @@ function renderOverlay(currentTime, deltaTime, tanks, bullets) {
     drawText(ctx, `Scale:   ${canvasScale.toFixed(2)}`, { x: pos.x, y: pos.y + 2 * fontSize + 2 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
     drawText(ctx, `Tanks:   ${tanks.length}`, { x: pos.x, y: pos.y + 3 * fontSize + 3 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
     drawText(ctx, `Bullets: ${bullets.length}`, { x: pos.x, y: pos.y + 4 * fontSize + 4 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
+   
+    // Toggle Button for debugMode
+    const buttonWidth = 150 / canvasScale;
+    const buttonHeight = 30 / canvasScale;
+    const buttonPos = { x: pos.x, y: pos.y + 5 * fontSize + 5 * textSpacing + padding };  // Position button below the overlay
+
+    // Draw the button
+    drawRect(ctx, buttonPos, { width: buttonWidth, height: buttonHeight }, "rgba(0, 0, 0, 0.7)", "white", 2, 5);
+
+    // Button text (showing current state of debugMode)
+    const debugText = getGlobalVariable("debugMode") ? "Debug: ON" : "Debug: OFF";
+    drawText(ctx, debugText, { x: buttonPos.x + buttonWidth / 2, y: buttonPos.y + buttonHeight / 2 }, "center", "middle", fontSize, font, "white", "black", 2);
 }
 
 // Function to render the background theme and maze
@@ -191,11 +203,14 @@ let Maze = generateMaze()
 
 
 
-// Global keys object
-const globalKeys = {};
+// Global keys object - make it accessible from script.js
+window.globalKeys = {};
 
 // Add event listeners for keydown and keyup
 window.addEventListener("keydown", (e) => {
+    // Only process key events if the game canvas is focused
+    if (!window.isGameFocused) return;
+
     const blockedKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "]; // List of keys to block
     if (blockedKeys.includes(e.key)) {
         e.preventDefault(); // Prevent default for these keys
@@ -204,13 +219,16 @@ window.addEventListener("keydown", (e) => {
 });
 
 window.addEventListener("keyup", (e) => {
+    // Only process key events if the game canvas is focused
+    if (!window.isGameFocused) return;
+
     globalKeys[e.key] = false;
 });
 
 // Create tanks with position, color, and controls
 const tileSize = getGlobalVariable("tileSize");
 const defaultTankLength = tileSize * 2 / 5; // Tiles
-const defaultTankWidth = defaultTankLength * 5 / 6
+const defaultTankWidth = tileSize / 3 // Tiles
 const defaultTankSize = {length: defaultTankLength, width: defaultTankWidth}
 const defaultTankSpeed = tileSize * 1.6; // Tiles per second
 const defaultTankRotSpeed = 5; // radians per second
@@ -240,35 +258,37 @@ function gameLoop(currentTime) {
     if (!lastTime) lastTime = currentTime; // Initialize lastTime on the first loop
     const deltaTime = (currentTime - lastTime) / 1000;  // Time difference in seconds
 
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (!window.isGamePaused) {
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    renderBackground();
+        renderBackground();
 
-    // Update and render tanks and bullets
-    const tanks = getGlobalVariable("tanks") || [];
-    tanks.forEach(tank => {
-        tank.update(deltaTime);
-        tank.render(ctx);
-        if (getGlobalVariable("debugMode")) {
-            tank.debugRender(ctx);
-        }
-    });
+        // Update and render tanks and bullets
+        const bullets = getGlobalVariable("bullets") || [];
+        bullets.forEach(bullet => {
+            bullet.update(deltaTime);
+            bullet.render(ctx);
+            if (getGlobalVariable("debugMode")) {
+                bullet.debugRender(ctx);
+            }
+        });
 
-    const bullets = getGlobalVariable("bullets") || [];
-    bullets.forEach(bullet => {
-        bullet.update(deltaTime);
-        bullet.render(ctx);
-        if (getGlobalVariable("debugMode")) {
-            bullet.debugRender(ctx);
-        }
-    });
-    
-    // Cleanup inactive bullets (every frame)
-    cleanupInactiveBullets(bullets);
+        const tanks = getGlobalVariable("tanks") || [];
+        tanks.forEach(tank => {
+            tank.update(deltaTime);
+            tank.render(ctx);
+            if (getGlobalVariable("debugMode")) {
+                tank.debugRender(ctx);
+            }
+        });
+        
+        // Cleanup inactive bullets (every frame)
+        cleanupInactiveBullets(bullets);
 
-    // updateGame(currentTime);
-    renderOverlay(currentTime, deltaTime, tanks, bullets);
+        // updateGame(currentTime);
+        renderOverlay(currentTime, deltaTime, tanks, bullets);
+    }
     
     lastTime = currentTime;
 

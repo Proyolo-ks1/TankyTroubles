@@ -100,3 +100,59 @@ document.addEventListener('fullscreenchange', () => {
 
 // Initial icon update on page load
 updateButtonIcons();
+
+
+
+//      |=======================|
+//      |      GAME CANVAS      |
+//      |=======================|
+
+
+
+// Define the global variable here
+window.isGameFocused = false;
+window.isGamePaused = false;
+
+const canvas = document.getElementById("game-canvas");
+const gameContainer = document.getElementById("game-container");
+const gameUnfocusOverlay = document.getElementById("game-unfocus-overlay");
+
+function focusOnGame() {
+    console.log("Canvas focused");
+    window.isGameFocused = true;
+    gameUnfocusOverlay.style.opacity = "0";
+    window.isGamePaused = false;
+}
+
+function unfocusOnGame() {
+    console.log("Canvas unfocused");
+    window.isGameFocused = false;
+    gameUnfocusOverlay.style.opacity = "1";
+    window.isGamePaused = true;
+    
+    // Trigger keyup event for all keys that are currently pressed
+    const allKeys = Object.keys(window.globalKeys);
+    allKeys.forEach((key) => {
+        if (window.globalKeys[key]) { // Only trigger keyup for pressed keys
+            const event = new KeyboardEvent('keyup', { key: key });
+            window.dispatchEvent(event);
+            window.globalKeys[key] = false;
+        }
+    });
+}
+
+gameContainer.addEventListener('focus', () => {
+    console.log("gameContainer focus");
+    focusOnGame();
+});
+
+gameContainer.addEventListener('blur', () => {
+    console.log("gameContainer blur");
+    unfocusOnGame();
+});
+
+window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        unfocusOnGame();
+    }
+});

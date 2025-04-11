@@ -41,12 +41,13 @@ export class NoWeapon extends Weapon {
         super(tank);
         this.isCharging = false;
         this.chargeStartTime = 0;
+        this.barrelLength = this.tank.size.length * 0.7;
     }
 
     press() {
         const tileSize = getGlobalVariable("tileSize");
         const bulletSpeed = tileSize * 1.8
-        spawnRelativeClass(DefaultBullet, this.tank.id, this.tank.pos, this.tank.angle, {x: 100 * this.tank.scale, y: 0}, 0, bulletSpeed, this.tank.scale);
+        spawnRelativeClass(DefaultBullet, this.tank.id, this.tank.pos, this.tank.angle, {x: this.barrelLength, y: 0}, 0, bulletSpeed, this.tank.scale);
     }
 
     hold() {
@@ -58,12 +59,12 @@ export class NoWeapon extends Weapon {
     }
 
     renderTurret(ctx, tank) {
-        // Barrel
+        // Barrelz
+        const length = this.barrelLength;
+        const width = this.tank.size.width / 5
         const x = 0;
-        const y = -this.tank.size.length / 2;
-        const length = this.tank.size.length * 0.7;
-        const width = -this.tank.size.width / 6;
-        drawRect(ctx, { x: x, y: y }, { w: length, h: width }, tank.color, "black", 5);
+        const y = -width / 2;
+        drawRect(ctx, { x: x, y: y }, { width: length, height: width }, tank.color, "black", 5);
     }
 }
 
@@ -77,6 +78,7 @@ export class Chaingun extends Weapon {
         this.timeSinceLastShot = 0; // Tracks time since last bullet
         this.chargeTime = 1; // Time (in seconds) to charge before firing
         this.timeSinceChargeStarted = 0; // Time since charging started
+        this.barrelLength = this.tank.size.length * 0.7;
     }
 
     press() {
@@ -192,8 +194,13 @@ export class Shotgun extends Weapon {
     }
 
     renderTurret(ctx, tank) {
+        // Barrel
+        const length = this.tank.size.length * 0.7;
+        const width = this.tank.size.width / 3;
+        const x = 0;
+        const y = -this.tank.size.length / 2;
         let turretSize = { width: tank.length * 0.7, height: tank.width / 3 };
-        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, tank.color, "black", 5);
+        drawRect(ctx, { x: x, y: y }, { width: length, height: width}, tank.color, "black", 5);
     }
 }
 

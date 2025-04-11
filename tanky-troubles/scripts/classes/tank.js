@@ -31,8 +31,6 @@ export class Tank {
         const tanks = getGlobalVariable("tanks"); 
         tanks.push(this);
         setGlobalVariable("tanks", tanks);
-        
-        console.log('Tank Initial position:', this.pos);
     }
 
     shootPress() {
