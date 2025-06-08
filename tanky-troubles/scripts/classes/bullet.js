@@ -18,7 +18,7 @@ class Bullet {
     static BulletCount = 0;
 
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 100, scale = 1, rotationSpeed = 0) {
-        this.id = Bullet.BulletCount++;
+        this.id = `bullet${Bullet.BulletCount++}`;
 
         this.owner = owner;
         this.pos = posSpawn;
@@ -145,7 +145,7 @@ export class Shrapnel extends Bullet {
 
     update(deltaTime) {
         super.update(deltaTime);
-        this.angle += 0.1
+        this.angle += 0.05
         this.velocity.x *= 0.99;
         this.velocity.y *= 0.99;
     }
@@ -185,7 +185,7 @@ export class ShrepnalBomb extends Bullet {
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
             const bulletSpeed = tileSize * (1 + Math.random() * 0.5);
             const lifeSpan = 3000 - Math.random() * (3000 / 2);
-            spawnRelativeClass(Shrapnel, this.pos, this.angle, {x: 0, y: 0}, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
+            spawnRelativeClass(Shrapnel, this, this.pos, this.angle, {x: 0, y: 0}, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
     }
     }
 

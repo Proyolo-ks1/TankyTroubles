@@ -1,15 +1,14 @@
 import { setGlobalVariable, getGlobalVariable } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../graphics-utils.js';
-import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ExperimentalWeapon, ShrepnalBombWeapon, ChainShotgunBOOM } from './weapons.js';
+import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ShrepnalBombWeapon, ExperimentalWeapon, ChainShotgunBOOM } from './weapons.js';
 
 
 
 export class Tank {
     static tankCount = 0;
 
-    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, size = {length: 120, width: 90}, speed = 5, turningSpeed = 1, scale, color = "#555", controls = { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }, globalKeys) {
-        this.id = `tank${Tank.tankCount}`;
-        Tank.tankCount++;
+    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, size = {length: 120, width: 90}, speed = 5, turningSpeed = 1, scale = 1, color = "#555", controls = { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }, globalKeys) {
+        this.id = `tank${Tank.tankCount++}`;
 
         this.pos = posSpawn;
         this.velocity = { x: 0, y: 0 };
@@ -21,7 +20,7 @@ export class Tank {
         this.color = color;
         this.controls = controls;
         this.globalKeys = globalKeys;
-        this.weapon = new NoWeapon(this); // Default weapon
+        this.weapon = new ChainShotgun(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
 

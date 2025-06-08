@@ -236,7 +236,7 @@ const defaultTankRotSpeed = 5; // radians per second
 let angleSpawn = Math.random() * Math.PI * 2;
 angleSpawn = 0;
 const posSpawn1 = { x: WORLD_WIDTH / 4, y: WORLD_HEIGHT / 2 }
-new Tank(posSpawn1, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 3, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" }, globalKeys);
+new Tank(posSpawn1, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 10, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" }, globalKeys);
 
 angleSpawn = Math.random() * Math.PI * 2;
 angleSpawn = 0;
