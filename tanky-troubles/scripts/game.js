@@ -87,7 +87,7 @@ function renderOverlay(currentTime, deltaTime, tanks, bullets) {
     drawText(ctx, `Scale:   ${canvasScale.toFixed(2)}`, { x: pos.x, y: pos.y + 2 * fontSize + 2 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
     drawText(ctx, `Tanks:   ${tanks.length}`, { x: pos.x, y: pos.y + 3 * fontSize + 3 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
     drawText(ctx, `Bullets: ${bullets.length}`, { x: pos.x, y: pos.y + 4 * fontSize + 4 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
-   
+
     // Toggle Button for debugMode
     const buttonWidth = 150 / canvasScale;
     const buttonHeight = 30 / canvasScale;

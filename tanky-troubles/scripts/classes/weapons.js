@@ -39,6 +39,7 @@ class Weapon {
 export class NoWeapon extends Weapon {
     constructor(tank) {
         super(tank);
+        this.barrelLength = this.tank.size.length * 0.7;
     }
 
     press() {
@@ -58,24 +59,30 @@ export class NoWeapon extends Weapon {
     renderTurret(ctx) {
         // Barrel
         const length = this.tank.size.length * 0.7;
-        const width = this.tank.size.width / 5
+        const width = this.tank.size.width / 5;
         const x = 0;
         const y = -width / 2;
         drawRect(ctx, { x: x, y: y }, { width: length, height: width }, this.tank.color, "black", 5);
+
+        // Dome
+        const domeRadius = this.tank.size.width / 3;
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.color, "black", 5);
     }
 }
 
 export class Chaingun extends Weapon {
     constructor(tank) {
         super(tank);
+        this.barrelLength;
+
         this.isCharging = false;
+        this.timeSinceChargeStarted = 0; // Time since charging started
         this.isReadyToFire = false; // Tracks whether the chaingun is ready to fire
+
         this.fireRate = 10; // Bullets per second
         this.fireRateCooldown = 1 / this.fireRate; // Time between shots in seconds
         this.timeSinceLastShot = 0; // Tracks time since last bullet
         this.chargeTime = 1; // Time (in seconds) to charge before firing
-        this.timeSinceChargeStarted = 0; // Time since charging started
-        this.barrelLength = this.tank.size.length * 0.7;
     }
 
     press() {

@@ -20,7 +20,7 @@ export class Tank {
         this.color = color;
         this.controls = controls;
         this.globalKeys = globalKeys;
-        this.weapon = new ChainShotgun(this); // Default weapon
+        this.weapon = new NoWeapon(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
 
@@ -108,11 +108,6 @@ export class Tank {
 
         // Turret
         this.weapon.renderTurret(ctx, this);
-
-        // Dome on top of the tank
-        const domeRadius = this.size.width / 3;
-
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.color, "black", 5);
 
         ctx.restore();
 
