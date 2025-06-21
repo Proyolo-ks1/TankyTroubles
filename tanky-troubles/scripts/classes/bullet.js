@@ -83,10 +83,6 @@ export class DefaultBullet extends Bullet {
         this.lifeSpan = 10000;
     }
 
-    update(deltaTime) {
-        super.update(deltaTime);
-    }
-
     render(ctx) {
         if (this.active) {
             drawCircle(ctx, this.pos, this.size / 2, "#000", "#000");
@@ -103,10 +99,6 @@ export class ChaingunBullet extends Bullet {
         this.lifeSpan = 5000;
     }
 
-    update(deltaTime) {
-        super.update(deltaTime);
-    }
-
     render(ctx) {
         if (this.active) {
             drawCircle(ctx, this.pos, this.size / 2, "#333", "#000");
@@ -121,10 +113,6 @@ export class ShotgunBullet extends Bullet {
         const tileSize = getGlobalVariable("tileSize");
         this.size = scale * (tileSize / 20);
         this.lifeSpan = lifeSpan;
-    }
-
-    update(deltaTime) {
-        super.update(deltaTime);
     }
 
     render(ctx) {
@@ -158,7 +146,7 @@ export class Shrapnel extends Bullet {
     }
 }
 
-export class ShrepnalBomb extends Bullet {
+export class ShrapnelBomb extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1, lifeSpan = 1000) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "shrapnel";
@@ -186,7 +174,7 @@ export class ShrepnalBomb extends Bullet {
             const bulletSpeed = tileSize * (1 + Math.random() * 0.5);
             const lifeSpan = 3000 - Math.random() * (3000 / 2);
             spawnRelativeClass(Shrapnel, this, this.pos, this.angle, {x: 0, y: 0}, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
-    }
+        }
     }
 
     render(ctx) {
@@ -238,10 +226,6 @@ export class HomingMissle extends Bullet {
         this.type = "fire";
         this.size = scale * 25;
         this.lifeSpan = 5000;
-    }
-
-    update(deltaTime) {
-        super.update(deltaTime);
     }
 
     render(ctx) {

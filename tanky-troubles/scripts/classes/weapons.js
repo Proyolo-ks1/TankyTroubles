@@ -1,5 +1,5 @@
 import { setGlobalVariable, getGlobalVariable } from '../global-state.js';
-import { DefaultBullet, ChaingunBullet, ShotgunBullet, Shrapnel, ShrepnalBomb, FireBullet } from './bullet.js';
+import { DefaultBullet, ChaingunBullet, ShotgunBullet, Shrapnel, ShrapnelBomb, FireBullet } from './bullet.js';
 import { spawnRelativeClass } from './spawner.js';
 import { drawRect, drawPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../graphics-utils.js';
 
@@ -348,7 +348,7 @@ export class ShrepnalBombWeapon extends Weapon {
     press() {
         const tileSize = getGlobalVariable("tileSize");
         const bulletSpeed = tileSize * 1.8
-        spawnRelativeClass(ShrepnalBomb, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, 0, bulletSpeed, 1);
+        spawnRelativeClass(ShrapnelBomb, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, 0, bulletSpeed, 1);
     }
 
     hold() {
@@ -461,7 +461,7 @@ export class ChainShotgunBOOM extends Weapon {
                     const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
                     const bulletSpeed = tileSize * (3.0 + Math.random() * 0.5);
                     const lifeSpan = 1750 - Math.random() * (1750 / 15);
-                    spawnRelativeClass(ShrepnalBomb, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
+                    spawnRelativeClass(ShrapnelBomb, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
                 }
             }
         }
