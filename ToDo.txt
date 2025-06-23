@@ -1,0 +1,5 @@
+vragen aan chatgpt
+
+- saving settings export import
+
+- drawImg()

@@ -11,6 +11,52 @@ import { getGlobalVariable } from './global-state.js';
 
 
 
+// MARK: drawText
+// Function to draw text with optional outline, applying canvas scaling
+export function drawText(ctx, text, pos, align = "left", baseline = "top", fontSize, font, color, outlineColor = null, outlineWidth = 1) {
+    const canvasScale = getGlobalVariable("canvasScale");
+
+    // Scale the position and font size according to the canvas scale
+    const scaledX = pos.x * canvasScale;
+    const scaledY = pos.y * canvasScale;
+    const scaledFontSize = fontSize * canvasScale;
+
+    // Set the font size and alignment for the text
+    ctx.font = `${scaledFontSize.toFixed(0)}px ${font}`;
+    ctx.fillStyle = color;
+    ctx.textAlign = align;
+    ctx.textBaseline = baseline;
+
+    // Draw the text outline if outlineColor is provided
+    if (outlineColor) {
+        ctx.strokeStyle = outlineColor;
+        ctx.lineWidth = outlineWidth * canvasScale; // Scale stroke width according to canvas scale
+        ctx.strokeText(text, scaledX, scaledY); // Draw the outline
+    }
+
+    // Draw the text on the canvas
+    ctx.fillText(text, scaledX, scaledY);
+}
+
+
+export function drawImg(ctx, pos, size, img, strokeColor = null, strokeWidth = 1, borderRadius = 0) {
+    const canvasScale = getGlobalVariable("canvasScale");
+
+    // Scale values
+    const scaledX = pos.x * canvasScale;
+    const scaledY = pos.y * canvasScale;
+    const scaledWidth = size.width * canvasScale;
+    const scaledHeight = size.height * canvasScale;
+    const scaledBorderRadius = borderRadius * canvasScale;
+}
+
+
+
+// MARK: SHAPES
+
+
+
+// MARK: drawRect
 // Function to draw a rectangle with optional rounded corners, applying canvas scaling
 export function drawRect(ctx, pos, size, fillColor, strokeColor = null, strokeWidth = 1, borderRadius = 0) {
     const canvasScale = getGlobalVariable("canvasScale");
@@ -56,6 +102,7 @@ export function drawRect(ctx, pos, size, fillColor, strokeColor = null, strokeWi
     }
 }
 
+// MARK: drawCircle
 // Function to draw a circle with optional outline, applying canvas scaling
 export function drawCircle(ctx, posCenter, radius, fillColor, strokeColor = null, strokeWidth = 1) {
     const canvasScale = getGlobalVariable("canvasScale");
@@ -76,33 +123,7 @@ export function drawCircle(ctx, posCenter, radius, fillColor, strokeColor = null
     }
 }
 
-// Function to draw text with optional outline, applying canvas scaling
-export function drawText(ctx, text, pos, align = "left", baseline = "top", fontSize, font, color, outlineColor = null, outlineWidth = 1) {
-    const canvasScale = getGlobalVariable("canvasScale");
-
-    // Scale the position and font size according to the canvas scale
-    const scaledX = pos.x * canvasScale;
-    const scaledY = pos.y * canvasScale;
-    const scaledFontSize = fontSize * canvasScale;
-
-    // Set the font size and alignment for the text
-    ctx.font = `${scaledFontSize.toFixed(0)}px ${font}`;
-    ctx.fillStyle = color;
-    ctx.textAlign = align;
-    ctx.textBaseline = baseline;
-
-    // Draw the text outline if outlineColor is provided
-    if (outlineColor) {
-        ctx.strokeStyle = outlineColor;
-        ctx.lineWidth = outlineWidth * canvasScale; // Scale stroke width according to canvas scale
-        ctx.strokeText(text, scaledX, scaledY); // Draw the outline
-    }
-
-    // Draw the text on the canvas
-    ctx.fillText(text, scaledX, scaledY);
-}
-
-
+// MARK: drawRegPolygon
 // Function to draw a regular polygon with one flat side facing the bottom
 export function drawRegPolygon(ctx, posCenter, radius, n, direction = 0, fillColor, strokeColor = null, strokeWidth = 1) {
     const canvasScale = getGlobalVariable("canvasScale");
@@ -148,6 +169,7 @@ export function drawRegPolygon(ctx, posCenter, radius, n, direction = 0, fillCol
     }
 }
 
+// MARK: drawLine
 // Function to draw a line between two points
 export function drawLine(ctx, startPos, endPos, strokeColor = "#000000", strokeWidth = 1) {
     const canvasScale = getGlobalVariable("canvasScale");
@@ -166,6 +188,8 @@ export function drawLine(ctx, startPos, endPos, strokeColor = "#000000", strokeW
     ctx.stroke();
 }
 
+// MARK: drawVectorArrow
+// Function to draw a vector arrow from a start position in the direction of a vector
 export function drawVectorArrow(ctx, startPos, vector, strokeColor = "#000000", strokeWidth = 1) {
     const canvasScale = getGlobalVariable("canvasScale");
 
@@ -205,8 +229,9 @@ export function drawVectorArrow(ctx, startPos, vector, strokeColor = "#000000", 
     ctx.stroke();
 }
 
+// MARK: drawVertexPolygon
 // Function to draw a polygon based on a list of positions relative to a position and angle
-export function drawPolygon(ctx, pos, angle, vertices, fillColor, strokeColor = null, strokeWidth = 1) {
+export function drawVertexPolygon(ctx, pos, angle, vertices, fillColor, strokeColor = null, strokeWidth = 1) {
     if (vertices.length < 3) {
         console.warn("A polygon must have at least 3 vertices.");
         return;
@@ -243,6 +268,13 @@ export function drawPolygon(ctx, pos, angle, vertices, fillColor, strokeColor = 
     }
 }
 
+
+
+// MARK: HELPERFUNCTIONS
+
+
+
+// MARK: transformVertex
 // Helper function to transform each vertex with a position and angle
 function transformVertex(vertex, pos, angle, canvasScale) {
     // Rotate the vertex by the given angle

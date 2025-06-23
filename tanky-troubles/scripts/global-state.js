@@ -1,14 +1,12 @@
 // Define a state object to hold all global variables
-const state = {
-    debugMode: true,
+const globalState = {
+    debugMode: false,
     canvasScale: 1,
     tileSize: 192,
     tanks: [],
     bullets: [],
+    particles: [],
 };
-
-
-
 
 
 
@@ -20,13 +18,14 @@ const state = {
 
 // Function to update a global variable dynamically
 export function setGlobalVariable(variableName, value) {
-    if (state.hasOwnProperty(variableName)) {
-        state[variableName] = value;
-        if (Array.isArray(value)) {
-            // console.log(`Variable '${variableName}' has been updated. New length: ${value.length}`);
-        } else {
-            console.log(`Variable '${variableName}' has been updated to: ${value}`);
-        }
+    if (globalState.hasOwnProperty(variableName)) {
+        globalState[variableName] = value;
+        // Global Value Update Logging
+        // if (Array.isArray(value)) {
+        //     console.log(`Variable '${variableName}' has been updated. New length: ${value.length}`);
+        // } else {
+        //     console.log(`Variable '${variableName}' has been updated to: ${value}`);
+        // }
     } else {
         console.error(`Unknown variable: ${variableName}`);
     }
@@ -34,8 +33,8 @@ export function setGlobalVariable(variableName, value) {
 
 // Function to get a global variable dynamically
 export function getGlobalVariable(variableName) {
-    if (state.hasOwnProperty(variableName)) {
-        return state[variableName];
+    if (globalState.hasOwnProperty(variableName)) {
+        return globalState[variableName];
     } else {
         console.error(`Unknown variable: ${variableName}`);
         return null;
@@ -44,5 +43,5 @@ export function getGlobalVariable(variableName) {
 
 // Function to get all global state variables (optional, for debugging)
 export function getAllState() {
-    return { ...state };
+    return { ...globalState };
 }

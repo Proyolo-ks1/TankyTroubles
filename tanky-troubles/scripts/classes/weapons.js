@@ -1,7 +1,7 @@
 import { setGlobalVariable, getGlobalVariable } from '../global-state.js';
-import { DefaultBullet, ChaingunBullet, ShotgunBullet, Shrapnel, ShrapnelBomb, FireBullet } from './bullet.js';
+import { DefaultBullet, ChaingunBullet, ShotgunBullet, Shrapnel, ShrapnelBomb, FireBullet, HomingMissle, OppenheimerBullet } from './bullet.js';
 import { spawnRelativeClass } from './spawner.js';
-import { drawRect, drawPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../graphics-utils.js';
+import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../graphics-utils.js';
 
 
 
@@ -58,11 +58,11 @@ export class NoWeapon extends Weapon {
 
     renderTurret(ctx) {
         // Barrel
-        const length = this.tank.size.length * 0.7;
-        const width = this.tank.size.width / 5;
+        const barrelLength = this.tank.size.length * 0.7;
+        const barrelWidth = this.tank.size.width * 4 / 15;
         const x = 0;
-        const y = -width / 2;
-        drawRect(ctx, { x: x, y: y }, { width: length, height: width }, this.tank.color, "black", 5);
+        const y = -barrelWidth / 2;
+        drawRect(ctx, { x: x, y: y }, { width: barrelLength, height: barrelWidth }, this.tank.color, "black", 5);
 
         // Dome
         const domeRadius = this.tank.size.width / 3;
@@ -155,7 +155,7 @@ export class Chaingun extends Weapon {
         // Calculate the number of barrels (e.g., 5 barrels)
         const barrelCount = 5;
         const barrelWidth = turretSize.width / barrelCount;
-        const barrelHeight = 10;  // The height of the barrels
+        const barrelHeight = 10;
     
         // Draw barrels spaced evenly across the turret
         for (let i = 0; i < barrelCount; i++) {
@@ -249,7 +249,7 @@ export class FlameThrower extends Weapon {
         const pos = { x: 100, y: 100 };  // Position where the shape will be drawn
         const angle = 45;  // Rotation in degrees
         
-        drawPolygon(ctx, pos, angle, customShape, "aqua", "black", 10);
+        drawVertexPolygon(ctx, pos, angle, customShape, "aqua", "black", 10);
     }
 }
 
@@ -498,4 +498,47 @@ export class ChainShotgunBOOM extends Weapon {
     //     let turretSize = { width: this.tank.size.length * 0.7, height: this.tank.size.width / 3 };
     //     drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize * 10 ,this.tank.color, "black", 5);
     // }
+}
+
+export class OppenheimerBOOOM extends Weapon {
+    constructor(tank) {
+        super(tank);
+        this.barrelLength = this.tank.size.length * 0.7;
+    }
+
+    press() {
+        const tileSize = getGlobalVariable("tileSize");
+        const bulletSpeed = tileSize * 1.8;
+        spawnRelativeClass(OppenheimerBullet, this.tank, this.tank.pos, this.tank.angle, {x: this.barrelLength, y: 0}, 0, bulletSpeed, this.tank.scale);
+    }
+
+    hold() {
+        // empty
+    }
+
+    release() {
+        // empty
+    }
+
+    renderTurret(ctx) {
+        // Barrel
+        const length = this.tank.size.length * 0.7;
+        const width = this.tank.size.width / 5;
+        const x = 0;
+        const y = -width / 2;
+        drawRect(ctx, { x: x, y: y }, { width: length, height: width }, this.tank.color, "black", 5);
+
+        // Dome
+        const domeRadius = this.tank.size.width / 3;
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, "black", "black", 5);
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.8, "yellow");
+        for (let i = 0; i < 3; i++) {
+            let triangleAngle = Math.PI * 2 / 3 * i;
+            let trianglePosRadius = -domeRadius * 0.55
+            let trianglePos = { x: trianglePosRadius * Math.cos(triangleAngle) , y: trianglePosRadius * Math.sin(triangleAngle) };
+            drawRegPolygon(ctx, trianglePos, domeRadius * 0.55, 3, triangleAngle, "#000"); // Triangle
+        }
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.2, "black", "black", 5);
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.1, "yellow");
+    }
 }

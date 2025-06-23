@@ -1,5 +1,5 @@
 // Define file paths for the icons at the top
-const ICON_PATH = 'assets/icons/';
+const ICON_PATH = '../assets/icons/';
 const ICONS = {
     theaterModeEnter: `${ICON_PATH}expand_content_40dp_E3E3E3_FILL1_wght400_GRAD0_opsz40.svg`,
     theaterModeExit: `${ICON_PATH}collapse_content_40dp_E3E3E3_FILL1_wght400_GRAD0_opsz40.svg`,

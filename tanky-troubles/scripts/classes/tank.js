@@ -1,6 +1,6 @@
 import { setGlobalVariable, getGlobalVariable } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../graphics-utils.js';
-import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ShrepnalBombWeapon, ExperimentalWeapon, ChainShotgunBOOM } from './weapons.js';
+import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ShrepnalBombWeapon, ExperimentalWeapon, ChainShotgunBOOM, OppenheimerBOOOM } from './weapons.js';
 
 
 
@@ -20,9 +20,10 @@ export class Tank {
         this.color = color;
         this.controls = controls;
         this.globalKeys = globalKeys;
-        this.weapon = new NoWeapon(this); // Default weapon
+        this.weapon = new OppenheimerBOOOM(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
+        this.trackRotation = {left: 0, right: 0}
 
         this.health = 1;
 
@@ -68,8 +69,12 @@ export class Tank {
     
         // Rotation - Turning
         if (!(this.globalKeys[this.controls.left] && this.globalKeys[this.controls.right])) {
-            if (this.globalKeys[this.controls.left]) this.angle -= this.turningSpeed * deltaTime;
-            if (this.globalKeys[this.controls.right]) this.angle += this.turningSpeed * deltaTime;
+            if (this.globalKeys[this.controls.left]) {
+                this.angle -= this.turningSpeed * deltaTime;
+            }
+            if (this.globalKeys[this.controls.right]) {
+                this.angle += this.turningSpeed * deltaTime;
+            }
         }
         this.angle = (this.angle + 2 * Math.PI) % (2 * Math.PI);
     
@@ -90,6 +95,11 @@ export class Tank {
         // Update position using velocity
         this.pos.x += this.velocity.x * deltaTime;
         this.pos.y += this.velocity.y * deltaTime;
+
+        // Update track rotation
+        const forwardSpeed = Math.cos(this.angle) * this.velocity.x + Math.sin(this.angle) * this.velocity.y;
+        this.trackRotation.left += forwardSpeed * deltaTime;
+        this.trackRotation.right += forwardSpeed * deltaTime;
     }
 
     render(ctx) {
@@ -104,7 +114,18 @@ export class Tank {
         drawRect(ctx, { x: -this.size.length / 2, y: -this.size.width / 2 }, { width: this.size.length, height: this.size.width }, this.color, "black", 5);
 
         // Tracks
-        // drawRect(ctx, { x: -size.width / 2, y: -size.height / 2 }, size, this.color, "black", 5);
+        const trackLinkLength = this.size.length / 12;
+        drawRect(ctx, { x: -this.size.length / 2, y: -this.size.width / 2 }, { width: this.size.length, height: this.size.width / 6 }, this.color, "black", 5);
+        drawRect(ctx, { x: -this.size.length / 2, y: this.size.width / 2 - this.size.width / 6 }, { width: this.size.length, height: this.size.width / 6 }, this.color, "black", 5);
+        const trackLeftRotationRemainder = mod(this.trackRotation.left, 2) * trackLinkLength;
+        const trackRightRotationRemainder = mod(this.trackRotation.right, 2) * trackLinkLength;
+        for (let i = 0; i <= 6; i++) {
+            drawRect(ctx, { x: -this.size.length / 2 + trackLinkLength * (2 * i - 1) + trackLeftRotationRemainder, y: -this.size.width / 2 }, { width: trackLinkLength, height: this.size.width / 6 }, "rgba(0, 0, 0, 0.3)");
+        }
+        for (let i = 0; i <= 6; i++) {
+            drawRect(ctx, { x: -this.size.length / 2 + trackLinkLength * (2 * i - 1) + trackRightRotationRemainder, y: this.size.width / 2 - this.size.width / 6 }, { width: trackLinkLength, height: this.size.width / 6 }, "rgba(0, 0, 0, 0.3)");
+        }
+        
 
         // Turret
         this.weapon.renderTurret(ctx, this);
@@ -113,7 +134,7 @@ export class Tank {
 
         // Player Name or ID
         const text = this.id
-        const textPos = { x: this.pos.x, y: this.pos.y - 50 * this.scale };
+        const textPos = { x: this.pos.x, y: this.pos.y - 0.3 * this.scale * getGlobalVariable("tileSize") };
         drawText(ctx, text, textPos, "center", "bottom", 25, "Consolas", this.color, "#000000", 5);
     }
 
@@ -129,4 +150,10 @@ export class Tank {
         // Draw the heading line
         drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#808", 5);
     }
+}
+
+
+
+function mod(n, m) {
+    return ((n % m) + m) % m;
 }
