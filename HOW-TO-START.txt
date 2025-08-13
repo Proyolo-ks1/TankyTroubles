@@ -3,6 +3,8 @@ HOW TO START
 2. Open your browser and go to http://localhost:8000/index.html (don’t open the file directly!)
 3. You should be able to shoot around with the shotgun type weapon.
 
+note: the 'tutorial' above might be completely wrong since I may forget this file exists after a large amount of updates and changes to the game, sry in advance :)
+
 
 
 CONTROLS

@@ -1,12 +1,32 @@
+export const GameState = {
+    MAIN_MENU: "MAIN_MENU",
+    RUNNING: "RUNNING",
+};
+
+export const OverlayState = {
+    NONE: "NONE",
+    PAUSE_MENU: "PAUSE_MENU",
+    SETTINGS: "SETTINGS",
+    HELP: "HELP",
+    PAUSED: "PAUSED",
+    GAME_OVER: "GAME_OVER"
+};
+
 // Define a state object to hold all global variables
 const globalState = {
-    debugMode: false,
-    canvasScale: 1,
+    debugMode: true,
+    statistics: false,
+    canvasScale: 0.5,
     tileSize: 192,
     tanks: [],
     bullets: [],
     particles: [],
+    currentGameState: GameState.MAIN_MENU,
+    overlayState: OverlayState.NONE,
 };
+
+
+
 
 
 

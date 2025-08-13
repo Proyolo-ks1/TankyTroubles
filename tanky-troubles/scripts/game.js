@@ -1,7 +1,18 @@
-import { setGlobalVariable, getGlobalVariable, getAllState } from './global-state.js';
+import { GameState, OverlayState, setGlobalVariable, getGlobalVariable, getAllState } from './global-state.js';
 import { loadMainMenu } from './gamestates/main-menu.js';
-import { loadRunningGame } from './gamestates/running-game.js';
+import { initializeGame, loadRunningGame } from './gamestates/running-game.js';
+import { renderGameStatistics } from './overlay.js';
 // import { preloadImages, rescaleImages, getImage } from "./asset-handler.js";
+
+
+
+
+
+
+
+//      |=====================|
+//      |      FUNCTIONS      |
+//      |=====================|
 
 
 
@@ -14,22 +25,25 @@ import { loadRunningGame } from './gamestates/running-game.js';
 
 
 
-// Set up the canvas
+// Set up the canvas (default 720x1080)
 const canvas = document.getElementById("game-canvas");
 const ctx = canvas.getContext("2d");
+let canvasWidth = 1080;
+let canvasHeight = 720;
+ctx.fillStyle = "#fff";
 
-// Define a Full HD game world (in-game units)
-const GAME_WIDTH = 1920;
-const GAME_HEIGHT = 1080;
+// Game big Picture
+setGlobalVariable("currentGameState", GameState.MAIN_MENU);
+setGlobalVariable("overlayState", OverlayState.PAUSE_MENU);
+let currentGameState;
+
+// Statistics
+let lastTime = performance.now();
 
 // Resize handler
 function resizeCanvas() {
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
-
-    // Determine the scale factor to fit the game world inside the canvas
-    const scale = Math.min(canvas.width / GAME_WIDTH, canvas.height / GAME_HEIGHT)
-    setGlobalVariable("canvasScale", scale);
+    canvasWidth = canvas.clientWidth;
+    canvasHeight = canvas.clientHeight;
 }
 
 resizeCanvas();
@@ -44,39 +58,31 @@ window.addEventListener("resize", resizeCanvas);
 //      |      GAME LOOP      |
 //      |=====================|
 
-
-const GameState = {
-    MAIN_MENU: "MAIN_MENU",
-    RUNNING: "RUNNING",
-};
-
-const OverlayState = {
-    PAUSE_MENU: "PAUSE_MENU",
-    SETTINGS: "SETTINGS",
-    HELP: "HELP",
-    PAUSED: "PAUSED",
-    GAME_OVER: "GAME_OVER"
-};
-
-let currentGameState = GameState.RUNNING;
-let overlayState = OverlayState.PAUSE_MENU;
-overlayState = OverlayState.SETTINGS // EDIT
-ctx.fillStyle = "#fff";
+let gameInitialized = false;
 
 function gameLoop(currentTime) {
     if (!lastTime) lastTime = currentTime; // Initialize lastTime on the first loop
     let deltaTime = (currentTime - lastTime) / 1000;  // Time difference in seconds
 
+    currentGameState = getGlobalVariable("currentGameState")
+
     switch (currentGameState) {
         case GameState.MAIN_MENU:
-            loadMainMenu(ctx);
+            loadMainMenu(ctx, canvasWidth, canvasHeight);
             break;
 
         case GameState.RUNNING:
-            loadRunningGame(ctx);
+            if (!gameInitialized) {
+                initializeGame(canvasWidth, canvasHeight);
+                gameInitialized = true;
+            }
+            loadRunningGame(ctx, canvasWidth, canvasHeight);
+
             break;
     }
-    
+    if (getGlobalVariable("statistics")) {
+        renderGameStatistics(ctx, currentTime, deltaTime, getGlobalVariable("tanks"), getGlobalVariable("bullets"));
+    }
     lastTime = currentTime;
 
     // Simulate low FPS

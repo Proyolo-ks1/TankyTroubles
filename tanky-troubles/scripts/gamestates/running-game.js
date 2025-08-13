@@ -15,60 +15,6 @@ import { loadMainMenu } from '../gamestates/main-menu.js';
 
 
 
-function renderOverlay(currentTime, deltaTime, tanks, bullets) {
-    // Calculate FPS with smoothing
-    const fps = (overlayFps * 0.8) + (1 / deltaTime * 0.2);
-
-    // Update overlay values only at defined intervals
-    if (currentTime - lastRenderStatisticsTime >= 1000 / statisticUpdatesPerSecond) {
-        overlayFps = fps;
-        overlayDeltaTime = deltaTime;
-        lastRenderStatisticsTime = currentTime;
-    }
-
-    const canvasScale = getGlobalVariable("canvasScale");
-
-    // Background
-    let pos = { x: 5 / canvasScale, y: 5 / canvasScale };
-    const padding = 10 / canvasScale;
-    const textSpacing = 2 / canvasScale;
-    const align = "left";
-    const baseline = "top";
-    const fontSize = 16 / canvasScale;
-    const font = "Consolas";
-    const textColor = "#fff";
-    const outlineColor = "#000";
-    const outlineWidth = 2;
-    const linesOfText = 5;
-    const backgroundWidth = 150 / canvasScale + 2 * padding;
-    const backgroundHeight = linesOfText * fontSize + (linesOfText - 1) * textSpacing + 2 * padding;
-    const size = { width: backgroundWidth, height: backgroundHeight };
-    const borderRadius = padding;
-
-    drawRect(ctx, pos, size, "rgba(0, 0, 0, 0.5)", null, null, borderRadius);
-
-    // Overlay text
-    pos = { x: pos.x + padding, y: pos.y + padding };
-
-    drawText(ctx, `FPS:     ${Math.round(overlayFps)}`, { x: pos.x, y: pos.y }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
-    drawText(ctx, `ΔTime:   ${Math.round(overlayDeltaTime * 1000)}ms`, { x: pos.x, y: pos.y + 1 * fontSize + 1 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
-    drawText(ctx, `Scale:   ${canvasScale.toFixed(2)}`, { x: pos.x, y: pos.y + 2 * fontSize + 2 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
-    drawText(ctx, `Tanks:   ${tanks.length}`, { x: pos.x, y: pos.y + 3 * fontSize + 3 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
-    drawText(ctx, `Bullets: ${bullets.length}`, { x: pos.x, y: pos.y + 4 * fontSize + 4 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
-
-    // Toggle Button for debugMode
-    const buttonWidth = 150 / canvasScale;
-    const buttonHeight = 30 / canvasScale;
-    const buttonPos = { x: pos.x, y: pos.y + 5 * fontSize + 5 * textSpacing + padding };  // Position button below the overlay
-
-    // Draw the button
-    drawRect(ctx, buttonPos, { width: buttonWidth, height: buttonHeight }, "rgba(0, 0, 0, 0.7)", "white", 2, 5);
-
-    // Button text (showing current state of debugMode)
-    const debugText = getGlobalVariable("debugMode") ? "Debug: ON" : "Debug: OFF";
-    drawText(ctx, debugText, { x: buttonPos.x + buttonWidth / 2, y: buttonPos.y + buttonHeight / 2 }, "center", "middle", fontSize, font, "white", "black", 2);
-}
-
 // Function to render the background theme and maze
 function renderBackground() {
     const tileSize = getGlobalVariable("tileSize");
@@ -199,68 +145,66 @@ let windSpeed = {x: 0, y: 0};
 let windEnabled = false;
 
 // Support Variables
-let lastTime = performance.now();
-let lastRenderStatisticsTime = performance.now();
 let lastPowerUpSpawnTime = 0;
-let overlayFps = 0;
-let overlayDeltaTime = 0;
-let statisticUpdatesPerSecond = 10
 
 let Maze = generateMaze()
 
-// startGame();
+
+export function initializeGame(canvasWidth, canvasHeight) {
+
+    // startGame();
 
 
 
-// Global keys object - make it accessible from script.js
-window.globalKeys = {};
+    // Global keys object - make it accessible from script.js
+    window.globalKeys = {};
 
-// Add event listeners for keydown and keyup
-window.addEventListener("keydown", (e) => {
-    // Only process key events if the game canvas is focused
-    if (!window.isGameFocused) return;
+    // Add event listeners for keydown and keyup
+    window.addEventListener("keydown", (e) => {
+        // Only process key events if the game canvas is focused
+        if (!window.isGameFocused) return;
 
-    const blockedKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "]; // List of keys to block
-    if (blockedKeys.includes(e.key)) {
-        e.preventDefault(); // Prevent default for these keys
-    }
-    globalKeys[e.key] = true;
-});
+        const blockedKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "]; // List of keys to block
+        if (blockedKeys.includes(e.key)) {
+            e.preventDefault(); // Prevent default for these keys
+        }
+        globalKeys[e.key] = true;
+    });
 
-window.addEventListener("keyup", (e) => {
-    // Only process key events if the game canvas is focused
-    if (!window.isGameFocused) return;
+    window.addEventListener("keyup", (e) => {
+        // Only process key events if the game canvas is focused
+        if (!window.isGameFocused) return;
 
-    globalKeys[e.key] = false;
-});
+        globalKeys[e.key] = false;
+    });
 
-// Create tanks with position, color, and controls
-const tileSize = getGlobalVariable("tileSize");
-const defaultTankLength = tileSize * 2 / 5; // Tiles
-const defaultTankWidth = tileSize / 3 // Tiles
-const defaultTankSize = {length: defaultTankLength, width: defaultTankWidth}
-const defaultTankSpeed = tileSize * 1.6; // Tiles per second
-const defaultTankRotSpeed = 5; // radians per second
+    // Create tanks with position, color, and controls
+    const tileSize = getGlobalVariable("tileSize");
+    const defaultTankLength = tileSize * 2 / 5; // Tiles
+    const defaultTankWidth = tileSize / 3 // Tiles
+    const defaultTankSize = {length: defaultTankLength, width: defaultTankWidth}
+    const defaultTankSpeed = tileSize * 1.6; // Tiles per second
+    const defaultTankRotSpeed = 5; // radians per second
 
-let angleSpawn = Math.random() * Math.PI * 2;
-angleSpawn = 0;
-const posSpawn1 = { x: GAME_WIDTH / 4, y: GAME_HEIGHT / 2 }
-new Tank(posSpawn1, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 5, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" }, globalKeys);
+    let angleSpawn = Math.random() * Math.PI * 2;
+    angleSpawn = 0;
+    const posSpawn1 = { x: canvasWidth / 4, y: canvasHeight / 2 }
+    new Tank(posSpawn1, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 5, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" }, globalKeys);
 
-angleSpawn = Math.random() * Math.PI * 2;
-angleSpawn = 0;
-const posSpawn2 = { x: GAME_WIDTH - GAME_WIDTH / 4, y: GAME_HEIGHT / 2 }
-new Tank(posSpawn2, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 1, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }, globalKeys);
-
-
-
+    angleSpawn = Math.random() * Math.PI * 2;
+    angleSpawn = 0;
+    const posSpawn2 = { x: canvasWidth - canvasWidth / 4, y: canvasHeight / 2 }
+    new Tank(posSpawn2, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 1, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }, globalKeys);
+}
 
 
 
 
-export function loadRunningGame(ctx) {
+
+
+export function loadRunningGame(ctx, canvasWidth, canvasHeight) {
     if (!window.isGamePaused) {
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
         renderBackground();
 
@@ -299,7 +243,7 @@ export function loadRunningGame(ctx) {
         cleanupInactiveBullets(bullets);
 
         // updateGame(currentTime);
-        renderOverlay(currentTime, deltaTime, tanks, bullets);
+
         if (windEnabled) {
             updateAndRenderWind(ctx, deltaTime)
         }

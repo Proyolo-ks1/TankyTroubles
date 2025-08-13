@@ -130,6 +130,11 @@ function unfocusOnGame() {
     window.isGameFocused = false;
     gameUnfocusOverlay.style.opacity = "1";
     window.isGamePaused = true;
+
+    if (!window.globalKeys) {
+        console.log("%cweer dat rare gebeuren met !window.globalKeys", "color: red; font-weight: bold;");
+        return; // Prevent crash if not yet initialized
+    }
     
     // Trigger keyup event for all keys that are currently pressed
     const allKeys = Object.keys(window.globalKeys);
