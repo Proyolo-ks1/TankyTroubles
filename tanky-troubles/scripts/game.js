@@ -49,6 +49,8 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
+gameLoop(performance.now());
+
 
 
 
@@ -90,6 +92,3 @@ function gameLoop(currentTime) {
     const frameDelay = 1000 / simFPS;
     requestAnimationFrame(gameLoop);
 }
-
-const initialTime = performance.now();
-gameLoop(initialTime);

@@ -15,7 +15,7 @@ export const OverlayState = {
 // Define a state object to hold all global variables
 const globalState = {
     debugMode: true,
-    statistics: false,
+    statistics: true,
     canvasScale: 0.5,
     tileSize: 192,
     tanks: [],
