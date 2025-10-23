@@ -1,4 +1,4 @@
-import { GameState, OverlayState, setGlobalVariable, getGlobalVariable, getAllState } from './global-state.js';
+import { GAME_STATES, OVERLAY_STATES, GLOBAL_VARIABLES, setGlobalVariable, getGlobalVariable, getAllState } from './global-state.js';
 import { loadMainMenu } from './gamestates/main-menu.js';
 import { initializeGame, loadRunningGame } from './gamestates/running-game.js';
 import { renderGameStatistics } from './overlay.js';
@@ -32,9 +32,9 @@ let canvasWidth = 1080;
 let canvasHeight = 720;
 ctx.fillStyle = "#fff";
 
-// Game big Picture
-setGlobalVariable("currentGameState", GameState.MAIN_MENU);
-setGlobalVariable("overlayState", OverlayState.PAUSE_MENU);
+// Game Big Picture
+setGlobalVariable(GLOBAL_VARIABLES.GAME_STATE, GAME_STATES.MAIN_MENU);
+setGlobalVariable(GLOBAL_VARIABLES.OVERLAY_STATE, OVERLAY_STATES.PAUSE_MENU);
 let currentGameState;
 
 // Statistics
@@ -49,8 +49,6 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-gameLoop(performance.now());
-
 
 
 
@@ -63,17 +61,17 @@ gameLoop(performance.now());
 let gameInitialized = false;
 
 function gameLoop(currentTime) {
-    if (!lastTime) lastTime = currentTime; // Initialize lastTime on the first loop
+    if (!lastTime) lastTime = currentTime;  // Initialize lastTime on the first loop
     let deltaTime = (currentTime - lastTime) / 1000;  // Time difference in seconds
 
-    currentGameState = getGlobalVariable("currentGameState")
+    currentGameState = getGlobalVariable(GLOBAL_VARIABLES.GAME_STATE)
 
     switch (currentGameState) {
-        case GameState.MAIN_MENU:
+        case GAME_STATES.MAIN_MENU:
             loadMainMenu(ctx, canvasWidth, canvasHeight);
             break;
 
-        case GameState.RUNNING:
+        case GAME_STATES.RUNNING:
             if (!gameInitialized) {
                 initializeGame(canvasWidth, canvasHeight);
                 gameInitialized = true;
@@ -82,8 +80,8 @@ function gameLoop(currentTime) {
 
             break;
     }
-    if (getGlobalVariable("statistics")) {
-        renderGameStatistics(ctx, currentTime, deltaTime, getGlobalVariable("tanks"), getGlobalVariable("bullets"));
+    if (getGlobalVariable(GLOBAL_VARIABLES.SHOW_STATISTICS)) {
+        renderGameStatistics(ctx, currentTime, deltaTime, getGlobalVariable(GLOBAL_VARIABLES.TANKS), getGlobalVariable(GLOBAL_VARIABLES.BULLETS));
     }
     lastTime = currentTime;
 
@@ -92,3 +90,5 @@ function gameLoop(currentTime) {
     const frameDelay = 1000 / simFPS;
     requestAnimationFrame(gameLoop);
 }
+
+gameLoop(performance.now());

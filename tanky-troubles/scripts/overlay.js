@@ -1,5 +1,5 @@
 import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from './graphics-utils.js';
-import { GameState, OverlayState, setGlobalVariable, getGlobalVariable, getAllState } from './global-state.js';
+import { GAME_STATES, OVERLAY_STATES, setGlobalVariable, getGlobalVariable, getAllState } from './global-state.js';
 
 
 

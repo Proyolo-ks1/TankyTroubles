@@ -1,4 +1,4 @@
-import { GameState, OverlayState, setGlobalVariable, getGlobalVariable, getAllState } from '../global-state.js';
+import { GAME_STATES, OVERLAY_STATES, setGlobalVariable, getGlobalVariable, getAllState } from '../global-state.js';
 import { Button } from '../ui.js';
 
 const buttons = [];
@@ -22,5 +22,5 @@ export function loadMainMenu(ctx) {
 }
 
 // when pressing button:
-setGlobalVariable("currentGameState", GameState.MAIN_MENU);
-setGlobalVariable("overlayState", OverlayState.PAUSE_MENU);
+setGlobalVariable("currentGameState", GAME_STATES.MAIN_MENU);
+setGlobalVariable("overlayState", OVERLAY_STATES.PAUSE_MENU);
