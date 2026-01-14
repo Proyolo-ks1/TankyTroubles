@@ -171,10 +171,14 @@ gameContainer.addEventListener('blur', () => {
 // globalKeys
 window.addEventListener("keydown", (e) => {
     if (!runningGameApi.isGameFocused) return;
+    
+    e.preventDefault();
     runningGameApi.globalKeys[e.key] = true;
 });
 
 window.addEventListener("keyup", (e) => {
     if (!runningGameApi.isGameFocused) return;
+    
+    e.preventDefault();
     runningGameApi.globalKeys[e.key] = false;
 });

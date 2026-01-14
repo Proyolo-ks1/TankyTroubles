@@ -13,7 +13,7 @@ import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPol
 //      |====================|
 
 
-
+// MARK: Weapon
 class Weapon {
     constructor(tank) {
         this.tank = tank;
@@ -36,6 +36,7 @@ class Weapon {
     }
 }
 
+// MARK: NoWeapon
 export class NoWeapon extends Weapon {
     constructor(tank) {
         super(tank);
@@ -70,6 +71,7 @@ export class NoWeapon extends Weapon {
     }
 }
 
+// MARK: Chaingun
 export class Chaingun extends Weapon {
     constructor(tank) {
         super(tank);
@@ -166,6 +168,7 @@ export class Chaingun extends Weapon {
     }
 }
 
+// MARK: Shotgun
 export class Shotgun extends Weapon {
     constructor(tank) {
         super(tank);
@@ -208,6 +211,7 @@ export class Shotgun extends Weapon {
     }
 }
 
+// MARK: FlameThrower
 export class FlameThrower extends Weapon {
     constructor(tank) {
         super(tank);
@@ -253,6 +257,7 @@ export class FlameThrower extends Weapon {
     }
 }
 
+// MARK: ChainShotgun
 export class ChainShotgun extends Weapon {
     constructor(tank) {
         super(tank);
@@ -338,6 +343,7 @@ export class ChainShotgun extends Weapon {
     }
 }
 
+// MARK: ShrepnalBombWeapon
 export class ShrepnalBombWeapon extends Weapon {
     constructor(tank) {
         super(tank);
@@ -365,6 +371,7 @@ export class ShrepnalBombWeapon extends Weapon {
     }
 }
 
+// MARK: ExperimentalWeapon
 export class ExperimentalWeapon extends Weapon {
     constructor(tank) {
         super(tank);
@@ -396,6 +403,7 @@ export class ExperimentalWeapon extends Weapon {
     }
 }
 
+// MARK: ChainShotgunBOOM
 export class ChainShotgunBOOM extends Weapon {
     constructor(tank) {
         super(tank);
@@ -500,6 +508,7 @@ export class ChainShotgunBOOM extends Weapon {
     // }
 }
 
+// MARK: OppenheimerBOOOM
 export class OppenheimerBOOOM extends Weapon {
     constructor(tank) {
         super(tank);
@@ -530,15 +539,15 @@ export class OppenheimerBOOOM extends Weapon {
 
         // Dome
         const domeRadius = this.tank.size.width / 3;
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, "black", "black", 5);
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.8, "yellow");
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, "#000", "#000", 5);
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.8, "#ff0");
         for (let i = 0; i < 3; i++) {
             let triangleAngle = Math.PI * 2 / 3 * i;
             let trianglePosRadius = -domeRadius * 0.55
             let trianglePos = { x: trianglePosRadius * Math.cos(triangleAngle) , y: trianglePosRadius * Math.sin(triangleAngle) };
             drawRegPolygon(ctx, trianglePos, domeRadius * 0.55, 3, triangleAngle, "#000"); // Triangle
         }
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.2, "black", "black", 5);
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.1, "yellow");
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.2, "#000", "#000", 5);
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.1, "#ff0");
     }
 }

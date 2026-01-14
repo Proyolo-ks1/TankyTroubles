@@ -48,7 +48,7 @@ function printDebugGlobals() {
 
 
 // Game Big Picture
-setGlobalVariable(GLOBAL_VARIABLES.GAME_STATE, GAME_STATES.MAIN_MENU);
+setGlobalVariable(GLOBAL_VARIABLES.GAME_STATE, GAME_STATES.RUNNING);
 setGlobalVariable(GLOBAL_VARIABLES.OVERLAY_STATE, OVERLAY_STATES.NONE);
 setGlobalVariable(GLOBAL_VARIABLES.DEBUG_MODE, false);
 setGlobalVariable(GLOBAL_VARIABLES.SHOW_STATISTICS, false);
