@@ -1,4 +1,4 @@
-import { setGlobalVariable, getGlobalVariable } from '../global-state.js';
+import { setGlobalVariable, getGlobalVariable, GLOBAL_VARIABLES } from '../global-state.js';
 import { DefaultBullet, ChaingunBullet, ShotgunBullet, Shrapnel, ShrapnelBomb, FireBullet, HomingMissle, OppenheimerBullet } from './bullet.js';
 import { spawnRelativeClass } from './spawner.js';
 import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../graphics-utils.js';
@@ -43,7 +43,7 @@ export class NoWeapon extends Weapon {
     }
 
     press() {
-        const tileSize = getGlobalVariable("tileSize");
+        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
         const bulletSpeed = tileSize * 1.8
         spawnRelativeClass(DefaultBullet, this.tank, this.tank.pos, this.tank.angle, {x: this.barrelLength, y: 0}, 0, bulletSpeed, this.tank.scale);
     }
@@ -113,7 +113,7 @@ export class Chaingun extends Weapon {
             while (this.timeSinceLastShot > this.fireRateCooldown) {
                 this.timeSinceLastShot -= this.fireRateCooldown; // Reduce accumulated time
 
-                const tileSize = getGlobalVariable("tileSize");
+                const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
 
                 // Calculate compensation distance
                 const extraTravelTime = this.timeSinceLastShot; // Time bullet is "late"
@@ -179,7 +179,7 @@ export class Shotgun extends Weapon {
         const spreadAngleRadians = spreadAngle * (Math.PI / 180);
         
         for (let i = 0; i < numBullets; i++) {
-            const tileSize = getGlobalVariable("tileSize");
+            const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
 
             // Randomize the angle offset for each bullet
             const randomBulletBarrelPosY = this.barrelWidth * (Math.random() - 0.5);
@@ -223,7 +223,7 @@ export class FlameThrower extends Weapon {
         const spreadAngle = 20; // Spread angle in degrees
         const spreadAngleRadians = spreadAngle * (Math.PI / 180);
 
-        const tileSize = getGlobalVariable("tileSize");
+        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
 
             // Randomize the angle offset for each bullet
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
@@ -292,7 +292,7 @@ export class ChainShotgun extends Weapon {
             while (this.timeSinceLastShot > this.fireRateCooldown) {
                 this.timeSinceLastShot -= this.fireRateCooldown; // Reduce accumulated time
 
-                const tileSize = getGlobalVariable("tileSize");
+                const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
 
                 // Calculate compensation distance
                 const extraTravelTime = this.timeSinceLastShot; // Time bullet is "late"
@@ -314,7 +314,7 @@ export class ChainShotgun extends Weapon {
                 const spreadAngleRadians = spreadAngle * (Math.PI / 180);
                 
                 for (let i = 0; i < numBullets; i++) {
-                    const tileSize = getGlobalVariable("tileSize");
+                    const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
 
                     // Randomize the angle offset for each bullet
                     const randomBulletBarrelPosY = this.barrelWidth * (Math.random() - 0.5);
@@ -346,7 +346,7 @@ export class ShrepnalBombWeapon extends Weapon {
     }
 
     press() {
-        const tileSize = getGlobalVariable("tileSize");
+        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
         const bulletSpeed = tileSize * 1.8
         spawnRelativeClass(ShrapnelBomb, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, 0, bulletSpeed, 1);
     }
@@ -433,7 +433,7 @@ export class ChainShotgunBOOM extends Weapon {
             while (this.timeSinceLastShot > this.fireRateCooldown) {
                 this.timeSinceLastShot -= this.fireRateCooldown; // Reduce accumulated time
 
-                const tileSize = getGlobalVariable("tileSize");
+                const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
 
                 // Calculate compensation distance
                 const extraTravelTime = this.timeSinceLastShot; // Time bullet is "late"
@@ -455,7 +455,7 @@ export class ChainShotgunBOOM extends Weapon {
                 const spreadAngleRadians = spreadAngle * (Math.PI / 180);
                 
                 for (let i = 0; i < numBullets; i++) {
-                    const tileSize = getGlobalVariable("tileSize");
+                    const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
 
                     // Randomize the angle offset for each bullet
                     const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
@@ -507,7 +507,7 @@ export class OppenheimerBOOOM extends Weapon {
     }
 
     press() {
-        const tileSize = getGlobalVariable("tileSize");
+        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
         const bulletSpeed = tileSize * 1.8;
         spawnRelativeClass(OppenheimerBullet, this.tank, this.tank.pos, this.tank.angle, {x: this.barrelLength, y: 0}, 0, bulletSpeed, this.tank.scale);
     }

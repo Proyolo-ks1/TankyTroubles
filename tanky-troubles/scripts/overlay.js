@@ -1,5 +1,6 @@
+import { GLOBAL_VARIABLES } from './global-state.js';
 import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from './graphics-utils.js';
-import { GAME_STATES, OVERLAY_STATES, setGlobalVariable, getGlobalVariable, getAllState } from './global-state.js';
+import { GAME_STATES, OVERLAY_STATES, setGlobalVariable, getGlobalVariable, getAllGlobals } from './global-state.js';
 
 
 
@@ -29,7 +30,7 @@ export function renderGameStatistics(ctx, currentTime, deltaTime, tanks, bullets
         lastRenderStatisticsTime = currentTime;
     }
 
-    const canvasScale = getGlobalVariable("canvasScale");
+    const canvasScale = getGlobalVariable(GLOBAL_VARIABLES.CANVAS_SCALE);
 
     // Background
     let pos = { x: 5 / canvasScale, y: 5 / canvasScale };
@@ -68,6 +69,6 @@ export function renderGameStatistics(ctx, currentTime, deltaTime, tanks, bullets
     drawRect(ctx, buttonPos, { width: buttonWidth, height: buttonHeight }, "rgba(0, 0, 0, 0.7)", "white", 2, 5);
 
     // Button text (showing current state of debugMode)
-    const debugText = getGlobalVariable("debugMode") ? "Debug: ON" : "Debug: OFF";
+    const debugText = getGlobalVariable(GLOBAL_VARIABLES.DEBUG_MODE) ? "Debug: ON" : "Debug: OFF";
     drawText(ctx, debugText, { x: buttonPos.x + buttonWidth / 2, y: buttonPos.y + buttonHeight / 2 }, "center", "middle", fontSize, font, "white", "black", 2);
 }

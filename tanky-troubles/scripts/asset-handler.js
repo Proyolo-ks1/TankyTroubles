@@ -21,6 +21,14 @@ async function preloadImages() {
     powerUpImages["cryo-bomb"] = await loadImage("../assets/images/power-ups/cryo-bomb.png");
     powerUpImages["double-barrel"] = await loadImage("../assets/images/power-ups/double-barrel.png");
     powerUpImages["drill"] = await loadImage("../assets/images/power-ups/drill.png");
+    powerUpImages["drone-tank-detonator"] = await loadImage("../assets/images/power-ups/drone-tank-detonator.png");
+    powerUpImages["drone-tank-shooter"] = await loadImage("../assets/images/power-ups/drone-tank-shooter.png");
+    powerUpImages["laser"] = await loadImage("../assets/images/power-ups/laser.png");
+    powerUpImages["missle-homing"] = await loadImage("../assets/images/power-ups/missle-homing.png");
+    powerUpImages["railgun"] = await loadImage("../assets/images/power-ups/railgun.png");
+    powerUpImages["shotgun"] = await loadImage("../assets/images/power-ups/shotgun.png");
+    powerUpImages["shrapnal-bomb"] = await loadImage("../assets/images/power-ups/shrapnal-bomb.png");
+    powerUpImages["smoke-bomb"] = await loadImage("../assets/images/power-ups/smoke-bomb.png");
 
     // Power-ups - Defensive
     powerUpImages["unknown-blue"] = await loadImage("../assets/images/power-ups/unknown-blue.png");

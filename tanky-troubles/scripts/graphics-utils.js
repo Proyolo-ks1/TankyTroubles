@@ -1,4 +1,4 @@
-import { getGlobalVariable } from './global-state.js';
+import { getGlobalVariable, GLOBAL_VARIABLES } from './global-state.js';
 
 
 
@@ -14,7 +14,7 @@ import { getGlobalVariable } from './global-state.js';
 // MARK: drawText
 // Function to draw text with optional outline, applying canvas scaling
 export function drawText(ctx, text, pos, align = "left", baseline = "top", fontSize, font, color, outlineColor = null, outlineWidth = 1) {
-    const canvasScale = getGlobalVariable("canvasScale");
+    const canvasScale = getGlobalVariable(GLOBAL_VARIABLES.CANVAS_SCALE);
 
     // Scale the position and font size according to the canvas scale
     const scaledX = pos.x * canvasScale;
@@ -40,7 +40,7 @@ export function drawText(ctx, text, pos, align = "left", baseline = "top", fontS
 
 
 export function drawImg(ctx, pos, size, img, strokeColor = null, strokeWidth = 1, borderRadius = 0) {
-    const canvasScale = getGlobalVariable("canvasScale");
+    const canvasScale = getGlobalVariable(GLOBAL_VARIABLES.CANVAS_SCALE);
 
     // Scale values
     const scaledX = pos.x * canvasScale;
@@ -59,7 +59,7 @@ export function drawImg(ctx, pos, size, img, strokeColor = null, strokeWidth = 1
 // MARK: drawRect
 // Function to draw a rectangle with optional rounded corners, applying canvas scaling
 export function drawRect(ctx, pos, size, fillColor, strokeColor = null, strokeWidth = 1, borderRadius = 0) {
-    const canvasScale = getGlobalVariable("canvasScale");
+    const canvasScale = getGlobalVariable(GLOBAL_VARIABLES.CANVAS_SCALE);
 
     // Scale values
     const scaledX = pos.x * canvasScale;
@@ -105,7 +105,7 @@ export function drawRect(ctx, pos, size, fillColor, strokeColor = null, strokeWi
 // MARK: drawCircle
 // Function to draw a circle with optional outline, applying canvas scaling
 export function drawCircle(ctx, posCenter, radius, fillColor, strokeColor = null, strokeWidth = 1) {
-    const canvasScale = getGlobalVariable("canvasScale");
+    const canvasScale = getGlobalVariable(GLOBAL_VARIABLES.CANVAS_SCALE);
 
     const scaledX = posCenter.x * canvasScale;
     const scaledY = posCenter.y * canvasScale;
@@ -126,7 +126,7 @@ export function drawCircle(ctx, posCenter, radius, fillColor, strokeColor = null
 // MARK: drawRegPolygon
 // Function to draw a regular polygon with one flat side facing the bottom
 export function drawRegPolygon(ctx, posCenter, radius, n, direction = 0, fillColor, strokeColor = null, strokeWidth = 1) {
-    const canvasScale = getGlobalVariable("canvasScale");
+    const canvasScale = getGlobalVariable(GLOBAL_VARIABLES.CANVAS_SCALE);
     const angleStep = (Math.PI * 2) / n;
 
     // Scale the center position and radius early
@@ -172,7 +172,7 @@ export function drawRegPolygon(ctx, posCenter, radius, n, direction = 0, fillCol
 // MARK: drawLine
 // Function to draw a line between two points
 export function drawLine(ctx, startPos, endPos, strokeColor = "#000000", strokeWidth = 1) {
-    const canvasScale = getGlobalVariable("canvasScale");
+    const canvasScale = getGlobalVariable(GLOBAL_VARIABLES.CANVAS_SCALE);
     
     // Apply canvas scaling
     const scaledStartX = startPos.x * canvasScale;
@@ -191,7 +191,7 @@ export function drawLine(ctx, startPos, endPos, strokeColor = "#000000", strokeW
 // MARK: drawVectorArrow
 // Function to draw a vector arrow from a start position in the direction of a vector
 export function drawVectorArrow(ctx, startPos, vector, strokeColor = "#000000", strokeWidth = 1) {
-    const canvasScale = getGlobalVariable("canvasScale");
+    const canvasScale = getGlobalVariable(GLOBAL_VARIABLES.CANVAS_SCALE);
 
     
     const endPos = {
@@ -237,7 +237,7 @@ export function drawVertexPolygon(ctx, pos, angle, vertices, fillColor, strokeCo
         return;
     }
 
-    const canvasScale = getGlobalVariable("canvasScale");
+    const canvasScale = getGlobalVariable(GLOBAL_VARIABLES.CANVAS_SCALE);
 
     ctx.beginPath();
 

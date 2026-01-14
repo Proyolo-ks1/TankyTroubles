@@ -1,4 +1,4 @@
-import { setGlobalVariable, getGlobalVariable } from '../global-state.js';
+import { setGlobalVariable, getGlobalVariable, GLOBAL_VARIABLES } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../graphics-utils.js';
 import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ShrepnalBombWeapon, ExperimentalWeapon, ChainShotgunBOOM, OppenheimerBOOOM } from './weapons.js';
 
@@ -28,9 +28,9 @@ export class Tank {
         this.health = 1;
 
         // Get current tanks array, add new tank, and update state
-        const tanks = getGlobalVariable("tanks"); 
+        const tanks = getGlobalVariable(GLOBAL_VARIABLES.TANKS);
         tanks.push(this);
-        setGlobalVariable("tanks", tanks);
+        setGlobalVariable(GLOBAL_VARIABLES.TANKS, tanks);
     }
 
     shootPress() {
@@ -106,7 +106,7 @@ export class Tank {
         ctx.save();
 
         // Transform to fit the game world into the canvas and have local tank coordinates and rotation
-        const canvasScale = getGlobalVariable("canvasScale");
+        const canvasScale = getGlobalVariable(GLOBAL_VARIABLES.CANVAS_SCALE);
         ctx.translate(this.pos.x * canvasScale, this.pos.y * canvasScale);
         ctx.rotate(this.angle);
 
@@ -134,7 +134,7 @@ export class Tank {
 
         // Player Name or ID
         const text = this.id
-        const textPos = { x: this.pos.x, y: this.pos.y - 0.3 * this.scale * getGlobalVariable("tileSize") };
+        const textPos = { x: this.pos.x, y: this.pos.y - 0.3 * this.scale * getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE) };
         drawText(ctx, text, textPos, "center", "bottom", 25, "Consolas", this.color, "#000000", 5);
     }
 

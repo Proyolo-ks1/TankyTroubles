@@ -84,7 +84,7 @@ export class DefaultObject extends GameObject {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "default";
-        const tileSize = getGlobalVariable("tileSize");
+        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
         this.size = scale * (tileSize / 12);
         this.lifeSpan = 10000;
     }

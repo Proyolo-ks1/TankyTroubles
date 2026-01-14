@@ -109,50 +109,72 @@ updateButtonIcons();
 //      |=======================|
 
 
-
-// Define the global variable here
-window.isGameFocused = false;
-window.isGamePaused = false;
-
 const canvas = document.getElementById("game-canvas");
 const gameContainer = document.getElementById("game-container");
 const gameUnfocusOverlay = document.getElementById("game-unfocus-overlay");
 
-function focusOnGame() {
-    console.log("focusOnGame()");
-    window.isGameFocused = true;
-    gameUnfocusOverlay.style.opacity = "0";
-    window.isGamePaused = false;
+// Set up the canvas (default 720x1080)
+const ctx = canvas.getContext("2d");
+ctx.fillStyle = "#fff";
+
+// The Running Game API, can be used by the currently running game to communicate things between Host (browser window) and Game itself. - or something like that lol.
+
+const runningGameApi = gameContainer.runningGameApi = {
+    isGameFocused: false,
+    isGamePaused: false,
+    externalDebugging: false,
+    canvasCtx: ctx,
+    canvasWidth: canvas.clientWidth,
+    canvasHeight: canvas.clientHeight,
+    globalKeys: {},
+};
+
+function resizeCanvas() {
+    console.log("resizeCanvas()");
+    runningGameApi.canvasWidth = canvas.clientWidth;
+    runningGameApi.canvasHeight = canvas.clientHeight;
 }
 
-function unfocusOnGame() {
-    console.log("unfocusOnGame()");
-    window.isGameFocused = false;
-    gameUnfocusOverlay.style.opacity = "1";
-    window.isGamePaused = true;
+// EventListeners
+const ro = new ResizeObserver(resizeCanvas);
+ro.observe(gameContainer);
 
-    if (!window.globalKeys) {
-        console.log("%cweer dat rare gebeuren met !window.globalKeys", "color: red; font-weight: bold;");
+gameContainer.addEventListener('focus', () => {
+    console.log("Game Focused");
+    runningGameApi.isGameFocused = true;
+    runningGameApi.isGamePaused = false;
+    gameUnfocusOverlay.style.opacity = "0";
+});
+
+gameContainer.addEventListener('blur', () => {
+    console.log("Game Unfocused");
+    runningGameApi.isGameFocused = false;
+    runningGameApi.isGamePaused = true;
+    gameUnfocusOverlay.style.opacity = "1";
+
+    if (!runningGameApi.globalKeys) {
+        console.log("%c!runningGameApi.globalKeys", "color: red; font-weight: bold;");
         return; // Prevent crash if not yet initialized
     }
     
     // Trigger keyup event for all keys that are currently pressed
-    const allKeys = Object.keys(window.globalKeys);
+    const allKeys = Object.keys(runningGameApi.globalKeys);
     allKeys.forEach((key) => {
-        if (window.globalKeys[key]) { // Only trigger keyup for pressed keys
+        if (runningGameApi.globalKeys[key]) { // Only trigger keyup for pressed keys
             const event = new KeyboardEvent('keyup', { key: key });
             window.dispatchEvent(event);
-            window.globalKeys[key] = false;
+            runningGameApi.globalKeys[key] = false;
         }
     });
-}
-
-gameContainer.addEventListener('focus', () => {
-    console.log("Event: gameContainer focus");
-    focusOnGame();
 });
 
-gameContainer.addEventListener('blur', () => {
-    console.log("Event: gameContainer blur");
-    unfocusOnGame();
+// globalKeys
+window.addEventListener("keydown", (e) => {
+    if (!runningGameApi.isGameFocused) return;
+    runningGameApi.globalKeys[e.key] = true;
+});
+
+window.addEventListener("keyup", (e) => {
+    if (!runningGameApi.isGameFocused) return;
+    runningGameApi.globalKeys[e.key] = false;
 });

@@ -1,3 +1,9 @@
+export const GLOBAL_COLORS = Object.freeze({
+    CHECKERBOARD_1: "#E6E6E6", 
+    CHECKERBOARD_2: "#D6D6D6",
+    VECTOR_ARROW: "#00f",
+});
+
 export const GAME_STATES = Object.freeze({
     MAIN_MENU: "MAIN_MENU",
     RUNNING: "RUNNING",
@@ -9,7 +15,7 @@ export const OVERLAY_STATES = Object.freeze({
     SETTINGS: "SETTINGS",
     HELP: "HELP",
     PAUSED: "PAUSED",
-    GAME_OVER: "GAME_OVER"
+    GAME_OVER: "GAME_OVER",
 });
 
 export const GLOBAL_VARIABLES = Object.freeze({
@@ -25,12 +31,12 @@ export const GLOBAL_VARIABLES = Object.freeze({
     OVERLAY_STATE: "overlayState",
 });
 
-
+// default values
 const GlobalVariables = {
     debugMode: true,
     showStatistics: true,
     canvasScale: 0.5,
-    tileSize: 192,
+    tileSize: 100,
     gameObjects: [],
     tanks: [],
     bullets: [],
@@ -76,6 +82,6 @@ export function setGlobalVariable(variableName, value) {
 }
 
 // Function to get all global state variables (optional, for debugging)
-export function getAllState() {
+export function getAllGlobals() {
     return { ...GlobalVariables };
 }

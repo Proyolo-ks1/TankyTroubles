@@ -1,0 +1,17 @@
+<pre id="debug-output"></pre>
+
+<script>
+  function refreshDebug() {
+    const data = localStorage.getItem("debugGlobals");
+    if (data) {
+      document.getElementById("debug-output").textContent = JSON.stringify(
+        JSON.parse(data),
+        null,
+        2
+      );
+    }
+  }
+
+  // Refresh every 500ms
+  setInterval(refreshDebug, 500);
+</script>

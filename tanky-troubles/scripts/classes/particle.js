@@ -1,4 +1,4 @@
-import { setGlobalVariable, getGlobalVariable } from '../global-state.js';
+import { setGlobalVariable, getGlobalVariable, GLOBAL_VARIABLES } from '../global-state.js';
 import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '../graphics-utils.js';
 import { spawnRelativeClass } from './spawner.js';
 
@@ -26,15 +26,15 @@ class Particle {
         this.velocity = { x: Math.cos(angleSpawn) * spawnSpeed, y: Math.sin(angleSpawn) * spawnSpeed };
         this.angle = angleSpawn;
         this.rotationSpeed = rotationSpeed;
-        const tileSize = getGlobalVariable("tileSize");
+        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
         this.size = scale * (tileSize / 12);
         this.active = true;
         this.creationTime = Date.now();
 
         // Get current particles array, add new particle, and update state
-        const particles = getGlobalVariable("particles"); 
+        const particles = getGlobalVariable(GLOBAL_VARIABLES.PARTICLES);
         particles.push(this);
-        setGlobalVariable("particles", particles);
+        setGlobalVariable(GLOBAL_VARIABLES.PARTICLES, particles);
     }
 
     update(deltaTime) {
@@ -80,7 +80,7 @@ export class TankDriveParticle extends Particle {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "default";
-        const tileSize = getGlobalVariable("tileSize");
+        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
         this.size = scale * (tileSize / 12);
         this.lifeSpan = 10000;
     }
@@ -97,7 +97,7 @@ export class TankTrackParticle extends Particle {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "default";
-        const tileSize = getGlobalVariable("tileSize");
+        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
         this.size = scale * (tileSize / 12);
         this.lifeSpan = 10000;
     }

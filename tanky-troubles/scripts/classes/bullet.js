@@ -1,4 +1,4 @@
-import { setGlobalVariable, getGlobalVariable } from '../global-state.js';
+import { setGlobalVariable, getGlobalVariable, GLOBAL_VARIABLES } from '../global-state.js';
 import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '../graphics-utils.js';
 import { spawnRelativeClass } from './spawner.js';
 
@@ -26,15 +26,15 @@ class Bullet {
         this.velocity = { x: Math.cos(angleSpawn) * spawnSpeed, y: Math.sin(angleSpawn) * spawnSpeed };
         this.angle = angleSpawn;
         this.rotationSpeed = rotationSpeed;
-        const tileSize = getGlobalVariable("tileSize");
+        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
         this.size = scale * (tileSize / 12);
         this.active = true;
         this.creationTime = Date.now();
 
         // Get current bullets array, add new bullet, and update state
-        const bullets = getGlobalVariable("bullets"); 
+        const bullets = getGlobalVariable(GLOBAL_VARIABLES.BULLETS); 
         bullets.push(this);
-        setGlobalVariable("bullets", bullets);
+        setGlobalVariable(GLOBAL_VARIABLES.BULLETS, bullets);
     }
 
     update(deltaTime) {
@@ -80,7 +80,7 @@ export class DefaultBullet extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "default";
-        const tileSize = getGlobalVariable("tileSize");
+        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
         this.size = scale * (tileSize / 12);
         this.lifeSpan = 10000;
     }
@@ -97,7 +97,7 @@ export class ChaingunBullet extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "chaingun";
-        const tileSize = getGlobalVariable("tileSize");
+        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
         this.size = scale * (tileSize / 25);
         this.lifeSpan = 5000;
     }
@@ -114,7 +114,7 @@ export class ShotgunBullet extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1, lifeSpan = 1750) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "shotgun";
-        const tileSize = getGlobalVariable("tileSize");
+        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
         this.size = scale * (tileSize / 20);
         this.lifeSpan = lifeSpan;
     }
@@ -131,7 +131,7 @@ export class Shrapnel extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1, lifeSpan = 5000) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "shrapnel";
-        const tileSize = getGlobalVariable("tileSize");
+        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
         this.size = scale * (tileSize / 20);
         this.lifeSpan = lifeSpan;
         this.randomSpin = (Math.random() - 0.5) * 0.2; // gives value between -0.1 and +0.1
@@ -157,7 +157,7 @@ export class ShrapnelBomb extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1, lifeSpan = 1000) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "shrapnel";
-        const tileSize = getGlobalVariable("tileSize");
+        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
         this.size = scale * (tileSize / 8);
         this.lifeSpan = lifeSpan;
     }
@@ -174,7 +174,7 @@ export class ShrapnelBomb extends Bullet {
         const spreadAngleRadians = spreadAngle * (Math.PI / 180);
         
         for (let i = 0; i < numShrepnal; i++) {
-            const tileSize = getGlobalVariable("tileSize");
+            const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
 
             // Randomize the angle offset for each bullet
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
