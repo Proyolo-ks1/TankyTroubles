@@ -27,7 +27,7 @@ function printDebugGlobals() {
         tanks: g.tanks.length,
         bullets: g.bullets.length,
         particles: g.particles.length,
-        gameApi: { gameApi } 
+        gameApi 
     };
     document.querySelector("#game-description > :first-child").innerHTML =
         `<pre style="text-align:left; font-size:16px; overflow-x:auto;">
@@ -48,9 +48,7 @@ function printDebugGlobals() {
 
 
 // Game Big Picture
-setGlobalVariable(GLOBAL_VARIABLES.GAME_STATE, GAME_STATES.RUNNING
-    
-);
+setGlobalVariable(GLOBAL_VARIABLES.GAME_STATE, GAME_STATES.MAIN_MENU);
 setGlobalVariable(GLOBAL_VARIABLES.OVERLAY_STATE, OVERLAY_STATES.NONE);
 setGlobalVariable(GLOBAL_VARIABLES.DEBUG_MODE, false);
 setGlobalVariable(GLOBAL_VARIABLES.SHOW_STATISTICS, false);
@@ -86,6 +84,7 @@ function gameLoop(currentTime) {
     if (!lastTime) lastTime = currentTime;  // Initialize lastTime on the first loop
     let deltaTime = (currentTime - lastTime) / 1000;  // Time difference in seconds
     
+    // Game State
     switch (getGlobalVariable(GLOBAL_VARIABLES.GAME_STATE)) {
         case GAME_STATES.MAIN_MENU:
             loadMainMenu(ctx, canvasWidth, canvasHeight);
@@ -96,9 +95,27 @@ function gameLoop(currentTime) {
                 initializeGame(canvasWidth, canvasHeight);
                 gameInitialized = true;
             }
-            ExecuteGameLoop(ctx, canvasWidth, canvasHeight);
+            ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime);
 
             break;
+    }
+    
+    // Game Overlay
+    switch (getGlobalVariable(GLOBAL_VARIABLES.OVERLAY_STATE)) {
+        case OVERLAY_STATES.NONE:
+            break;
+            
+        case OVERLAY_STATES.SETTINGS:
+            // Code that implements the settings overlay/menu
+        
+            // if (!gameInitialized) {
+            //     initializeGame(canvasWidth, canvasHeight);
+            //     gameInitialized = true;
+            // }
+            // ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime);
+
+            break;
+    
     }
     if (getGlobalVariable(GLOBAL_VARIABLES.SHOW_STATISTICS)) {
         renderGameStatistics(ctx, currentTime, deltaTime, getGlobalVariable(GLOBAL_VARIABLES.TANKS), getGlobalVariable(GLOBAL_VARIABLES.BULLETS));

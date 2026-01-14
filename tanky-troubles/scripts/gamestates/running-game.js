@@ -180,11 +180,7 @@ export function initializeGame(canvasWidth, canvasHeight) {
 
 
 
-
-let deltaTime;
-
-export function ExecuteGameLoop(ctx, canvasWidth, canvasHeight) {
-    console.log(`%cExecuteGameLoop()`, "color: aqua; font-weight: bold;");
+export function ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime) {
     if (!gameApi.isGamePaused) {
         ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
