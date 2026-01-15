@@ -1,4 +1,4 @@
-import { setGlobalVariable, getGlobalVariable, getAllGlobals, GLOBAL_COLORS, GLOBAL_VARIABLES } from '../global-state.js';
+import { getGlobal, GLOBAL_COLOR_KEYS } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawRegPolygon, drawVectorArrow} from '../graphics-utils.js';
 import { generateMaze} from '../generate-maze.js';
 import { Tank } from '../classes/tank.js';
@@ -20,13 +20,13 @@ const gameApi = document.getElementById("game-container").runningGameApi;
 
 // Function to render the background theme and maze
 function renderBackground(ctx, gameWidth, gameHeight) {
-    const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
+    const tileSize = getGlobal().tileSize
 
     // Loop through the rows and columns to draw the checkerboard pattern
     for (let row = 0; row < Math.ceil(gameHeight / tileSize); row++) {
         for (let col = 0; col < Math.ceil(gameWidth / tileSize); col++) {
             // Determine the color based on the row and column positions
-            const color = (row + col) % 2 === 0 ? GLOBAL_COLORS.CHECKERBOARD_1 : GLOBAL_COLORS.CHECKERBOARD_2;
+            const color = (row + col) % 2 === 0 ? GLOBAL_COLOR_KEYS.CHECKERBOARD_1 : GLOBAL_COLOR_KEYS.CHECKERBOARD_2;
 
             // Create pos and size objects to match the new drawRect system
             const pos = { x: col * tileSize, y: row * tileSize };
@@ -73,21 +73,8 @@ function spawnPowerUp() {
 
 // Function to clean up inactive bullets
 function cleanupInactiveBullets(bullets) {
-    if (bullets.length === 0) return; // Exit early if empty
-
-    let originalLength = bullets.length;
-    let i = 0;
-    while (i < bullets.length) {
-        if (!bullets[i].active) {
-            bullets.splice(i, 1); // Remove inactive bullet
-        } else {
-            i++; // Only increment if bullet is active
-        }
-    }
-
-    // Only update global variable if the bullet list actually changed
-    if (bullets.length !== originalLength) {
-        setGlobalVariable(GLOBAL_VARIABLES.BULLETS, bullets);
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        if (!bullets[i].active) bullets.splice(i, 1);
     }
 }
 
@@ -109,7 +96,7 @@ function updateAndRenderWind(ctx, deltaTime) {
     windSpeed.y = Math.max(-maxSpeed, Math.min(maxSpeed, windSpeed.y));
 
     // Draw the wind vector arrow at position (50, 50)
-    drawVectorArrow(ctx, { x: GAME_WIDTH - 100, y: 100 }, { x: windSpeed.x * 1000, y: windSpeed.y * 1000 }, GLOBAL_COLORS.VECTOR_ARROW, 5);
+    drawVectorArrow(ctx, { x: GAME_WIDTH - 100, y: 100 }, { x: windSpeed.x * 1000, y: windSpeed.y * 1000 }, GLOBAL_COLOR_KEYS.VECTOR_ARROW, 5);
 }
 
 function updateWindEffect(bullet, deltaTime) {
@@ -128,6 +115,60 @@ function updateWindEffect(bullet, deltaTime) {
 
     bullet.pos.x += bullet.velocity.x * deltaTime;
     bullet.pos.y += bullet.velocity.y * deltaTime;
+}
+
+const numberKeyPressActions = {
+    '1': () => {
+        console.log("DB: toggle debugMode");
+        getGlobal().debugMode = !getGlobal().debugMode;
+    },
+    '2': () => {
+        console.log("DB: toggle showStatistics");
+        getGlobal().showStatistics = !getGlobal().showStatistics;
+    },
+};
+
+const numberKeyHoldActions = {
+    '3': () => {
+        console.log("DB: Decrease tank size 1%");
+        getGlobal().gameObjects.tanks.forEach(tank => {
+            tank.size.length *= 0.99;
+            tank.size.width  *= 0.99;
+        });
+    },
+    '4': () => {
+        console.log("DB: Inscrease tank size 1%");
+        getGlobal().gameObjects.tanks.forEach(tank => {
+            tank.size.length *= 1.01;
+            tank.size.width  *= 1.01;
+        });
+    },
+    '5': () => {
+        console.log("DB: Decrease tileSize 1%");
+        getGlobal().tileSize *= 0.99;
+    },
+    '6': () => {
+        console.log("DB: Inscrease tileSize 1%");
+        getGlobal().tileSize *= 1.01;
+    },
+};
+
+const keyPressedLastFrame = {};
+
+function debuggingStep() {
+    for (const key in numberKeyPressActions) {
+        const isDown = gameApi.globalKeys[key];
+        if (isDown && !keyPressedLastFrame[key]) {
+            numberKeyPressActions[key]();
+        }
+        keyPressedLastFrame[key] = isDown;
+    }
+
+    for (const key in numberKeyHoldActions) {
+        if (gameApi.globalKeys[key]) {
+            numberKeyHoldActions[key]();
+        }
+    }
 }
 
 
@@ -152,15 +193,17 @@ let lastPowerUpSpawnTime = 0;
 
 let Maze = generateMaze()
 
+// Extract globals references
+const gameObjects = getGlobal().gameObjects
+
 
 export function initializeGame(canvasWidth, canvasHeight) {
 
     // startGame();
 
 
-
     // Create tanks with position, color, and controls
-    const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
+    const tileSize = getGlobal().tileSize
     const defaultTankLength = tileSize * 2 / 5; // Tiles
     const defaultTankWidth = tileSize / 3 // Tiles
     const defaultTankSize = {length: defaultTankLength, width: defaultTankWidth}
@@ -170,12 +213,12 @@ export function initializeGame(canvasWidth, canvasHeight) {
     let angleSpawn = Math.random() * Math.PI * 2;
     angleSpawn = 0;
     const posSpawn1 = { x: canvasWidth / 4, y: canvasHeight / 2 }
-    new Tank(posSpawn1, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 5, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" }, gameApi.globalKeys);
+    new Tank(posSpawn1, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 5, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
 
     angleSpawn = Math.random() * Math.PI * 2;
     angleSpawn = 0;
     const posSpawn2 = { x: canvasWidth - canvasWidth / 4, y: canvasHeight / 2 }
-    new Tank(posSpawn2, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 1, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }, gameApi.globalKeys);
+    new Tank(posSpawn2, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 1, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
 }
 
 
@@ -187,34 +230,35 @@ export function ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime) {
         renderBackground(ctx, canvasWidth, canvasHeight);
 
         // Update and render tanks and bullets
-        const debugActive = getGlobalVariable(GLOBAL_VARIABLES.DEBUG_MODE)
-        const bullets = getGlobalVariable(GLOBAL_VARIABLES.BULLETS) || [];
+        const debugActive = getGlobal().debugMode
+        
+        const bullets = gameObjects.bullets;
         bullets.forEach(bullet => {
             bullet.update(deltaTime);
-            bullet.render(ctx);
+            bullet.render(ctx, deltaTime);
             if (debugActive) {
-                bullet.debugRender(ctx);
+                bullet.debugrender(ctx, deltaTime);
             }
             if (windEnabled) {
                 updateWindEffect(bullet, deltaTime);
             }
         });
 
-        const tanks = getGlobalVariable(GLOBAL_VARIABLES.TANKS) || [];
+        const tanks = gameObjects.tanks;
         tanks.forEach(tank => {
             tank.update(deltaTime);
-            tank.render(ctx);
+            tank.render(ctx, deltaTime);
             if (debugActive) {
-                tank.debugRender(ctx);
+                tank.debugrender(ctx, deltaTime);
             }
         });
 
-        const particles = getGlobalVariable(GLOBAL_VARIABLES.PARTICLES) || [];
+        const particles = gameObjects.particles;
         particles.forEach(particle => {
             particle.update(deltaTime);
-            particle.render(ctx);
+            particle.render(ctx, deltaTime);
             if (debugActive) {
-                particle.debugRender(ctx);
+                particle.debugrender(ctx, deltaTime);
             }
         });
         
@@ -226,5 +270,8 @@ export function ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime) {
         if (windEnabled) {
             updateAndRenderWind(ctx, deltaTime)
         }
+
+        // Debugging
+        debuggingStep()
     }
 }

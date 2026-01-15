@@ -1,15 +1,15 @@
-export const GLOBAL_COLORS = Object.freeze({
+export const GLOBAL_COLOR_KEYS = Object.freeze({
     CHECKERBOARD_1: "#E6E6E6", 
     CHECKERBOARD_2: "#D6D6D6",
     VECTOR_ARROW: "#00f",
 });
 
-export const GAME_STATES = Object.freeze({
+export const GAME_STATE_KEYS = Object.freeze({
     MAIN_MENU: "MAIN_MENU",
     RUNNING: "RUNNING",
 });
 
-export const OVERLAY_STATES = Object.freeze({
+export const OVERLAY_STATE_KEYS = Object.freeze({
     NONE: "NONE",
     PAUSE_MENU: "PAUSE_MENU",
     SETTINGS: "SETTINGS",
@@ -18,31 +18,38 @@ export const OVERLAY_STATES = Object.freeze({
     GAME_OVER: "GAME_OVER",
 });
 
-export const GLOBAL_VARIABLES = Object.freeze({
-    DEBUG_MODE: "debugMode",
-    SHOW_STATISTICS: "showStatistics",
-    CANVAS_SCALE: "canvasScale",
-    TILE_SIZE: "tileSize",
-    GAME_OBJECTS: "gameObjects",
-    TANKS: "tanks",
-    BULLETS: "bullets",
-    PARTICLES: "particles",
-    GAME_STATE: "currentGameState",
-    OVERLAY_STATE: "overlayState",
-});
 
-// default values
+/**
+ * @typedef {Object} GameObjectsType
+ * @property {Tank[]} tanks
+ * @property {Bullet[]} bullets
+ * @property {Particle[]} particles
+ */
+
+/**
+ * @typedef {Object} GlobalVariablesType
+ * @property {boolean} debugMode
+ * @property {boolean} showStatistics
+ * @property {number} canvasScale
+ * @property {number} tileSize
+ * @property {GameObjectsType} gameObjects
+ * @property {string} gameState
+ * @property {string} overlayState
+ */
+
+/** @type {GlobalVariablesType} */
 const GlobalVariables = {
     debugMode: true,
     showStatistics: true,
     canvasScale: 0.5,
     tileSize: 100,
-    gameObjects: [],
-    tanks: [],
-    bullets: [],
-    particles: [],
-    currentGameState: GAME_STATES.MAIN_MENU,
-    overlayState: OVERLAY_STATES.NONE,
+    gameObjects: {
+        tanks: [],
+        bullets: [],
+        particles: [],
+    },
+    gameState: GAME_STATE_KEYS.MAIN_MENU,
+    overlayState: OVERLAY_STATE_KEYS.NONE,
 };
 
 
@@ -56,32 +63,7 @@ const GlobalVariables = {
 
 
 
-// Function to get a global variable dynamically
-export function getGlobalVariable(variableName) {
-    if (GlobalVariables.hasOwnProperty(variableName)) {
-        return GlobalVariables[variableName];
-    } else {
-        console.error(`Unknown variable: ${variableName}`);
-        return null;
-    }
-}
-
-// Function to update a global variable dynamically
-export function setGlobalVariable(variableName, value) {
-    if (GlobalVariables.hasOwnProperty(variableName)) {
-        GlobalVariables[variableName] = value;
-        // Global Value Update Logging
-        if (Array.isArray(value)) {
-            console.log(`Variable '${variableName}' has been updated. New length: ${value.length}`);
-        } else {
-            console.log(`Variable '${variableName}' has been updated to: ${value}`);
-        }
-    } else {
-        console.error(`Unknown variable: ${variableName}`);
-    }
-}
-
-// Function to get all global state variables (optional, for debugging)
-export function getAllGlobals() {
-    return { ...GlobalVariables };
+/** @returns {GlobalVariablesType} */
+export function getGlobal() {
+    return GlobalVariables;
 }

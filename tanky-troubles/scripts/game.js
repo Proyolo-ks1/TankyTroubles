@@ -1,4 +1,4 @@
-import { GAME_STATES, OVERLAY_STATES, GLOBAL_VARIABLES, setGlobalVariable, getGlobalVariable, getAllGlobals, GLOBAL_COLORS } from './global-state.js';
+import { GAME_STATE_KEYS, OVERLAY_STATE_KEYS, getGlobal, GLOBAL_COLOR_KEYS } from './global-state.js';
 import { loadMainMenu } from './gamestates/main-menu.js';
 import { initializeGame, ExecuteGameLoop } from './gamestates/running-game.js';
 import { renderGameStatistics } from './overlay.js';
@@ -19,21 +19,27 @@ const gameApi = document.getElementById("game-container").runningGameApi;
 
 
 // Streaming to /debugging.html through localStorage
+let lastDebugGlobalsJSON = "";
+
 function printDebugGlobals() {
-    const g = getAllGlobals();
+    const g = getGlobal();
     const DebugGlobals = {
         ...g,
         gameObjects: g.gameObjects.length,
-        tanks: g.tanks.length,
-        bullets: g.bullets.length,
-        particles: g.particles.length,
+        tanks: g.gameObjects.tanks.length,
+        bullets: g.gameObjects.bullets.length,
+        particles: g.gameObjects.particles.length,
         gameApi 
     };
-    document.querySelector("#game-description > :first-child").innerHTML =
-        `<pre style="text-align:left; font-size:16px; overflow-x:auto;">
-    ${JSON.stringify(DebugGlobals, null, 2)}
-    </pre>`;
-    localStorage.setItem('debugGlobals', JSON.stringify(DebugGlobals));
+
+    const newJSON = JSON.stringify(DebugGlobals, null, 2);
+
+    if (newJSON !== lastDebugGlobalsJSON) {
+        document.querySelector("#game-description > :first-child").innerHTML =
+            `<pre style="text-align:left; font-size:16px; overflow-x:auto;">${newJSON}</pre>`;
+        localStorage.setItem('debugGlobals', newJSON);
+        lastDebugGlobalsJSON = newJSON;
+    }
 }
 
 
@@ -48,10 +54,11 @@ function printDebugGlobals() {
 
 
 // Game Big Picture
-setGlobalVariable(GLOBAL_VARIABLES.GAME_STATE, GAME_STATES.RUNNING);
-setGlobalVariable(GLOBAL_VARIABLES.OVERLAY_STATE, OVERLAY_STATES.NONE);
-setGlobalVariable(GLOBAL_VARIABLES.DEBUG_MODE, false);
-setGlobalVariable(GLOBAL_VARIABLES.SHOW_STATISTICS, false);
+getGlobal().gameState = GAME_STATE_KEYS.RUNNING;
+getGlobal().overlayState = OVERLAY_STATE_KEYS.NONE;
+getGlobal().debugMode = false;
+getGlobal().showStatistics = false;
+
 
 
 // Statistics
@@ -85,12 +92,12 @@ function gameLoop(currentTime) {
     let deltaTime = (currentTime - lastTime) / 1000;  // Time difference in seconds
     
     // Game State
-    switch (getGlobalVariable(GLOBAL_VARIABLES.GAME_STATE)) {
-        case GAME_STATES.MAIN_MENU:
+    switch (getGlobal().gameState) {
+        case GAME_STATE_KEYS.MAIN_MENU:
             loadMainMenu(ctx, canvasWidth, canvasHeight);
             break;
             
-        case GAME_STATES.RUNNING:
+        case GAME_STATE_KEYS.RUNNING:
             if (!gameInitialized) {
                 initializeGame(canvasWidth, canvasHeight);
                 gameInitialized = true;
@@ -101,11 +108,11 @@ function gameLoop(currentTime) {
     }
     
     // Game Overlay
-    switch (getGlobalVariable(GLOBAL_VARIABLES.OVERLAY_STATE)) {
-        case OVERLAY_STATES.NONE:
+    switch (getGlobal().overlayState) {
+        case OVERLAY_STATE_KEYS.NONE:
             break;
             
-        case OVERLAY_STATES.SETTINGS:
+        case OVERLAY_STATE_KEYS.SETTINGS:
             // Code that implements the settings overlay/menu
         
             // if (!gameInitialized) {
@@ -117,8 +124,8 @@ function gameLoop(currentTime) {
             break;
     
     }
-    if (getGlobalVariable(GLOBAL_VARIABLES.SHOW_STATISTICS)) {
-        renderGameStatistics(ctx, currentTime, deltaTime, getGlobalVariable(GLOBAL_VARIABLES.TANKS), getGlobalVariable(GLOBAL_VARIABLES.BULLETS));
+    if (getGlobal().showStatistics) {
+        renderGameStatistics(ctx, currentTime, deltaTime);
     }
     lastTime = currentTime;
 

@@ -1,6 +1,5 @@
-import { GLOBAL_VARIABLES } from './global-state.js';
 import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from './graphics-utils.js';
-import { GAME_STATES, OVERLAY_STATES, setGlobalVariable, getGlobalVariable, getAllGlobals } from './global-state.js';
+import { GAME_STATE_KEYS, OVERLAY_STATE_KEYS, getGlobal } from './global-state.js';
 
 
 
@@ -18,8 +17,11 @@ let overlayFps = 0;
 let overlayDeltaTime = 0;
 let statisticUpdatesPerSecond = 10
 
+// References
+const canvasScale = getGlobal().canvasScale;
 
-export function renderGameStatistics(ctx, currentTime, deltaTime, tanks, bullets) {
+
+export function renderGameStatistics(ctx, currentTime, deltaTime) {
     // Calculate FPS with smoothing
     const fps = (overlayFps * 0.8) + (1 / deltaTime * 0.2);
 
@@ -29,8 +31,6 @@ export function renderGameStatistics(ctx, currentTime, deltaTime, tanks, bullets
         overlayDeltaTime = deltaTime;
         lastRenderStatisticsTime = currentTime;
     }
-
-    const canvasScale = getGlobalVariable(GLOBAL_VARIABLES.CANVAS_SCALE);
 
     // Background
     let pos = { x: 5 / canvasScale, y: 5 / canvasScale };
@@ -57,8 +57,8 @@ export function renderGameStatistics(ctx, currentTime, deltaTime, tanks, bullets
     drawText(ctx, `FPS:     ${Math.round(overlayFps)}`, { x: pos.x, y: pos.y }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
     drawText(ctx, `ΔTime:   ${Math.round(overlayDeltaTime * 1000)}ms`, { x: pos.x, y: pos.y + 1 * fontSize + 1 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
     drawText(ctx, `Scale:   ${canvasScale.toFixed(2)}`, { x: pos.x, y: pos.y + 2 * fontSize + 2 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
-    drawText(ctx, `Tanks:   ${tanks.length}`, { x: pos.x, y: pos.y + 3 * fontSize + 3 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
-    drawText(ctx, `Bullets: ${bullets.length}`, { x: pos.x, y: pos.y + 4 * fontSize + 4 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
+    drawText(ctx, `Tanks:   ${getGlobal().gameObjects.tanks.length}`, { x: pos.x, y: pos.y + 3 * fontSize + 3 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
+    drawText(ctx, `Bullets: ${getGlobal().gameObjects.bullets.length}`, { x: pos.x, y: pos.y + 4 * fontSize + 4 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
 
     // Toggle Button for debugMode
     const buttonWidth = 150 / canvasScale;
@@ -69,6 +69,6 @@ export function renderGameStatistics(ctx, currentTime, deltaTime, tanks, bullets
     drawRect(ctx, buttonPos, { width: buttonWidth, height: buttonHeight }, "rgba(0, 0, 0, 0.7)", "white", 2, 5);
 
     // Button text (showing current state of debugMode)
-    const debugText = getGlobalVariable(GLOBAL_VARIABLES.DEBUG_MODE) ? "Debug: ON" : "Debug: OFF";
+    const debugText = getGlobal().debugMode ? "Debug: ON" : "Debug: OFF";
     drawText(ctx, debugText, { x: buttonPos.x + buttonWidth / 2, y: buttonPos.y + buttonHeight / 2 }, "center", "middle", fontSize, font, "white", "black", 2);
 }

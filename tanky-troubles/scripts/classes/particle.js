@@ -1,8 +1,10 @@
-import { setGlobalVariable, getGlobalVariable, GLOBAL_VARIABLES } from '../global-state.js';
+import { getGlobal } from '../global-state.js';
 import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '../graphics-utils.js';
 import { spawnRelativeClass } from './spawner.js';
 
 
+// References
+const tileSize = getGlobal().tileSize;
 
 
 
@@ -26,15 +28,12 @@ class Particle {
         this.velocity = { x: Math.cos(angleSpawn) * spawnSpeed, y: Math.sin(angleSpawn) * spawnSpeed };
         this.angle = angleSpawn;
         this.rotationSpeed = rotationSpeed;
-        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
-        this.size = scale * (tileSize / 12);
+        this.size = scale * (getGlobal().tileSize / 12);
         this.active = true;
         this.creationTime = Date.now();
 
         // Get current particles array, add new particle, and update state
-        const particles = getGlobalVariable(GLOBAL_VARIABLES.PARTICLES);
-        particles.push(this);
-        setGlobalVariable(GLOBAL_VARIABLES.PARTICLES, particles);
+        getGlobal().gameObjects.particles.push(this);
     }
 
     update(deltaTime) {
@@ -55,11 +54,11 @@ class Particle {
         this.active = false;
     }
 
-    render(ctx) {
+    render(ctx, deltaTime) {
         // Default particle rendering, can be overridden
     }
 
-    debugRender(ctx) {
+    debugrender(ctx, deltaTime) {
         if (this.active) {
             // Velocity Arrow
             drawVectorArrow(ctx, this.pos, this.velocity, "#0000FF", 2);
@@ -80,12 +79,11 @@ export class TankDriveParticle extends Particle {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "default";
-        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
         this.size = scale * (tileSize / 12);
         this.lifeSpan = 10000;
     }
 
-    render(ctx) {
+    render(ctx, deltaTime) {
         if (this.active) {
             drawCircle(ctx, this.pos, this.size / 2, "#000", "#000");
         }
@@ -97,12 +95,11 @@ export class TankTrackParticle extends Particle {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "default";
-        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
         this.size = scale * (tileSize / 12);
         this.lifeSpan = 10000;
     }
 
-    render(ctx) {
+    render(ctx, deltaTime) {
         if (this.active) {
             drawCircle(ctx, this.pos, this.size / 2, "#000", "#000");
         }

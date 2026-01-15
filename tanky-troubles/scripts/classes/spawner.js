@@ -1,4 +1,4 @@
-// import { setGlobalVariable, getGlobalVariable, getAllState } from '../global-state.js';
+// import { getGlobal } from '../global-state.js';
 
 
 

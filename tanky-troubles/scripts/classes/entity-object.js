@@ -1,4 +1,4 @@
-import { setGlobalVariable, getGlobalVariable, GLOBAL_VARIABLES } from '../global-state.js';
+import { getGlobal } from '../global-state.js';
 import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '../graphics-utils.js';
 import { spawnRelativeClass } from './spawner.js';
 
@@ -32,9 +32,7 @@ class GameObject {
         this.lifeSpan = lifeSpan;
 
         // Get current gameObject array, add new gameObject, and update state
-        const objects = getGlobalVariable(GLOBAL_VARIABLES.GAME_OBJECTS); 
-        objects.push(this);
-        setGlobalVariable(GLOBAL_VARIABLES.GAME_OBJECTS, objects);
+        getGlobal().gameObjects.push(this);
     }
 
     update(deltaTime) {
@@ -59,11 +57,11 @@ class GameObject {
         this.active = false;
     }
 
-    render(ctx) {
+    render(ctx, deltaTime) {
         // Default bullet rendering, can be overridden
     }
 
-    debugRender(ctx) {
+    debugrender(ctx, deltaTime) {
         if (this.active) {
             // Velocity Arrow
             drawVectorArrow(ctx, this.pos, this.velocity, "#0000FF", 2);
@@ -84,12 +82,12 @@ export class DefaultObject extends GameObject {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "default";
-        const tileSize = getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE);
+        const tileSize = getGlobal().tileSize
         this.size = scale * (tileSize / 12);
         this.lifeSpan = 10000;
     }
 
-    render(ctx) {
+    render(ctx, deltaTime) {
         if (this.active) {
             drawCircle(ctx, this.pos, this.size / 2, "#000", "#000");
         }

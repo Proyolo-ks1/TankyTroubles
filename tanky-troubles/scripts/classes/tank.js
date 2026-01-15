@@ -1,13 +1,19 @@
-import { setGlobalVariable, getGlobalVariable, GLOBAL_VARIABLES } from '../global-state.js';
+import { getGlobal } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../graphics-utils.js';
 import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ShrepnalBombWeapon, ExperimentalWeapon, ChainShotgunBOOM, OppenheimerBOOOM } from './weapons.js';
+
+// RunningGameApi
+const gameApi = document.getElementById("game-container").runningGameApi;
+
+// References
+const globalKeys = gameApi.globalKeys
 
 
 
 export class Tank {
     static tankCount = 0;
 
-    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, size = {length: 120, width: 90}, speed = 5, turningSpeed = 1, scale = 1, color = "#555", controls = { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }, globalKeys) {
+    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, size = {length: 120, width: 90}, speed = 5, turningSpeed = 1, scale = 1, color = "#555", controls = { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }) {
         this.id = `tank${Tank.tankCount++}`;
 
         this.pos = posSpawn;
@@ -19,28 +25,27 @@ export class Tank {
         this.size = { length: size.length * scale, width: size.width * scale };
         this.color = color;
         this.controls = controls;
-        this.globalKeys = globalKeys;
-        this.weapon = new ChainShotgunBOOM(this); // Default weapon
+        this.weapon = new Chaingun(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
         this.trackRotation = {left: 0, right: 0}
 
         this.health = 1;
 
-        // Get current tanks array, add new tank, and update state
-        const tanks = getGlobalVariable(GLOBAL_VARIABLES.TANKS);
-        tanks.push(this);
-        setGlobalVariable(GLOBAL_VARIABLES.TANKS, tanks);
+        getGlobal().gameObjects.tanks.push(this);
     }
 
+    // Triggered once when the shoot-key is pressed down
     shootPress() {
         this.weapon.press();
     }
 
+    // Triggered as long as the shoot-key is pressed down
     shootHold(deltaTime) {
         this.weapon.hold(deltaTime);
     }
 
+    // Triggered once the shoot-key is released
     shootRelease() {
         this.weapon.release();
     }
@@ -51,8 +56,9 @@ export class Tank {
     }
 
     update(deltaTime) {
+
         // Detect shooting press & release
-        const isShooting = this.globalKeys[this.controls.shoot];
+        const isShooting = globalKeys[this.controls.shoot];
 
         if (isShooting && !this.wasShooting) {
             this.shootPress();
@@ -63,16 +69,16 @@ export class Tank {
         this.wasShooting = isShooting;
 
         // Handle shoot hold
-        if (this.globalKeys[this.controls.shoot]) {
+        if (globalKeys[this.controls.shoot]) {
             this.shootHold(deltaTime);
         }
     
         // Rotation - Turning
-        if (!(this.globalKeys[this.controls.left] && this.globalKeys[this.controls.right])) {
-            if (this.globalKeys[this.controls.left]) {
+        if (!(globalKeys[this.controls.left] && globalKeys[this.controls.right])) {
+            if (globalKeys[this.controls.left]) {
                 this.angle -= this.turningSpeed * deltaTime;
             }
-            if (this.globalKeys[this.controls.right]) {
+            if (globalKeys[this.controls.right]) {
                 this.angle += this.turningSpeed * deltaTime;
             }
         }
@@ -83,11 +89,11 @@ export class Tank {
         this.velocity.y = 0;
     
         // Velocity-based movement
-        if (this.globalKeys[this.controls.up]) {
+        if (globalKeys[this.controls.up]) {
             this.velocity.x = Math.cos(this.angle) * this.speed;
             this.velocity.y = Math.sin(this.angle) * this.speed;
         }
-        if (this.globalKeys[this.controls.down]) {
+        if (globalKeys[this.controls.down]) {
             this.velocity.x = -Math.cos(this.angle) * this.speed;
             this.velocity.y = -Math.sin(this.angle) * this.speed;
         }
@@ -102,11 +108,11 @@ export class Tank {
         this.trackRotation.right += forwardSpeed * deltaTime;
     }
 
-    render(ctx) {
+    render(ctx, deltaTime) {
         ctx.save();
 
         // Transform to fit the game world into the canvas and have local tank coordinates and rotation
-        const canvasScale = getGlobalVariable(GLOBAL_VARIABLES.CANVAS_SCALE);
+        const canvasScale = getGlobal().canvasScale;
         ctx.translate(this.pos.x * canvasScale, this.pos.y * canvasScale);
         ctx.rotate(this.angle);
 
@@ -126,19 +132,18 @@ export class Tank {
             drawRect(ctx, { x: -this.size.length / 2 + trackLinkLength * (2 * i - 1) + trackRightRotationRemainder, y: this.size.width / 2 - this.size.width / 6 }, { width: trackLinkLength, height: this.size.width / 6 }, "rgba(0, 0, 0, 0.3)");
         }
         
-
         // Turret
-        this.weapon.renderTurret(ctx, this);
+        this.weapon.renderTurret(ctx, deltaTime);
 
         ctx.restore();
 
         // Player Name or ID
         const text = this.id
-        const textPos = { x: this.pos.x, y: this.pos.y - 0.3 * this.scale * getGlobalVariable(GLOBAL_VARIABLES.TILE_SIZE) };
+        const textPos = { x: this.pos.x, y: this.pos.y - 0.3 * this.scale * getGlobal().tileSize };
         drawText(ctx, text, textPos, "center", "bottom", 25, "Consolas", this.color, "#000000", 5);
     }
 
-    debugRender(ctx) {
+    debugrender(ctx, deltaTime) {
         // Velocity Arrow
         drawVectorArrow(ctx, this.pos, this.velocity, "#0000FF", 5);
 

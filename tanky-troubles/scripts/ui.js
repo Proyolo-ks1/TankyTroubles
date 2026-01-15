@@ -1,4 +1,4 @@
-import { getGlobalVariable } from './global-state.js';
+import { getGlobal } from './global-state.js';
 import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from './graphics-utils.js';
 
 

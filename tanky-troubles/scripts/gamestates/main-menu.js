@@ -1,4 +1,4 @@
-import { GAME_STATES, OVERLAY_STATES, setGlobalVariable, getGlobalVariable, getAllGlobals, GLOBAL_VARIABLES } from '../global-state.js';
+import { GAME_STATE_KEYS, OVERLAY_STATE_KEYS, getGlobal } from '../global-state.js';
 import { Button } from '../ui.js';
 
 const buttons = [];
@@ -6,13 +6,13 @@ const buttons = [];
 export function loadMainMenu(ctx) {
     if (buttons.length === 0) {
         buttons.push(new Button(ctx, { x: 100, y: 200 }, { w: 200, h: 50 }, "Start Game", () => {
-            setGlobalVariable(GLOBAL_VARIABLES.GAME_STATE, GAME_STATES.RUNNING);
+            getGlobal().gameState = GAME_STATE_KEYS.RUNNING;
         }));
         buttons.push(new Button(ctx, { x: 100, y: 270 }, { w: 200, h: 50 }, "Settings", () => {
-            setGlobalVariable(GLOBAL_VARIABLES.OVERLAY_STATE, OVERLAY_STATES.SETTINGS);
+            getGlobal().overlayState = OVERLAY_STATE_KEYS.SETTINGS;
         }));
         buttons.push(new Button(ctx, { x: 100, y: 340 }, { w: 200, h: 50 }, "Help", () => {
-            setGlobalVariable(GLOBAL_VARIABLES.OVERLAY_STATE, OVERLAY_STATES.HELP);
+            getGlobal().overlayState = OVERLAY_STATE_KEYS.HELP;
         }));
     }
 
@@ -24,7 +24,3 @@ export function loadMainMenu(ctx) {
     ctx.fillStyle = "#000";
     ctx.fillText("Tanky Troubles", 50, 50);
 }
-
-// when pressing button:
-// setGlobalVariable(GLOBAL_VARIABLES.GAME_STATE, GAME_STATES.MAIN_MENU);
-// setGlobalVariable(GLOBAL_VARIABLES.OVERLAY_STATE, OVERLAY_STATES.PAUSE_MENU);
