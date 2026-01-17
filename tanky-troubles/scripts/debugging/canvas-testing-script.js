@@ -6,7 +6,7 @@ const ctx = canvas.getContext("2d");
 function resizeCanvas() {
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
-    draw();  // Redraw after resizing
+    drawDebug();  // Redraw after resizing
 }
 
 // Call resize function initially and on resize
@@ -49,11 +49,11 @@ function drawCorners() {
 }
 
 // Draw the game scene
-function draw() {
+export function drawDebug() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear
     drawGrid();
     drawCorners();
 }
 
 // Initial draw
-draw();
+drawDebug();

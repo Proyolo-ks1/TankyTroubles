@@ -2,6 +2,7 @@ import { GAME_STATE_KEYS, OVERLAY_STATE_KEYS, getGlobal, GLOBAL_COLOR_KEYS } fro
 import { loadMainMenu } from './gamestates/main-menu.js';
 import { initializeGame, ExecuteGameLoop } from './gamestates/running-game.js';
 import { renderGameStatistics } from './overlay.js';
+import { drawDebug } from './debugging/canvas-testing-script.js';
 // import { preloadImages, rescaleImages, getImage } from "./asset-handler.js";
 
 // RunningGameApi
@@ -104,6 +105,10 @@ function gameLoop(currentTime) {
             }
             ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime);
 
+            break;
+            
+        case GAME_STATE_KEYS.WINDOW_DEBUGGING:
+            drawDebug();
             break;
     }
     
