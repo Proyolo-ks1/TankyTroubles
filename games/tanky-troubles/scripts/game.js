@@ -2,7 +2,7 @@ import { GAME_STATE_KEYS, OVERLAY_STATE_KEYS, getGlobal, GLOBAL_COLOR_KEYS } fro
 import { loadMainMenu } from './gamestates/main-menu.js';
 import { initializeGame, ExecuteGameLoop } from './gamestates/running-game.js';
 import { renderGameStatistics } from './overlay.js';
-import { drawDebug } from './debugging/canvas-testing-script.js';
+import { drawDebugIni, drawDebug } from './debugging/canvas-testing-script.js';
 // import { preloadImages, rescaleImages, getImage } from "./asset-handler.js";
 
 // RunningGameApi
@@ -55,7 +55,7 @@ function printDebugGlobals() {
 
 
 // Game Big Picture
-getGlobal().gameState = GAME_STATE_KEYS.RUNNING;
+getGlobal().gameState = GAME_STATE_KEYS.WINDOW_DEBUGGING;
 getGlobal().overlayState = OVERLAY_STATE_KEYS.NONE;
 getGlobal().debugMode = false;
 getGlobal().showStatistics = false;
@@ -88,6 +88,7 @@ function gameLoop(currentTime) {
     const ctx = gameApi.canvasCtx
     const canvasWidth = gameApi.canvasWidth
     const canvasHeight = gameApi.canvasHeight
+    getGlobal().canvasScale = canvasWidth;
 
     if (!lastTime) lastTime = currentTime;  // Initialize lastTime on the first loop
     let deltaTime = (currentTime - lastTime) / 1000;  // Time difference in seconds
@@ -108,6 +109,10 @@ function gameLoop(currentTime) {
             break;
             
         case GAME_STATE_KEYS.WINDOW_DEBUGGING:
+            if (!gameInitialized) {
+                drawDebugIni();
+                gameInitialized = true;
+            }
             drawDebug();
             break;
     }

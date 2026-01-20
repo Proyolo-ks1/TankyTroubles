@@ -7,6 +7,7 @@ export const GLOBAL_COLOR_KEYS = Object.freeze({
 export const GAME_STATE_KEYS = Object.freeze({
     MAIN_MENU: "MAIN_MENU",
     RUNNING: "RUNNING",
+    WINDOW_DEBUGGING: "WINDOW_DEBUGGING", 
 });
 
 export const OVERLAY_STATE_KEYS = Object.freeze({
@@ -42,7 +43,7 @@ const GlobalVariables = {
     debugMode: true,
     showStatistics: true,
     canvasScale: 0.5,
-    tileSize: 100,
+    tileSize: 0.1,
     gameObjects: {
         tanks: [],
         bullets: [],

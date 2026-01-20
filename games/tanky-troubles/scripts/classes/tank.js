@@ -106,6 +106,8 @@ export class Tank {
         const forwardSpeed = Math.cos(this.angle) * this.velocity.x + Math.sin(this.angle) * this.velocity.y;
         this.trackRotation.left += forwardSpeed * deltaTime;
         this.trackRotation.right += forwardSpeed * deltaTime;
+        this.trackRotation.left %= 360;
+        this.trackRotation.right %= 360;
     }
 
     render(ctx, deltaTime) {
@@ -117,21 +119,31 @@ export class Tank {
         ctx.rotate(this.angle);
 
         // Body
-        drawRect(ctx, { x: -this.size.length / 2, y: -this.size.width / 2 }, { width: this.size.length, height: this.size.width }, this.color, "black", 5);
+        const BodyLength = this.size.length
+        const BodyWidth = this.size.width
+        drawRect(ctx, { x: -BodyLength / 2, y: -BodyWidth / 2 }, { width: BodyLength, height: BodyWidth }, this.color, "black", 5);
 
         // Tracks
-        const trackLinkLength = this.size.length / 12;
-        drawRect(ctx, { x: -this.size.length / 2, y: -this.size.width / 2 }, { width: this.size.length, height: this.size.width / 6 }, this.color, "black", 5);
-        drawRect(ctx, { x: -this.size.length / 2, y: this.size.width / 2 - this.size.width / 6 }, { width: this.size.length, height: this.size.width / 6 }, this.color, "black", 5);
-        const trackLeftRotationRemainder = mod(this.trackRotation.left, 2) * trackLinkLength;
-        const trackRightRotationRemainder = mod(this.trackRotation.right, 2) * trackLinkLength;
-        for (let i = 0; i <= 6; i++) {
-            drawRect(ctx, { x: -this.size.length / 2 + trackLinkLength * (2 * i - 1) + trackLeftRotationRemainder, y: -this.size.width / 2 }, { width: trackLinkLength, height: this.size.width / 6 }, "rgba(0, 0, 0, 0.3)");
+        const trackLength = BodyLength
+        const trackWidth = this.size.width / 6
+        drawRect(ctx, { x: -trackLength / 2, y: -BodyWidth / 2 }, { width: trackLength, height: trackWidth }, this.color, "black", 5);
+        drawRect(ctx, { x: -trackLength / 2, y: BodyWidth / 2 - trackWidth }, { width: trackLength, height: trackWidth }, this.color, "black", 5);
+        const amountOfTrackLinks = 12;
+        const trackLinkLength = trackLength / amountOfTrackLinks;
+        const trackLeftRotationRemainder = (this.trackRotation.left % 2) * trackLinkLength;
+        const trackRightRotationRemainder = (this.trackRotation.right % 2) * trackLinkLength;
+        for (let i = 0; i <= amountOfTrackLinks / 2; i++) {
+            drawRect(ctx, { x: -trackLength / 2 + trackLinkLength * (2 * i - 1) + trackLeftRotationRemainder, y: -BodyWidth / 2 }, { width: trackLinkLength, height: trackWidth }, "rgba(0, 0, 0, 0.3)");
         }
-        for (let i = 0; i <= 6; i++) {
-            drawRect(ctx, { x: -this.size.length / 2 + trackLinkLength * (2 * i - 1) + trackRightRotationRemainder, y: this.size.width / 2 - this.size.width / 6 }, { width: trackLinkLength, height: this.size.width / 6 }, "rgba(0, 0, 0, 0.3)");
+        for (let i = 0; i <= amountOfTrackLinks / 2; i++) {
+            drawRect(ctx, { x: -trackLength / 2 + trackLinkLength * (2 * i - 1) + trackRightRotationRemainder, y: BodyWidth / 2 - trackWidth }, { width: trackLinkLength, height: trackWidth }, "rgba(0, 0, 0, 0.3)");
         }
         
+        // TEMP DEBUGGING FOR FIXING TRACK VISUALS
+        // if (this.id === "tank0") {
+        //     console.log(`track L: ${trackLeftRotationRemainder}\track R: ${trackRightRotationRemainder}`);
+        // }
+
         // Turret
         this.weapon.renderTurret(ctx, deltaTime);
 

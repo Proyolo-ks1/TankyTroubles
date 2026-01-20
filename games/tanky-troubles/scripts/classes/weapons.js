@@ -73,7 +73,7 @@ export class NoWeapon extends Weapon {
 
         // Dome
         const domeRadius = this.tank.size.width / 3;
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.color, "black", 5);
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.tank.color, "black", 5);
     }
 }
 
@@ -151,6 +151,11 @@ export class Chaingun extends Weapon {
     }
 
     renderTurret(ctx, deltaTime) {
+        
+        // Dome
+        const domeRadius = this.tank.size.width / 3;
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.tank.color, "black", 5);
+
         // Draw the base of the chaingun turret
         let turretSize = { width: this.tank.size.length * 0.7, height: this.tank.size.width * 4 / 15 };
         let turretColor = this.tank.color
@@ -168,7 +173,6 @@ export class Chaingun extends Weapon {
     
         // Draw barrels spaced evenly across the turret
         const barrelAngles = [0, 180, 120, 60];
-        let barrelpositions = [];
         for (let i = 0; i < 4; i++) {
             const barrelAngle = this.barrelRotation
             const flipped = this.barrelRotation < 30 ? 0 : 1;
@@ -177,7 +181,6 @@ export class Chaingun extends Weapon {
             const barrelPositionY = Math.sin((flippedAngle + barrelAngles[i]) * Math.PI / 180);
             const barrelY = barrelPositionX * (barrelWidthDefault - subBarrelHeight) * 0.5 - subBarrelHeight * 0.5;
             const barrelPos = { x: turretSize.width / 2, y: barrelY };
-            barrelpositions.push(barrelPositionX)
             
             const min = 0;
             const max = 200;
@@ -185,7 +188,6 @@ export class Chaingun extends Weapon {
             const barrelColor = `rgb(${gray}, ${gray}, ${gray})`;
             drawRect(ctx, barrelPos, { width: subBarrelWidth, height: subBarrelHeight }, barrelColor, "black", 2); // thinner outline for barrels
         }
-        console.log(`barrelpositions: ${barrelpositions}`);
     }
 }
 
@@ -355,8 +357,38 @@ export class ChainShotgun extends Weapon {
     }
     
     renderTurret(ctx, deltaTime) {
-        let turretSize = { width: this.tank.size.length * 0.7, height: this.tank.size.width / 3 };
-        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize,this.tank.color, "black", 5);
+        // Draw the base of the chaingun turret
+        let turretSize = { width: this.tank.size.length * 0.7, height: this.tank.size.width * 4 / 15 };
+        let turretColor = this.tank.color
+        if (globalKeys[this.tank.controls.shoot]) {
+            turretColor = "orange"
+            this.barrelRotation += 60 * this.fireRate * deltaTime;
+            this.barrelRotation %= 60;
+        }
+        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, turretColor, "black", 5);
+    
+        // Calculate barrel dimensions
+        const barrelWidthDefault = this.tank.size.width * 4 / 15;
+        const subBarrelWidth = turretSize.width / 2;
+        const subBarrelHeight = barrelWidthDefault / 3;
+    
+        // Draw barrels spaced evenly across the turret
+        const barrelAngles = [0, 180, 120, 60];
+        for (let i = 0; i < 4; i++) {
+            const barrelAngle = this.barrelRotation
+            const flipped = this.barrelRotation < 30 ? 0 : 1;
+            const flippedAngle = 30 - Math.abs(30 - barrelAngle);
+            const barrelPositionX = Math.cos((flippedAngle + barrelAngles[i]) * Math.PI / 180) * (flipped === 0 ? 1 : -1);
+            const barrelPositionY = Math.sin((flippedAngle + barrelAngles[i]) * Math.PI / 180);
+            const barrelY = barrelPositionX * (barrelWidthDefault - subBarrelHeight) * 0.5 - subBarrelHeight * 0.5;
+            const barrelPos = { x: turretSize.width / 2, y: barrelY };
+            
+            const min = 0;
+            const max = 200;
+            const gray = Math.round(min + (barrelPositionY + 1) * 0.5 * (max - min));
+            const barrelColor = `rgb(${gray}, ${gray}, ${gray})`;
+            drawRect(ctx, barrelPos, { width: subBarrelWidth, height: subBarrelHeight }, barrelColor, "black", 2); // thinner outline for barrels
+        }
     }
 }
 
@@ -500,34 +532,35 @@ export class ChainShotgunBOOM extends Weapon {
         let turretSize = { width: this.tank.size.length * 0.7, height: this.tank.size.width * 4 / 15 };
         let turretColor = this.tank.color
         if (globalKeys[this.tank.controls.shoot]) {
-            turretColor = "white"
-            this.barrelRotation += 1;
+            turretColor = "orange"
+            this.barrelRotation += 60 * this.fireRate * deltaTime;
+            this.barrelRotation %= 60;
         }
         drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, turretColor, "black", 5);
-        console.log("barrelRotation:", this.barrelRotation);
     
-        // Calculate the number of barrels (e.g., 5 barrels)
-        
-        const barrelLengthDefault = this.tank.size.length * 0.7;
+        // Calculate barrel dimensions
         const barrelWidthDefault = this.tank.size.width * 4 / 15;
-        const barrelCount = 4;
-        const barrelWidth = turretSize.width / barrelCount;
-        const barrelHeight = barrelWidthDefault / barrelCount;  // The height of the barrels
+        const subBarrelWidth = turretSize.width / 2;
+        const subBarrelHeight = barrelWidthDefault / 3;
     
         // Draw barrels spaced evenly across the turret
-        const barrelPositions = [];
-        for (let i = 0; i < barrelCount; i++) {
-            const barrelY = Math.sin(this.barrelRotation * Math.PI / 180 + i * (60 * Math.PI / 180)) * barrelWidthDefault; // -turretSize.height / 2 + barrelHeight * i; // Position each barrel evenly across the turret
+        const barrelAngles = [0, 180, 120, 60];
+        for (let i = 0; i < 4; i++) {
+            const barrelAngle = this.barrelRotation
+            const flipped = this.barrelRotation < 30 ? 0 : 1;
+            const flippedAngle = 30 - Math.abs(30 - barrelAngle);
+            const barrelPositionX = Math.cos((flippedAngle + barrelAngles[i]) * Math.PI / 180) * (flipped === 0 ? 1 : -1);
+            const barrelPositionY = Math.sin((flippedAngle + barrelAngles[i]) * Math.PI / 180);
+            const barrelY = barrelPositionX * (barrelWidthDefault - subBarrelHeight) * 0.5 - subBarrelHeight * 0.5;
             const barrelPos = { x: turretSize.width / 2, y: barrelY };
-            drawRect(ctx, barrelPos, { width: barrelWidth, height: barrelHeight }, "gray", "black", 2); // thinner outline for barrels
+            
+            const min = 0;
+            const max = 200;
+            const gray = Math.round(min + (barrelPositionY + 1) * 0.5 * (max - min));
+            const barrelColor = `rgb(${gray}, ${gray}, ${gray})`;
+            drawRect(ctx, barrelPos, { width: subBarrelWidth, height: subBarrelHeight }, barrelColor, "black", 2); // thinner outline for barrels
         }
     }
-
-    // OLD CHAINGUN
-    // renderTurret(ctx, deltaTime) {
-    //     let turretSize = { width: this.tank.size.length * 0.7, height: this.tank.size.width / 3 };
-    //     drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize * 10 ,this.tank.color, "black", 5);
-    // }
 }
 
 // MARK: OppenheimerBOOOM

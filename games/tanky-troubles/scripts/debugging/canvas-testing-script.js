@@ -2,17 +2,6 @@
 const canvas = document.getElementById("game-canvas");
 const ctx = canvas.getContext("2d");
 
-// Resize the canvas to match its CSS size
-function resizeCanvas() {
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
-    drawDebug();  // Redraw after resizing
-}
-
-// Call resize function initially and on resize
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
-
 // Draw grid
 function drawGrid() {
     const gridSize = 50; // 50px grid cells
@@ -55,5 +44,6 @@ export function drawDebug() {
     drawCorners();
 }
 
-// Initial draw
-drawDebug();
+export function drawDebugIni() {
+    // nothing for now
+}

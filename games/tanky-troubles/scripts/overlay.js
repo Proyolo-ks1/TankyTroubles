@@ -17,11 +17,11 @@ let overlayFps = 0;
 let overlayDeltaTime = 0;
 let statisticUpdatesPerSecond = 10
 
-// References
-const canvasScale = getGlobal().canvasScale;
 
 
 export function renderGameStatistics(ctx, currentTime, deltaTime) {
+    const canvasScale = getGlobal().canvasScale;
+
     // Calculate FPS with smoothing
     const fps = (overlayFps * 0.8) + (1 / deltaTime * 0.2);
 

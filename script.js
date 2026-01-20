@@ -42,7 +42,7 @@ function updateButtonIcons() {
 // Function to toggle fullscreen mode
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
-        document.getElementById('game-container').requestFullscreen()
+        document.getElementById('game-canvas-container').requestFullscreen()
             .catch(err => console.log("Error attempting to enable fullscreen mode: ", err));
         currentViewingMode = 'fullscreen';
     } else {
@@ -113,7 +113,7 @@ const canvas = document.getElementById("game-canvas");
 const gameContainer = document.getElementById("game-container");
 const gameUnfocusOverlay = document.getElementById("game-unfocus-overlay");
 
-// Set up the canvas (default 720x1080)
+// Set up the canvas
 const ctx = canvas.getContext("2d");
 ctx.fillStyle = "#fff";
 
@@ -130,7 +130,8 @@ const runningGameApi = gameContainer.runningGameApi = {
 };
 
 function resizeCanvas() {
-    console.log("resizeCanvas()");
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
     runningGameApi.canvasWidth = canvas.clientWidth;
     runningGameApi.canvasHeight = canvas.clientHeight;
 }

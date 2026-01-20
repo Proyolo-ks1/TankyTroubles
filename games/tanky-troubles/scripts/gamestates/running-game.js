@@ -23,8 +23,8 @@ function renderBackground(ctx, gameWidth, gameHeight) {
     const tileSize = getGlobal().tileSize
 
     // Loop through the rows and columns to draw the checkerboard pattern
-    for (let row = 0; row < Math.ceil(gameHeight / tileSize); row++) {
-        for (let col = 0; col < Math.ceil(gameWidth / tileSize); col++) {
+    for (let row = 0; row < Math.ceil(1 / tileSize); row++) {
+        for (let col = 0; col < Math.ceil(1 / tileSize); col++) {
             // Determine the color based on the row and column positions
             const color = (row + col) % 2 === 0 ? GLOBAL_COLOR_KEYS.CHECKERBOARD_1 : GLOBAL_COLOR_KEYS.CHECKERBOARD_2;
 
@@ -172,6 +172,49 @@ function debuggingStep() {
 }
 
 
+// Draw grid
+function drawGrid(ctx, canvasWidth, canvasHeight) {
+    const gridSize = 50; // 50px grid cells
+    const rows = Math.ceil(canvasHeight / gridSize);
+    const cols = Math.ceil(canvasWidth / gridSize);
+
+    ctx.strokeStyle = "#ddd";  // Grid line color
+    ctx.lineWidth = 1;
+
+    for (let i = 0; i <= cols; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * gridSize, 0);
+        ctx.lineTo(i * gridSize, canvasHeight);
+        ctx.stroke();
+    }
+
+    for (let i = 0; i <= rows; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, i * gridSize);
+        ctx.lineTo(canvasWidth, i * gridSize);
+        ctx.stroke();
+    }
+}
+
+// Draw corner markers
+function drawCorners(ctx, canvasWidth, canvasHeight) {
+    const cornerSize = 10;
+    ctx.fillStyle = "#ff0000"; // Red
+
+    ctx.fillRect(0, 0, cornerSize, cornerSize);
+    ctx.fillRect(canvasWidth - cornerSize, 0, cornerSize, cornerSize);
+    ctx.fillRect(0, canvasHeight - cornerSize, cornerSize, cornerSize);
+    ctx.fillRect(canvasWidth - cornerSize, canvasHeight - cornerSize, cornerSize, cornerSize);
+}
+
+// Draw the game scene
+export function drawWindowDebug(ctx, canvasWidth, canvasHeight, deltaTime) {
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);  // Clear
+    drawGrid(ctx, canvasWidth, canvasHeight);
+    drawCorners(ctx, canvasWidth, canvasHeight);
+}
+
+
 
 
 
@@ -225,7 +268,7 @@ export function initializeGame(canvasWidth, canvasHeight) {
 
 export function ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime) {
     if (!gameApi.isGamePaused) {
-        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+        // ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
         renderBackground(ctx, canvasWidth, canvasHeight);
 
@@ -268,10 +311,11 @@ export function ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime) {
         // updateGame(currentTime);
 
         if (windEnabled) {
-            updateAndRenderWind(ctx, deltaTime)
+            updateAndRenderWind(ctx, deltaTime);
         }
 
         // Debugging
-        debuggingStep()
+        debuggingStep();
+        //drawWindowDebug(ctx, canvasWidth, canvasHeight, deltaTime);
     }
 }

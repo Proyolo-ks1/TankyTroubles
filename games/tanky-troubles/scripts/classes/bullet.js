@@ -3,7 +3,7 @@ import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '
 import { spawnRelativeClass } from './spawner.js';
 
 // References
-const tileSize = getGlobal().tileSize;
+const tileSize = () => getGlobal().tileSize;
 
 
 
