@@ -316,6 +316,6 @@ export function ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime) {
 
         // Debugging
         debuggingStep();
-        //drawWindowDebug(ctx, canvasWidth, canvasHeight, deltaTime);
+        // drawWindowDebug(ctx, canvasWidth, canvasHeight, deltaTime);
     }
 }

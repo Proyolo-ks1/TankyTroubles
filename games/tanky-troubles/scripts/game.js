@@ -55,7 +55,7 @@ function printDebugGlobals() {
 
 
 // Game Big Picture
-getGlobal().gameState = GAME_STATE_KEYS.WINDOW_DEBUGGING;
+getGlobal().gameState = GAME_STATE_KEYS.RUNNING;
 getGlobal().overlayState = OVERLAY_STATE_KEYS.NONE;
 getGlobal().debugMode = false;
 getGlobal().showStatistics = false;
