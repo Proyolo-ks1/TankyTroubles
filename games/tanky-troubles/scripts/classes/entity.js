@@ -13,13 +13,13 @@ import { spawnRelativeClass } from './spawner.js';
 
 
 
-// MARK: GameObject
-// GameObject class (base class for all types of gameObjects)
-class GameObject {
-    static gameObjectCount = 0;
+// MARK: Entity
+// Entity class (base class for all types of game entities)
+class Entity {
+    static entityCount = 0;
 
     constructor(pos = { x: 0, y: 0 }, vel = { x: 0, y: 0 }, acc = { x: 0, y: 0 }, angle = 0, angleVel = 0, angleAcc = 0, scale = 1, lifeSpan = -1) {
-        this.id = `gameObject${GameObject.gameObjectCount++}`;
+        this.id = `entity${Entity.entityCount++}`;
         this.pos = pos;
         this.vel = vel;
         this.acc = acc;
@@ -31,8 +31,7 @@ class GameObject {
         this.creationTime = Date.now();
         this.lifeSpan = lifeSpan;
 
-        // Get current gameObject array, add new gameObject, and update state
-        getGlobal().gameObjects.push(this);
+        getGlobal().entities.push(this);
     }
 
     update(deltaTime) {
@@ -77,8 +76,8 @@ class GameObject {
     }
 }
 
-// MARK: DefaultObject
-export class DefaultObject extends GameObject {
+// MARK: DefaultEntity
+export class DefaultEntity extends Entity {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "default";

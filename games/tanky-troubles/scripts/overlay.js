@@ -57,8 +57,8 @@ export function renderGameStatistics(ctx, currentTime, deltaTime) {
     drawText(ctx, `FPS:     ${Math.round(overlayFps)}`, { x: pos.x, y: pos.y }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
     drawText(ctx, `ΔTime:   ${Math.round(overlayDeltaTime * 1000)}ms`, { x: pos.x, y: pos.y + 1 * fontSize + 1 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
     drawText(ctx, `Scale:   ${canvasScale.toFixed(2)}`, { x: pos.x, y: pos.y + 2 * fontSize + 2 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
-    drawText(ctx, `Tanks:   ${getGlobal().gameObjects.tanks.length}`, { x: pos.x, y: pos.y + 3 * fontSize + 3 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
-    drawText(ctx, `Bullets: ${getGlobal().gameObjects.bullets.length}`, { x: pos.x, y: pos.y + 4 * fontSize + 4 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
+    drawText(ctx, `Tanks:   ${getGlobal().entities.tanks.length}`, { x: pos.x, y: pos.y + 3 * fontSize + 3 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
+    drawText(ctx, `Bullets: ${getGlobal().entities.bullets.length}`, { x: pos.x, y: pos.y + 4 * fontSize + 4 * textSpacing }, align, baseline, fontSize, font, textColor, outlineColor, outlineWidth);
 
     // Toggle Button for debugMode
     const buttonWidth = 150 / canvasScale;

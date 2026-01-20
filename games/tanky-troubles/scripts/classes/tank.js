@@ -32,7 +32,7 @@ export class Tank {
 
         this.health = 1;
 
-        getGlobal().gameObjects.tanks.push(this);
+        getGlobal().entities.tanks.push(this);
     }
 
     // Triggered once when the shoot-key is pressed down

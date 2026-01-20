@@ -25,14 +25,10 @@ function renderBackground(ctx, gameWidth, gameHeight) {
     // Loop through the rows and columns to draw the checkerboard pattern
     for (let row = 0; row < Math.ceil(1 / tileSize); row++) {
         for (let col = 0; col < Math.ceil(1 / tileSize); col++) {
-            // Determine the color based on the row and column positions
             const color = (row + col) % 2 === 0 ? GLOBAL_COLOR_KEYS.CHECKERBOARD_1 : GLOBAL_COLOR_KEYS.CHECKERBOARD_2;
-
-            // Create pos and size objects to match the new drawRect system
             const pos = { x: col * tileSize, y: row * tileSize };
             const size = { width: tileSize, height: tileSize };
 
-            // Draw the tile using the updated drawRect function
             drawRect(ctx, pos, size, color);
         }
     }
@@ -131,14 +127,14 @@ const numberKeyPressActions = {
 const numberKeyHoldActions = {
     '3': () => {
         console.log("DB: Decrease tank size 1%");
-        getGlobal().gameObjects.tanks.forEach(tank => {
+        getGlobal().entities.tanks.forEach(tank => {
             tank.size.length *= 0.99;
             tank.size.width  *= 0.99;
         });
     },
     '4': () => {
         console.log("DB: Inscrease tank size 1%");
-        getGlobal().gameObjects.tanks.forEach(tank => {
+        getGlobal().entities.tanks.forEach(tank => {
             tank.size.length *= 1.01;
             tank.size.width  *= 1.01;
         });
@@ -237,7 +233,7 @@ let lastPowerUpSpawnTime = 0;
 let Maze = generateMaze()
 
 // Extract globals references
-const gameObjects = getGlobal().gameObjects
+const entities = getGlobal().entities
 
 
 export function initializeGame(canvasWidth, canvasHeight) {
@@ -275,7 +271,7 @@ export function ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime) {
         // Update and render tanks and bullets
         const debugActive = getGlobal().debugMode
         
-        const bullets = gameObjects.bullets;
+        const bullets = entities.bullets;
         bullets.forEach(bullet => {
             bullet.update(deltaTime);
             bullet.render(ctx, deltaTime);
@@ -287,7 +283,7 @@ export function ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime) {
             }
         });
 
-        const tanks = gameObjects.tanks;
+        const tanks = entities.tanks;
         tanks.forEach(tank => {
             tank.update(deltaTime);
             tank.render(ctx, deltaTime);
@@ -296,7 +292,7 @@ export function ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime) {
             }
         });
 
-        const particles = gameObjects.particles;
+        const particles = entities.particles;
         particles.forEach(particle => {
             particle.update(deltaTime);
             particle.render(ctx, deltaTime);

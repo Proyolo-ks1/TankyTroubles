@@ -31,8 +31,7 @@ class Bullet {
         this.active = true;
         this.creationTime = Date.now();
 
-        // Get current bullets array, add new bullet, and update state
-        getGlobal().gameObjects.bullets.push(this);
+        getGlobal().entities.bullets.push(this);
     }
 
     update(deltaTime) {

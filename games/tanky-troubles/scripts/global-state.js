@@ -21,7 +21,7 @@ export const OVERLAY_STATE_KEYS = Object.freeze({
 
 
 /**
- * @typedef {Object} GameObjectsType
+ * @typedef {Object} EntityType
  * @property {Tank[]} tanks
  * @property {Bullet[]} bullets
  * @property {Particle[]} particles
@@ -33,7 +33,7 @@ export const OVERLAY_STATE_KEYS = Object.freeze({
  * @property {boolean} showStatistics
  * @property {number} canvasScale
  * @property {number} tileSize
- * @property {GameObjectsType} gameObjects
+ * @property {EntityType} entities
  * @property {string} gameState
  * @property {string} overlayState
  */
@@ -44,7 +44,7 @@ const GlobalVariables = {
     showStatistics: true,
     canvasScale: 0.5,
     tileSize: 0.1,
-    gameObjects: {
+    entities: {
         tanks: [],
         bullets: [],
         particles: [],

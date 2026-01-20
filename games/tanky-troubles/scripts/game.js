@@ -26,10 +26,10 @@ function printDebugGlobals() {
     const g = getGlobal();
     const DebugGlobals = {
         ...g,
-        gameObjects: g.gameObjects.length,
-        tanks: g.gameObjects.tanks.length,
-        bullets: g.gameObjects.bullets.length,
-        particles: g.gameObjects.particles.length,
+        Entities: g.entities.length,
+        tanks: g.entities.tanks.length,
+        bullets: g.entities.bullets.length,
+        particles: g.entities.particles.length,
         gameApi 
     };
 

@@ -32,8 +32,7 @@ class Particle {
         this.active = true;
         this.creationTime = Date.now();
 
-        // Get current particles array, add new particle, and update state
-        getGlobal().gameObjects.particles.push(this);
+        getGlobal().entities.particles.push(this);
     }
 
     update(deltaTime) {
