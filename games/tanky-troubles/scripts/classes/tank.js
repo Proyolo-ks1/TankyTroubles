@@ -144,10 +144,14 @@ export class Tank {
         const trackLeftRotationRemainder = (this.trackRotation.left % (trackLinkLength * 2));
         const trackRightRotationRemainder = (this.trackRotation.right % (trackLinkLength * 2));
         for (let i = 0; i <= amountOfTrackLinks / 2; i++) {
-            drawRect(ctx, { x: -trackLength / 2 + trackLinkLength * (2 * i - 1) + trackLeftRotationRemainder, y: -BodyWidth / 2 }, { width: trackLinkLength, height: trackWidth }, "rgba(0, 0, 0, 0.3)");
+            const trackLeftX1 = Math.min(Math.max(-trackLength / 2 + trackLinkLength * (2 * i - 1.5) + trackLeftRotationRemainder, -trackLength / 2), trackLength / 2)
+            const trackLeftX2 = Math.min(Math.max(-trackLength / 2 + trackLinkLength * (2 * i - 1.5) + trackLeftRotationRemainder + trackLinkLength, -trackLength / 2), trackLength / 2)
+            drawRect(ctx, { x: trackLeftX1, y: -BodyWidth / 2 }, { width: trackLeftX2 - trackLeftX1, height: trackWidth }, "rgba(0, 0, 0, 0.3)");
         }
         for (let i = 0; i <= amountOfTrackLinks / 2; i++) {
-            drawRect(ctx, { x: -trackLength / 2 + trackLinkLength * (2 * i - 1) + trackRightRotationRemainder, y: BodyWidth / 2 - trackWidth }, { width: trackLinkLength, height: trackWidth }, "rgba(0, 0, 0, 0.3)");
+            const trackRightX1 = Math.min(Math.max(-trackLength / 2 + trackLinkLength * (2 * i - 1.5) + trackRightRotationRemainder, -trackLength / 2), trackLength / 2)
+            const trackRightX2 = Math.min(Math.max(-trackLength / 2 + trackLinkLength * (2 * i - 1.5) + trackRightRotationRemainder + trackLinkLength, -trackLength / 2), trackLength / 2)
+            drawRect(ctx, { x: trackRightX1, y: BodyWidth / 2 - trackWidth }, { width: trackRightX2 - trackRightX1, height: trackWidth }, "rgba(0, 0, 0, 0.3)");
         }
         
         // TEMP DEBUGGING FOR FIXING TRACK VISUALS
