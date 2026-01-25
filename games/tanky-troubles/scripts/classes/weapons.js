@@ -250,7 +250,7 @@ export class FlameThrower extends Weapon {
             // Randomize the angle offset for each bullet
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
             const bulletSpeed = 3.0 + Math.random() * 0.5; // tiles per second
-            const lifeSpan = 5000 - Math.random() * (5000 / 2);
+            const lifeSpan = 5000 - Math.random() * (5000 / 2); // 2500-7500 ms
             spawnRelativeClass(FireBullet, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
     }
 
@@ -260,7 +260,7 @@ export class FlameThrower extends Weapon {
 
     renderTurret(ctx, deltaTime) {
         let turretSize = { width: this.tank.size.length * 0.7, height: this.tank.size.width / 3 };
-        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, "#FFA500", "black", 5);
+        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, "#FFA500", "black", 0.05);
         const customShape = [
             { x: 50, y: 0 },
             { x: 100, y: 50 },
@@ -587,11 +587,11 @@ export class OppenheimerBOOOM extends Weapon {
         const width = this.tank.size.width / 5;
         const x = 0;
         const y = -width / 2;
-        drawRect(ctx, { x: x, y: y }, { width: length, height: width }, this.tank.color, "black", 5);
+        drawRect(ctx, { x: x, y: y }, { width: length, height: width }, this.tank.color, "black", 0.05);
 
         // Dome
         const domeRadius = this.tank.size.width / 3;
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, "#000", "#000", 5);
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, "#000", "#000", 0.05);
         drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.8, "#ff0");
         for (let i = 0; i < 3; i++) {
             let triangleAngle = Math.PI * 2 / 3 * i;
@@ -599,7 +599,7 @@ export class OppenheimerBOOOM extends Weapon {
             let trianglePos = { x: trianglePosRadius * Math.cos(triangleAngle) , y: trianglePosRadius * Math.sin(triangleAngle) };
             drawRegPolygon(ctx, trianglePos, domeRadius * 0.55, 3, triangleAngle, "#000"); // Triangle
         }
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.2, "#000", "#000", 5);
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.2, "#000", "#000", 0.05);
         drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.1, "#ff0");
     }
 }

@@ -186,34 +186,46 @@ export class FireBullet extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 1.8, scale = 1, lifeSpan = 5000) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "fire";
-        this.size = scale * 25;
+        this.size = scale * (1 / 12);
         this.lifeSpan = lifeSpan;
         this.color = "#FFA500";
+        this.alpha = 1.0;
         this.initialColor = { r: 255, g: 165, b: 0 };
         this.currentColor = { ...this.initialColor };
     }
 
     update(deltaTime) {
         super.update(deltaTime);
-        this.size *= 1.005;
-        this.velocity.x *= 0.98;
-        this.velocity.y *= 0.98;
+        this.size *= 1.004;
+        this.velocity.x *= 0.99;
+        this.velocity.y *= 0.99;
 
         // Gradually decrease the color towards black
-        const fadeSpeed = 3;  // Speed of the color fade towards black
+        
+        const fadeDurationColor = 2; // seconds to fade from full to black
+        const fadeDurationAlpha = this.lifeSpan / 1000; // seconds to fade from full to black
+        const fadePerSecondColor = 255 / fadeDurationColor;
+        const fadePerSecondAlpha = 1 / fadeDurationAlpha;
+        const fadeAmountColor = fadePerSecondColor * deltaTime;
+        const fadeAmountAlpha = fadePerSecondAlpha * deltaTime;
 
         // Decrease RGB components to simulate fading to black
-        this.currentColor.r = Math.max(this.currentColor.r - fadeSpeed, 0);
-        this.currentColor.g = Math.max(this.currentColor.g - fadeSpeed, 0);
-        this.currentColor.b = Math.max(this.currentColor.b - fadeSpeed, 0);
+        this.currentColor.r = Math.max(this.currentColor.r - fadeAmountColor, 0);
+        this.currentColor.g = Math.max(this.currentColor.g - fadeAmountColor, 0);
+        this.currentColor.b = Math.max(this.currentColor.b - fadeAmountColor, 0);
+        this.alpha = Math.max(this.alpha - fadeAmountAlpha, 0);
 
         // Update color in hex format
-        this.color = `rgb(${Math.round(this.currentColor.r)}, ${Math.round(this.currentColor.g)}, ${Math.round(this.currentColor.b)})`;
+        this.color = `rgba(
+            ${Math.round(this.currentColor.r)},
+            ${Math.round(this.currentColor.g)},
+            ${Math.round(this.currentColor.b)},
+            ${this.alpha})`;
     }
 
     render(ctx, deltaTime) {
         if (this.active) {
-            drawCircle(ctx, this.pos, this.size / 2, this.color, "#000");
+            drawCircle(ctx, this.pos, this.size / 2, this.color);
         }
     }
 }
@@ -264,7 +276,7 @@ export class OppenheimerBullet extends Bullet {
     render(ctx, deltaTime) {
         if (this.active) {
             const radius = this.size / 3;
-            drawCircle(ctx, this.pos, radius, "black", "black", 5);
+            drawCircle(ctx, this.pos, radius, "black", "black", 0.05);
             drawCircle(ctx, this.pos, radius * 0.8, "yellow");
             for (let i = 0; i < 3; i++) {
                 let triangleAngle = Math.PI * 2 / 3 * i;
@@ -272,7 +284,7 @@ export class OppenheimerBullet extends Bullet {
                 let trianglePos = { x: trianglePosRadius * Math.cos(triangleAngle) , y: trianglePosRadius * Math.sin(triangleAngle) };
                 drawRegPolygon(ctx, this.pos + trianglePos, radius * 0.55, 3, triangleAngle, "#000"); // Triangle
             }
-            drawCircle(ctx, this.pos, radius * 0.2, "black", "black", 5);
+            drawCircle(ctx, this.pos, radius * 0.2, "black", "black", 0.05);
             drawCircle(ctx, this.pos, radius * 0.1, "yellow");
         }
     }
@@ -308,7 +320,7 @@ export class OppenheimerNeutron extends Bullet {
     render(ctx, deltaTime) {
         if (this.active) {
             const radius = this.size / 3;
-            drawCircle(ctx, this.pos, radius, "black", "black", 5);
+            drawCircle(ctx, this.pos, radius, "black", "black", 0.05);
         }
     }
 }

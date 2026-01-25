@@ -3,6 +3,7 @@ import { drawRect, drawCircle, drawText, drawRegPolygon, drawVectorArrow} from '
 import { generateMaze} from '../generate-maze.js';
 import { Tank } from '../classes/tank.js';
 import { loadMainMenu } from '../gamestates/main-menu.js';
+import { signedSquare, signedPower } from '../helpers/math-helper.js';
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -82,14 +83,17 @@ function updateAndRenderWind(ctx, deltaTime) {
     const randomness = 2;   // max random change per update
 
     // Add some random noise
-    windJerk.x = (Math.random() * 2 - 1 - (windVel.x * 0.1)) * randomness;
-    windJerk.y = (Math.random() * 2 - 1 - (windVel.y * 0.1)) * randomness;
+    windJerk.x = (Math.random() * 2 - 1 - signedPower(windVel.x, 1.1)) * randomness;
+    windJerk.y = (Math.random() * 2 - 1 - signedPower(windVel.y, 1.1)) * randomness;
 
-    windAccel.x += windJerk.x * deltaTime;
-    windAccel.y += windJerk.y * deltaTime;
+    windAcc.x += windJerk.x * deltaTime;
+    windAcc.y += windJerk.y * deltaTime;
+    
+    windAcc.x *= 0.999
+    windAcc.y *= 0.999
 
-    windVel.x += windAccel.x * deltaTime;
-    windVel.y += windAccel.y * deltaTime;
+    windVel.x += windAcc.x * deltaTime;
+    windVel.y += windAcc.y * deltaTime;
 
     // Drift back to zero (damping)
     windVel.x -= windVel.x * dampingFactor * deltaTime;
@@ -100,7 +104,9 @@ function updateAndRenderWind(ctx, deltaTime) {
     windVel.y = Math.max(-maxSpeed, Math.min(maxSpeed, windVel.y));
 
     // Draw the wind vector arrow at position (50, 50)
-    drawVectorArrow(ctx, { x: 5, y: 1 }, { x: windVel.x * 5, y: windVel.y * 5 }, GLOBAL_COLOR_KEYS.VECTOR_ARROW, 0.05);
+    drawVectorArrow(ctx, { x: 5, y: 1 }, { x: windVel.x * 5, y: windVel.y * 5 }, "#ffcc23", 0.05);
+    drawVectorArrow(ctx, { x: 5, y: 1 }, { x: windAcc.x * 5, y: windAcc.y * 5 }, "#b39a48", 0.05);
+    // drawVectorArrow(ctx, { x: 5, y: 1 }, { x: windJerk.x * 5, y: windJerk.y * 5 }, "#776835", 0.05);
     console.log(`wind velocity vector: (${windVel.x},${windVel.y})`);
 }
 
@@ -239,7 +245,7 @@ function updateGlobalVariables() {
 let powerUpSpawnCooldown = 1; // seconds 
 let powerUpSpawnChance = 1;
 let windVel = {x: 0, y: 0};
-let windAccel = {x: 0, y: 0};
+let windAcc = {x: 0, y: 0};
 let windJerk = {x: 0, y: 0};
 let windEnabled = true;
 
