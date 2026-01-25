@@ -77,32 +77,39 @@ function cleanupInactiveBullets(bullets) {
 }
 
 function updateAndRenderWind(ctx, deltaTime) {
-    const maxSpeed = 2;       // max wind speed in any direction
-    const driftFactor = 0.02;  // how strong the wind drifts back to zero
+    const maxSpeed = 1;       // max wind speed in any direction (tiles per second)
+    const dampingFactor = 0.1;  // how strong the wind drifts back to zero
     const randomness = 2;   // max random change per update
 
     // Add some random noise
-    windSpeed.x += (Math.random() * 2 - 1) * randomness * deltaTime;
-    windSpeed.y += (Math.random() * 2 - 1) * randomness * deltaTime;
+    windJerk.x = (Math.random() * 2 - 1 - (windVel.x * 0.1)) * randomness;
+    windJerk.y = (Math.random() * 2 - 1 - (windVel.y * 0.1)) * randomness;
+
+    windAccel.x += windJerk.x * deltaTime;
+    windAccel.y += windJerk.y * deltaTime;
+
+    windVel.x += windAccel.x * deltaTime;
+    windVel.y += windAccel.y * deltaTime;
 
     // Drift back to zero (damping)
-    windSpeed.x -= windSpeed.x * driftFactor * deltaTime;
-    windSpeed.y -= windSpeed.y * driftFactor * deltaTime;
+    windVel.x -= windVel.x * dampingFactor * deltaTime;
+    windVel.y -= windVel.y * dampingFactor * deltaTime;
 
     // Clamp max speed so it doesn't go wild
-    windSpeed.x = Math.max(-maxSpeed, Math.min(maxSpeed, windSpeed.x));
-    windSpeed.y = Math.max(-maxSpeed, Math.min(maxSpeed, windSpeed.y));
+    windVel.x = Math.max(-maxSpeed, Math.min(maxSpeed, windVel.x));
+    windVel.y = Math.max(-maxSpeed, Math.min(maxSpeed, windVel.y));
 
     // Draw the wind vector arrow at position (50, 50)
-    drawVectorArrow(ctx, { x: GAME_WIDTH - 100, y: 100 }, { x: windSpeed.x * 1000, y: windSpeed.y * 1000 }, GLOBAL_COLOR_KEYS.VECTOR_ARROW, 5);
+    drawVectorArrow(ctx, { x: 5, y: 1 }, { x: windVel.x * 5, y: windVel.y * 5 }, GLOBAL_COLOR_KEYS.VECTOR_ARROW, 0.05);
+    console.log(`wind velocity vector: (${windVel.x},${windVel.y})`);
 }
 
 function updateWindEffect(bullet, deltaTime) {
     const windForceFactor = 1; // strength of wind force (can be tuned)
     const mass = bullet.mass || 1; // default to 1 if no mass set
 
-    const dx = windSpeed.x - bullet.velocity.x;
-    const dy = windSpeed.y - bullet.velocity.y;
+    const dx = windVel.x - bullet.velocity.x;
+    const dy = windVel.y - bullet.velocity.y;
 
     // acceleration = force / mass
     const accelX = (dx * windForceFactor) / mass;
@@ -212,6 +219,11 @@ export function drawWindowDebug(ctx, canvasWidth, canvasHeight, deltaTime) {
     drawCorners(ctx, canvasWidth, canvasHeight);
 }
 
+// updateGlobalVariables I guess
+function updateGlobalVariables() {
+    getGlobal().renderScale = getGlobal().canvasScale * getGlobal().zoomLevel
+}
+
 
 
 
@@ -226,8 +238,10 @@ export function drawWindowDebug(ctx, canvasWidth, canvasHeight, deltaTime) {
 // Settings
 let powerUpSpawnCooldown = 1; // seconds 
 let powerUpSpawnChance = 1;
-let windSpeed = {x: 0, y: 0};
-let windEnabled = false;
+let windVel = {x: 0, y: 0};
+let windAccel = {x: 0, y: 0};
+let windJerk = {x: 0, y: 0};
+let windEnabled = true;
 
 // Support Variables
 let lastPowerUpSpawnTime = 0;
@@ -243,7 +257,6 @@ window.globalSyncConsoleLogStr = "";
 
 // Extract globals references
 const entities = getGlobal().entities
-
 
 export function initializeGame() {
 
@@ -284,16 +297,28 @@ export function ExecuteGameLoop(ctx, deltaTime) {
     if (!gameApi.isGamePaused) {
 
         renderBackground(ctx);
+        updateGlobalVariables();
+
+        let totalTimeForCalculating = 0;
+        let totalTimeForRendering = 0;
 
         // Update and render tanks and bullets
         const debugActive = getGlobal().debugMode
         
         const bullets = entities.bullets;
         bullets.forEach(bullet => {
+            let t0 = performance.now()
             bullet.update(deltaTime);
+            totalTimeForCalculating += performance.now() - t0
+
+            t0 = performance.now()
             bullet.render(ctx, deltaTime);
+            totalTimeForRendering += performance.now() - t0
+
             if (debugActive) {
+                t0 = performance.now()
                 bullet.debugrender(ctx, deltaTime);
+                totalTimeForRendering += performance.now() - t0
             }
             if (windEnabled) {
                 updateWindEffect(bullet, deltaTime);
@@ -302,19 +327,35 @@ export function ExecuteGameLoop(ctx, deltaTime) {
 
         const tanks = entities.tanks;
         tanks.forEach(tank => {
+            let t0 = performance.now();
             tank.update(deltaTime);
+            totalTimeForCalculating += performance.now() - t0;
+
+            t0 = performance.now();
             tank.render(ctx, deltaTime);
+            totalTimeForRendering += performance.now() - t0;
+
             if (debugActive) {
+                t0 = performance.now();
                 tank.debugrender(ctx, deltaTime);
+                totalTimeForRendering += performance.now() - t0;
             }
         });
 
         const particles = entities.particles;
         particles.forEach(particle => {
+            let t0 = performance.now();
             particle.update(deltaTime);
+            totalTimeForCalculating += performance.now() - t0;
+
+            t0 = performance.now();
             particle.render(ctx, deltaTime);
+            totalTimeForRendering += performance.now() - t0;
+
             if (debugActive) {
+                t0 = performance.now();
                 particle.debugrender(ctx, deltaTime);
+                totalTimeForRendering += performance.now() - t0;
             }
         });
         
@@ -330,7 +371,7 @@ export function ExecuteGameLoop(ctx, deltaTime) {
         // Debugging
         debuggingStep();
         if (window.globalSyncConsoleLogStr) {
-            console.log(window.globalSyncConsoleLogStr);
+            // console.log(window.globalSyncConsoleLogStr);
         }
         // drawWindowDebug(ctx, canvasWidth, canvasHeight, deltaTime);
 

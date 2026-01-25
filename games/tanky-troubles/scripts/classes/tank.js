@@ -183,10 +183,3 @@ export class Tank {
         drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#808", 0.02);
     }
 }
-
-
-// Helper Functions
-function posMod(x, n) {
-    return ((x % n) + n) % n;
-}
-

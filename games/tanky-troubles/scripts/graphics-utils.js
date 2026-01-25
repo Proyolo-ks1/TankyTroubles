@@ -62,7 +62,7 @@ export function drawImg(ctx, pos, size, img, strokeColor = null, strokeWidth = 0
 // MARK: drawRect
 // Function to draw a rectangle with optional rounded corners, applying canvas scaling
 export function drawRect(ctx, pos, size, fillColor, strokeColor = null, strokeWidth = 0.02, borderRadius = 0) {
-    const renderScale = getGlobal().canvasScale * getGlobal().zoomLevel;
+    const renderScale = getGlobal().renderScale
 
     // Scale values
     const scaledX = pos.x * renderScale;

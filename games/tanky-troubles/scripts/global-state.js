@@ -28,12 +28,21 @@ export const OVERLAY_STATE_KEYS = Object.freeze({
  */
 
 /**
+ * @typedef {Object} DebugRingBuffersType
+ * @property {number[]} calculateTime
+ * @property {number[]} renderTime
+ * @property {number[]} fps
+ */
+
+/**
  * @typedef {Object} GlobalVariablesType
  * @property {boolean} debugMode
  * @property {boolean} showStatistics
  * @property {number} canvasScale
  * @property {number} zoomLevel
+ * @property {number} renderScale
  * @property {EntityType} entities
+ * @property {DebugRingBuffersType} debugRingBuffers
  * @property {string} gameState
  * @property {string} overlayState
  */
@@ -44,10 +53,16 @@ const GlobalVariables = {
     showStatistics: true,
     canvasScale: 1280,
     zoomLevel: 0.1,
+    renderScale: 128,
     entities: {
         tanks: [],
         bullets: [],
         particles: [],
+    },
+    debugRingBuffers: {
+        calculateTime: [],
+        renderTime: [],
+        fps: [],
     },
     gameState: GAME_STATE_KEYS.MAIN_MENU,
     overlayState: OVERLAY_STATE_KEYS.NONE,
