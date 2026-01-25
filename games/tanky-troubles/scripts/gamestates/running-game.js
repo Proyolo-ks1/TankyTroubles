@@ -19,15 +19,17 @@ const gameApi = document.getElementById("game-container").runningGameApi;
 
 
 // Function to render the background theme and maze
-function renderBackground(ctx, gameWidth, gameHeight) {
-    const tileSize = getGlobal().tileSize
+function renderBackground(ctx) {
+
+    const mazeWidth = 16 // tiles
+    const mazeHeight = 9 // tiles
 
     // Loop through the rows and columns to draw the checkerboard pattern
-    for (let row = 0; row < Math.ceil(1 / tileSize); row++) {
-        for (let col = 0; col < Math.ceil(1 / tileSize); col++) {
+    for (let row = 0; row < Math.ceil(mazeHeight); row++) {
+        for (let col = 0; col < Math.ceil(mazeWidth); col++) {
             const color = (row + col) % 2 === 0 ? GLOBAL_COLOR_KEYS.CHECKERBOARD_1 : GLOBAL_COLOR_KEYS.CHECKERBOARD_2;
-            const pos = { x: col * tileSize, y: row * tileSize };
-            const size = { width: tileSize, height: tileSize };
+            const pos = { x: col, y: row };
+            const size = { width: 1, height: 1 };
 
             drawRect(ctx, pos, size, color);
         }
@@ -115,37 +117,37 @@ function updateWindEffect(bullet, deltaTime) {
 
 const numberKeyPressActions = {
     '1': () => {
-        console.log("DB: toggle debugMode");
         getGlobal().debugMode = !getGlobal().debugMode;
+        console.log(`DB: toggled debugMode: ${getGlobal().debugMode}`);
     },
     '2': () => {
-        console.log("DB: toggle showStatistics");
         getGlobal().showStatistics = !getGlobal().showStatistics;
+        console.log(`DB: toggled showStatistics: ${getGlobal().showStatistics}`);
     },
 };
 
 const numberKeyHoldActions = {
     '3': () => {
-        console.log("DB: Decrease tank size 1%");
         getGlobal().entities.tanks.forEach(tank => {
             tank.size.length *= 0.99;
             tank.size.width  *= 0.99;
         });
+        console.log("DB: Decreased tank size 1%");
     },
     '4': () => {
-        console.log("DB: Inscrease tank size 1%");
         getGlobal().entities.tanks.forEach(tank => {
             tank.size.length *= 1.01;
             tank.size.width  *= 1.01;
         });
+        console.log("DB: Inscreased tank size 1%");
     },
     '5': () => {
-        console.log("DB: Decrease tileSize 1%");
-        getGlobal().tileSize *= 0.99;
+        getGlobal().zoomLevel *= 0.99;
+        console.log(`DB: Decreased zoomLevel by 1%: ${Math.round(getGlobal().zoomLevel*1000) / 10}%`);
     },
     '6': () => {
-        console.log("DB: Inscrease tileSize 1%");
-        getGlobal().tileSize *= 1.01;
+        getGlobal().zoomLevel *= 1.01;
+        console.log(`DB: Increased zoomLevel by 1%: ${Math.round(getGlobal().zoomLevel*1000) / 10}%`);
     },
 };
 
@@ -170,9 +172,9 @@ function debuggingStep() {
 
 // Draw grid
 function drawGrid(ctx, canvasWidth, canvasHeight) {
-    const gridSize = 50; // 50px grid cells
-    const rows = Math.ceil(canvasHeight / gridSize);
-    const cols = Math.ceil(canvasWidth / gridSize);
+    const gridSize = 1; // 50px grid cells
+    const rows = Math.ceil(canvasHeight / zoomLevel);
+    const cols = Math.ceil(canvasWidth / zoomLevel);
 
     ctx.strokeStyle = "#ddd";  // Grid line color
     ctx.lineWidth = 1;
@@ -232,41 +234,56 @@ let lastPowerUpSpawnTime = 0;
 
 let Maze = generateMaze()
 
+getGlobal().lastFrameCanvas = getGlobal().lastFrameCanvas || document.createElement("canvas");
+getGlobal().lastFrameCanvas.width = gameApi.canvasWidth;
+getGlobal().lastFrameCanvas.height = gameApi.canvasHeight;
+const lastFrameCtx = getGlobal().lastFrameCanvas.getContext("2d");
+
+window.globalSyncConsoleLogStr = "";
+
 // Extract globals references
 const entities = getGlobal().entities
 
 
-export function initializeGame(canvasWidth, canvasHeight) {
+export function initializeGame() {
 
     // startGame();
 
 
     // Create tanks with position, color, and controls
-    const tileSize = getGlobal().tileSize
-    const defaultTankLength = tileSize * 2 / 5; // Tiles
-    const defaultTankWidth = tileSize / 3 // Tiles
+    const defaultTankLength = 2 / 5; // Tiles
+    const defaultTankWidth = 1 / 3 // Tiles
     const defaultTankSize = {length: defaultTankLength, width: defaultTankWidth}
-    const defaultTankSpeed = tileSize * 1.6; // Tiles per second
+    const defaultTankSpeed = 1.6; // Tiles per second
     const defaultTankRotSpeed = 5; // radians per second
 
     let angleSpawn = Math.random() * Math.PI * 2;
     angleSpawn = 0;
-    const posSpawn1 = { x: canvasWidth / 4, y: canvasHeight / 2 }
+    const posSpawn1 = { x: 2, y: 4 }
     new Tank(posSpawn1, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 5, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
 
     angleSpawn = Math.random() * Math.PI * 2;
     angleSpawn = 0;
-    const posSpawn2 = { x: canvasWidth - canvasWidth / 4, y: canvasHeight / 2 }
+    const posSpawn2 = { x: 7, y: 2 }
     new Tank(posSpawn2, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 1, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
 }
 
 
 
-export function ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime) {
-    if (!gameApi.isGamePaused) {
-        // ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-        renderBackground(ctx, canvasWidth, canvasHeight);
+
+
+//      |====================|
+//      |      GAME LOOP     |
+//      |====================|
+
+
+
+export function ExecuteGameLoop(ctx, deltaTime) {
+    window.globalSyncConsoleLogStr = "Global Logging:\n"
+    if (!gameApi.isGamePaused) {
+
+        renderBackground(ctx);
 
         // Update and render tanks and bullets
         const debugActive = getGlobal().debugMode
@@ -312,6 +329,16 @@ export function ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime) {
 
         // Debugging
         debuggingStep();
+        if (window.globalSyncConsoleLogStr) {
+            console.log(window.globalSyncConsoleLogStr);
+        }
         // drawWindowDebug(ctx, canvasWidth, canvasHeight, deltaTime);
+
+        lastFrameCtx.clearRect(0, 0, gameApi.canvasWidth, gameApi.canvasHeight);
+        lastFrameCtx.drawImage(ctx.canvas, 0, 0);
+
+    } else {
+        // Game is paused → just draw the previous frame
+        ctx.drawImage(getGlobal().lastFrameCanvas, 0, 0);
     }
 }

@@ -7,7 +7,6 @@ import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPol
 const gameApi = document.getElementById("game-container").runningGameApi;
 
 // References
-const tileSize = getGlobal().tileSize;
 const globalKeys = gameApi.globalKeys
 
 
@@ -50,8 +49,7 @@ export class NoWeapon extends Weapon {
     }
 
     press() {
-        const tileSize = getGlobal().tileSize
-        const bulletSpeed = tileSize * 1.8
+        const bulletSpeed = 1.8 // tiles per second
         spawnRelativeClass(DefaultBullet, this.tank, this.tank.pos, this.tank.angle, {x: this.barrelLength, y: 0}, 0, bulletSpeed, this.tank.scale);
     }
 
@@ -69,11 +67,11 @@ export class NoWeapon extends Weapon {
         const barrelWidth = this.tank.size.width * 4 / 15;
         const x = 0;
         const y = -barrelWidth / 2;
-        drawRect(ctx, { x: x, y: y }, { width: barrelLength, height: barrelWidth }, this.tank.color, "black", 5);
+        drawRect(ctx, { x: x, y: y }, { width: barrelLength, height: barrelWidth }, this.tank.color, "black", 0.02);
 
         // Dome
         const domeRadius = this.tank.size.width / 3;
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.tank.color, "black", 5);
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.tank.color, "black", 0.02);
     }
 }
 
@@ -124,7 +122,7 @@ export class Chaingun extends Weapon {
 
                 // Calculate compensation distance
                 const extraTravelTime = this.timeSinceLastShot; // Time bullet is "late"
-                const bulletSpeed = tileSize * 2.75;
+                const bulletSpeed = 2.75; // tiles per second
                 const extraDistance = bulletSpeed * extraTravelTime;
 
                 // Get initial bullet position
@@ -154,7 +152,7 @@ export class Chaingun extends Weapon {
         
         // Dome
         const domeRadius = this.tank.size.width / 3;
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.tank.color, "black", 5);
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.tank.color, "black", 0.02);
 
         // Draw the base of the chaingun turret
         let turretSize = { width: this.tank.size.length * 0.7, height: this.tank.size.width * 4 / 15 };
@@ -164,7 +162,7 @@ export class Chaingun extends Weapon {
             this.barrelRotation += 60 * this.fireRate * deltaTime;
             this.barrelRotation %= 60;
         }
-        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, turretColor, "black", 5);
+        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, turretColor, "black", 0.02);
     
         // Calculate barrel dimensions
         const barrelWidthDefault = this.tank.size.width * 4 / 15;
@@ -186,7 +184,7 @@ export class Chaingun extends Weapon {
             const max = 200;
             const gray = Math.round(min + (barrelPositionY + 1) * 0.5 * (max - min));
             const barrelColor = `rgb(${gray}, ${gray}, ${gray})`;
-            drawRect(ctx, barrelPos, { width: subBarrelWidth, height: subBarrelHeight }, barrelColor, "black", 2); // thinner outline for barrels
+            drawRect(ctx, barrelPos, { width: subBarrelWidth, height: subBarrelHeight }, barrelColor, "black", 0.01); // thinner outline for barrels
         }
     }
 }
@@ -209,7 +207,7 @@ export class Shotgun extends Weapon {
             // Randomize the angle offset for each bullet
             const randomBulletBarrelPosY = this.barrelWidth * (Math.random() - 0.5);
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
-            const bulletSpeed = tileSize * (3.0 + Math.random() * 0.5);
+            const bulletSpeed = 3.0 + Math.random() * 0.5; // tiles per second
             const lifeSpan = 1750 - Math.random() * (1750 / 15);
             spawnRelativeClass(ShotgunBullet, this.tank, this.tank.pos, this.tank.angle, { x: this.barrelLength, y: randomBulletBarrelPosY }, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
         }
@@ -229,7 +227,7 @@ export class Shotgun extends Weapon {
         const width = this.barrelWidth
         const x = 0;
         const y = -width / 2;
-        drawRect(ctx, { x: x, y: y }, { width: length, height: width }, this.tank.color, "black", 5);
+        drawRect(ctx, { x: x, y: y }, { width: length, height: width }, this.tank.color, "black", 0.02);
     }
 }
 
@@ -251,7 +249,7 @@ export class FlameThrower extends Weapon {
 
             // Randomize the angle offset for each bullet
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
-            const bulletSpeed = tileSize * (3.0 + Math.random() * 0.5);
+            const bulletSpeed = 3.0 + Math.random() * 0.5; // tiles per second
             const lifeSpan = 5000 - Math.random() * (5000 / 2);
             spawnRelativeClass(FireBullet, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
     }
@@ -273,7 +271,7 @@ export class FlameThrower extends Weapon {
         const pos = { x: 100, y: 100 };  // Position where the shape will be drawn
         const angle = 45;  // Rotation in degrees
         
-        drawVertexPolygon(ctx, pos, angle, customShape, "aqua", "black", 10);
+        drawVertexPolygon(ctx, pos, angle, customShape, "aqua", "black", 0.05);
     }
 }
 
@@ -321,7 +319,7 @@ export class ChainShotgun extends Weapon {
 
                 // Calculate compensation distance
                 const extraTravelTime = this.timeSinceLastShot; // Time bullet is "late"
-                const bulletSpeed = tileSize * 2.75;
+                const bulletSpeed = 2.75; // tiles per second
                 const extraDistance = bulletSpeed * extraTravelTime;
 
                 // Get initial bullet position
@@ -343,7 +341,7 @@ export class ChainShotgun extends Weapon {
                     // Randomize the angle offset for each bullet
                     const randomBulletBarrelPosY = this.barrelWidth * (Math.random() - 0.5);
                     const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
-                    const bulletSpeed = tileSize * (3.0 + Math.random() * 0.5);
+                    const bulletSpeed = 3.0 + Math.random() * 0.5; // tiles per second
                     const lifeSpan = 1750 - Math.random() * (1750 / 15);
                     spawnRelativeClass(ShotgunBullet, this.tank, this.tank.pos, this.tank.angle, { x: this.barrelLength, y: randomBulletBarrelPosY }, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
                 }
@@ -365,7 +363,7 @@ export class ChainShotgun extends Weapon {
             this.barrelRotation += 60 * this.fireRate * deltaTime;
             this.barrelRotation %= 60;
         }
-        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, turretColor, "black", 5);
+        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, turretColor, "black", 0.02);
     
         // Calculate barrel dimensions
         const barrelWidthDefault = this.tank.size.width * 4 / 15;
@@ -387,7 +385,7 @@ export class ChainShotgun extends Weapon {
             const max = 200;
             const gray = Math.round(min + (barrelPositionY + 1) * 0.5 * (max - min));
             const barrelColor = `rgb(${gray}, ${gray}, ${gray})`;
-            drawRect(ctx, barrelPos, { width: subBarrelWidth, height: subBarrelHeight }, barrelColor, "black", 2); // thinner outline for barrels
+            drawRect(ctx, barrelPos, { width: subBarrelWidth, height: subBarrelHeight }, barrelColor, "black", 0.01); // thinner outline for barrels
         }
     }
 }
@@ -401,7 +399,7 @@ export class ShrepnalBombWeapon extends Weapon {
     }
 
     press() {
-        const bulletSpeed = tileSize * 1.8
+        const bulletSpeed = 1.8 // tiles per second
         spawnRelativeClass(ShrapnelBomb, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, 0, bulletSpeed, 1);
     }
 
@@ -415,7 +413,7 @@ export class ShrepnalBombWeapon extends Weapon {
     
     renderTurret(ctx, deltaTime) {
         let turretSize = { width: this.barrelLength, height: this.barrelWidth };
-        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize,this.tank.color, "black", 5);
+        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize,this.tank.color, "black", 0.02);
     }
 }
 
@@ -447,7 +445,7 @@ export class ExperimentalWeapon extends Weapon {
 
     renderTurret(ctx, deltaTime) {
         let turretSize = { width: this.tank.size.length * 0.7, height: this.tank.size.width / 3 };
-        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize,this.tank.color, "black", 5);
+        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize,this.tank.color, "black", 0.02);
     }
 }
 
@@ -492,7 +490,7 @@ export class ChainShotgunBOOM extends Weapon {
 
                 // Calculate compensation distance
                 const extraTravelTime = this.timeSinceLastShot; // Time bullet is "late"
-                const bulletSpeed = tileSize * 2.75;
+                const bulletSpeed = 2.75; // tiles per second
                 const extraDistance = bulletSpeed * extraTravelTime;
 
                 // Get initial bullet position
@@ -513,7 +511,7 @@ export class ChainShotgunBOOM extends Weapon {
 
                     // Randomize the angle offset for each bullet
                     const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
-                    const bulletSpeed = tileSize * (3.0 + Math.random() * 0.5);
+                    const bulletSpeed = 3.0 + Math.random() * 0.5; // tiles per second
                     const lifeSpan = 1750 - Math.random() * (1750 / 15);
                     spawnRelativeClass(ShrapnelBomb, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
                 }
@@ -536,7 +534,7 @@ export class ChainShotgunBOOM extends Weapon {
             this.barrelRotation += 60 * this.fireRate * deltaTime;
             this.barrelRotation %= 60;
         }
-        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, turretColor, "black", 5);
+        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, turretColor, "black", 0.02);
     
         // Calculate barrel dimensions
         const barrelWidthDefault = this.tank.size.width * 4 / 15;
@@ -558,7 +556,7 @@ export class ChainShotgunBOOM extends Weapon {
             const max = 200;
             const gray = Math.round(min + (barrelPositionY + 1) * 0.5 * (max - min));
             const barrelColor = `rgb(${gray}, ${gray}, ${gray})`;
-            drawRect(ctx, barrelPos, { width: subBarrelWidth, height: subBarrelHeight }, barrelColor, "black", 2); // thinner outline for barrels
+            drawRect(ctx, barrelPos, { width: subBarrelWidth, height: subBarrelHeight }, barrelColor, "black", 0.01); // thinner outline for barrels
         }
     }
 }
@@ -571,7 +569,7 @@ export class OppenheimerBOOOM extends Weapon {
     }
 
     press() {
-        const bulletSpeed = tileSize * 1.8;
+        const bulletSpeed = 1.8; // tiles per second
         spawnRelativeClass(OppenheimerBullet, this.tank, this.tank.pos, this.tank.angle, {x: this.barrelLength, y: 0}, 0, bulletSpeed, this.tank.scale);
     }
 

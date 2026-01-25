@@ -24,9 +24,14 @@ let lastDebugGlobalsJSON = "";
 
 function printDebugGlobals() {
     const g = getGlobal();
+    const e = getGlobal().entities;
+    const totalEntities =
+    e.tanks.length +
+    e.bullets.length +
+    e.particles.length;
     const DebugGlobals = {
         ...g,
-        Entities: g.entities.length,
+        entities: totalEntities,
         tanks: g.entities.tanks.length,
         bullets: g.entities.bullets.length,
         particles: g.entities.particles.length,
@@ -58,7 +63,7 @@ function printDebugGlobals() {
 getGlobal().gameState = GAME_STATE_KEYS.RUNNING;
 getGlobal().overlayState = OVERLAY_STATE_KEYS.NONE;
 getGlobal().debugMode = false;
-getGlobal().showStatistics = false;
+getGlobal().showStatistics = true;
 
 
 
@@ -90,21 +95,23 @@ function gameLoop(currentTime) {
     const canvasHeight = gameApi.canvasHeight
     getGlobal().canvasScale = canvasWidth;
 
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    
     if (!lastTime) lastTime = currentTime;  // Initialize lastTime on the first loop
     let deltaTime = (currentTime - lastTime) / 1000;  // Time difference in seconds
     
     // Game State
     switch (getGlobal().gameState) {
         case GAME_STATE_KEYS.MAIN_MENU:
-            loadMainMenu(ctx, canvasWidth, canvasHeight);
+            loadMainMenu(ctx);
             break;
             
         case GAME_STATE_KEYS.RUNNING:
             if (!gameInitialized) {
-                initializeGame(canvasWidth, canvasHeight);
+                initializeGame();
                 gameInitialized = true;
             }
-            ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime);
+            ExecuteGameLoop(ctx, deltaTime);
 
             break;
             
@@ -124,12 +131,6 @@ function gameLoop(currentTime) {
             
         case OVERLAY_STATE_KEYS.SETTINGS:
             // Code that implements the settings overlay/menu
-        
-            // if (!gameInitialized) {
-            //     initializeGame(canvasWidth, canvasHeight);
-            //     gameInitialized = true;
-            // }
-            // ExecuteGameLoop(ctx, canvasWidth, canvasHeight, deltaTime);
 
             break;
     

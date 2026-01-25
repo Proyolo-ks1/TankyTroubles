@@ -13,7 +13,8 @@ const globalKeys = gameApi.globalKeys
 export class Tank {
     static tankCount = 0;
 
-    constructor(posSpawn = { x: 0, y: 0 }, angleSpawn = 0, size = {length: 120, width: 90}, speed = 5, turningSpeed = 1, scale = 1, color = "#555", controls = { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }) {
+    // This constructor has as default values, the values that were analyzed from the original game 
+    constructor(posSpawn = { x: 1, y: 1 }, angleSpawn = 0, size = {length: 2 / 5, width: 1 / 3}, speed = 1.6, turningSpeed = 5, scale = 1, color = "#555", controls = { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }) {
         this.id = `tank${Tank.tankCount++}`;
 
         this.pos = posSpawn;
@@ -25,7 +26,7 @@ export class Tank {
         this.size = { length: size.length * scale, width: size.width * scale };
         this.color = color;
         this.controls = controls;
-        this.weapon = new Chaingun(this); // Default weapon
+        this.weapon = new ChainShotgunBOOM(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
         this.trackRotation = {left: 0, right: 0}
@@ -75,14 +76,20 @@ export class Tank {
     
         // Rotation - Turning
         if (!(globalKeys[this.controls.left] && globalKeys[this.controls.right])) {
+            let trackCenterRadius = 5 / 12 * this.size.width
+            const linearVelocityAtRadius = trackCenterRadius * this.turningSpeed
             if (globalKeys[this.controls.left]) {
                 this.angle -= this.turningSpeed * deltaTime;
+                this.trackRotation.left -= linearVelocityAtRadius * deltaTime;
+                this.trackRotation.right += linearVelocityAtRadius * deltaTime;
             }
             if (globalKeys[this.controls.right]) {
                 this.angle += this.turningSpeed * deltaTime;
+                this.trackRotation.left += linearVelocityAtRadius * deltaTime;
+                this.trackRotation.right -= linearVelocityAtRadius * deltaTime;
             }
+            this.angle = (this.angle + 2 * Math.PI) % (2 * Math.PI);
         }
-        this.angle = (this.angle + 2 * Math.PI) % (2 * Math.PI);
     
         // Reset velocity to (0, 0) when no keys are pressed
         this.velocity.x = 0;
@@ -106,32 +113,36 @@ export class Tank {
         const forwardSpeed = Math.cos(this.angle) * this.velocity.x + Math.sin(this.angle) * this.velocity.y;
         this.trackRotation.left += forwardSpeed * deltaTime;
         this.trackRotation.right += forwardSpeed * deltaTime;
-        this.trackRotation.left %= 360;
-        this.trackRotation.right %= 360;
+        if (this.id === "tank0") {
+            window.globalSyncConsoleLogStr += `Tank0\nforwardSpeed: ${forwardSpeed.toFixed(3)} tl/s\ntrack L: ${this.trackRotation.left.toFixed(3)}\ttrack R: ${this.trackRotation.right.toFixed(3)}`;
+        }
     }
 
     render(ctx, deltaTime) {
         ctx.save();
 
-        // Transform to fit the game world into the canvas and have local tank coordinates and rotation
-        const canvasScale = getGlobal().canvasScale;
-        ctx.translate(this.pos.x * canvasScale, this.pos.y * canvasScale);
+        const renderScale = getGlobal().canvasScale * getGlobal().zoomLevel;
+
+        ctx.translate(this.pos.x * renderScale, this.pos.y * renderScale);
         ctx.rotate(this.angle);
 
         // Body
         const BodyLength = this.size.length
         const BodyWidth = this.size.width
-        drawRect(ctx, { x: -BodyLength / 2, y: -BodyWidth / 2 }, { width: BodyLength, height: BodyWidth }, this.color, "black", 5);
+        drawRect(ctx, { x: -BodyLength / 2, y: -BodyWidth / 2 }, { width: BodyLength, height: BodyWidth }, this.color, "black", 0.02);
 
         // Tracks
         const trackLength = BodyLength
         const trackWidth = this.size.width / 6
-        drawRect(ctx, { x: -trackLength / 2, y: -BodyWidth / 2 }, { width: trackLength, height: trackWidth }, this.color, "black", 5);
-        drawRect(ctx, { x: -trackLength / 2, y: BodyWidth / 2 - trackWidth }, { width: trackLength, height: trackWidth }, this.color, "black", 5);
+        drawRect(ctx, { x: -trackLength / 2, y: -BodyWidth / 2 }, { width: trackLength, height: trackWidth }, this.color, "black", 0.02);
+        drawRect(ctx, { x: -trackLength / 2, y: BodyWidth / 2 - trackWidth }, { width: trackLength, height: trackWidth }, this.color, "black", 0.02);
+
         const amountOfTrackLinks = 12;
+        this.trackRotation.left = posMod(this.trackRotation.left, amountOfTrackLinks * 2);
+        this.trackRotation.right = posMod(this.trackRotation.right, amountOfTrackLinks * 2);
         const trackLinkLength = trackLength / amountOfTrackLinks;
-        const trackLeftRotationRemainder = (this.trackRotation.left % 2) * trackLinkLength;
-        const trackRightRotationRemainder = (this.trackRotation.right % 2) * trackLinkLength;
+        const trackLeftRotationRemainder = (this.trackRotation.left % (trackLinkLength * 2));
+        const trackRightRotationRemainder = (this.trackRotation.right % (trackLinkLength * 2));
         for (let i = 0; i <= amountOfTrackLinks / 2; i++) {
             drawRect(ctx, { x: -trackLength / 2 + trackLinkLength * (2 * i - 1) + trackLeftRotationRemainder, y: -BodyWidth / 2 }, { width: trackLinkLength, height: trackWidth }, "rgba(0, 0, 0, 0.3)");
         }
@@ -140,9 +151,9 @@ export class Tank {
         }
         
         // TEMP DEBUGGING FOR FIXING TRACK VISUALS
-        // if (this.id === "tank0") {
-        //     console.log(`track L: ${trackLeftRotationRemainder}\track R: ${trackRightRotationRemainder}`);
-        // }
+        if (this.id === "tank0") {
+            window.globalSyncConsoleLogStr += `\ntrackLinkLength: ${trackLinkLength.toFixed(3)}\ntrackr L: ${trackLeftRotationRemainder.toFixed(3)}\ttrackr R: ${trackRightRotationRemainder.toFixed(3)}`;
+        }
 
         // Turret
         this.weapon.renderTurret(ctx, deltaTime);
@@ -151,26 +162,27 @@ export class Tank {
 
         // Player Name or ID
         const text = this.id
-        const textPos = { x: this.pos.x, y: this.pos.y - 0.3 * this.scale * getGlobal().tileSize };
-        drawText(ctx, text, textPos, "center", "bottom", 25, "Consolas", this.color, "#000000", 5);
+        const textPos = { x: this.pos.x, y: this.pos.y - 0.3 * this.scale };
+        drawText(ctx, text, textPos, "center", "bottom", 1, "Consolas", this.color, "#000000", 0.02);
     }
 
     debugrender(ctx, deltaTime) {
         // Velocity Arrow
-        drawVectorArrow(ctx, this.pos, this.velocity, "#0000FF", 5);
+        drawVectorArrow(ctx, this.pos, this.velocity, "#0000FF", 0.02);
 
         // Heading Line
-        const headingLength = 100; // Adjust this value to control the length of the heading line
+        const headingLength = 1; // Adjust this value to control the length of the heading line
         const headingX = this.pos.x + Math.cos(this.angle) * headingLength;
         const headingY = this.pos.y + Math.sin(this.angle) * headingLength;
 
         // Draw the heading line
-        drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#808", 5);
+        drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#808", 0.02);
     }
 }
 
 
-
-function mod(n, m) {
-    return ((n % m) + m) % m;
+// Helper Functions
+function posMod(x, n) {
+    return ((x % n) + n) % n;
 }
+

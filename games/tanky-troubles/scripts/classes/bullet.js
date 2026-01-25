@@ -2,8 +2,7 @@ import { getGlobal } from '../global-state.js';
 import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '../graphics-utils.js';
 import { spawnRelativeClass } from './spawner.js';
 
-// References
-const tileSize = () => getGlobal().tileSize;
+
 
 
 
@@ -19,7 +18,7 @@ const tileSize = () => getGlobal().tileSize;
 class Bullet {
     static BulletCount = 0;
 
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 100, scale = 1, rotationSpeed = 0) {
+    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 1, scale = 1, rotationSpeed = 0) {
         this.id = `bullet${Bullet.BulletCount++}`;
 
         this.owner = owner;
@@ -27,7 +26,7 @@ class Bullet {
         this.velocity = { x: Math.cos(angleSpawn) * spawnSpeed, y: Math.sin(angleSpawn) * spawnSpeed };
         this.angle = angleSpawn;
         this.rotationSpeed = rotationSpeed;
-        this.size = scale * (tileSize / 12);
+        this.size = scale * (1 / 12);
         this.active = true;
         this.creationTime = Date.now();
 
@@ -59,25 +58,25 @@ class Bullet {
     debugrender(ctx, deltaTime) {
         if (this.active) {
             // Velocity Arrow
-            drawVectorArrow(ctx, this.pos, this.velocity, "#0000FF", 2);
+            drawVectorArrow(ctx, this.pos, this.velocity, "#0000FF", 0.02);
 
             // Heading Line
-            const headingLength = 50;
+            const headingLength = 1;
             const headingX = this.pos.x + Math.cos(this.angle) * headingLength;
             const headingY = this.pos.y + Math.sin(this.angle) * headingLength;
 
             // Draw the heading line
-            drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#FF0000", 2); // Red color for the heading line
+            drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#FF0000", 0.02); // Red color for the heading line
         }
     }
 }
 
 // MARK: DefaultBullet
 export class DefaultBullet extends Bullet {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
+    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 1.8, scale = 1) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "default";
-        this.size = scale * (tileSize / 12);
+        this.size = scale * (1 / 12);
         this.lifeSpan = 10000;
     }
 
@@ -90,10 +89,10 @@ export class DefaultBullet extends Bullet {
 
 // MARK: ChaingunBullet
 export class ChaingunBullet extends Bullet {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
+    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 1.8, scale = 1) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "chaingun";
-        this.size = scale * (tileSize / 25);
+        this.size = scale * (1 / 25);
         this.lifeSpan = 5000;
     }
 
@@ -106,10 +105,10 @@ export class ChaingunBullet extends Bullet {
 
 // MARK: ShotgunBullet
 export class ShotgunBullet extends Bullet {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1, lifeSpan = 1750) {
+    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 1.8, scale = 1, lifeSpan = 1750) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "shotgun";
-        this.size = scale * (tileSize / 20);
+        this.size = scale * (1 / 20);
         this.lifeSpan = lifeSpan;
     }
 
@@ -122,10 +121,10 @@ export class ShotgunBullet extends Bullet {
 
 // MARK: Shrapnel
 export class Shrapnel extends Bullet {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1, lifeSpan = 5000) {
+    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 1.8, scale = 1, lifeSpan = 5000) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "shrapnel";
-        this.size = scale * (tileSize / 20);
+        this.size = scale * (1 / 20);
         this.lifeSpan = lifeSpan;
         this.randomSpin = (Math.random() - 0.5) * 0.2; // gives value between -0.1 and +0.1
     }
@@ -147,10 +146,10 @@ export class Shrapnel extends Bullet {
 
 // MARK: ShrapnelBomb
 export class ShrapnelBomb extends Bullet {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1, lifeSpan = 1000) {
+    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 1.8, scale = 1, lifeSpan = 1000) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "shrapnel";
-        this.size = scale * (tileSize / 8);
+        this.size = scale * (1 / 8);
         this.lifeSpan = lifeSpan;
     }
 
@@ -169,7 +168,7 @@ export class ShrapnelBomb extends Bullet {
             
             // Randomize the angle offset for each bullet
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
-            const bulletSpeed = tileSize * (1 + Math.random() * 0.5);
+            const bulletSpeed = 1 + Math.random() * 0.5;
             const lifeSpan = 3000 - Math.random() * (3000 / 2);
             spawnRelativeClass(Shrapnel, this, this.pos, this.angle, {x: 0, y: 0}, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
         }
@@ -184,7 +183,7 @@ export class ShrapnelBomb extends Bullet {
 
 // MARK: FireBullet
 export class FireBullet extends Bullet {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1, lifeSpan = 5000) {
+    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 1.8, scale = 1, lifeSpan = 5000) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "fire";
         this.size = scale * 25;
@@ -221,7 +220,7 @@ export class FireBullet extends Bullet {
 
 // MARK: HomingMissle
 export class HomingMissle extends Bullet {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
+    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 1.8, scale = 1) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "fire";
         this.size = scale * 25;
@@ -237,7 +236,7 @@ export class HomingMissle extends Bullet {
 
 // MARK: OppenheimerBullet
 export class OppenheimerBullet extends Bullet {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
+    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 1.8, scale = 1) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "fire";
         this.size = scale * 25;
@@ -281,7 +280,7 @@ export class OppenheimerBullet extends Bullet {
 
 // MARK: OppenheimerBullet
 export class OppenheimerNeutron extends Bullet {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
+    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 1.8, scale = 1) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "fire";
         this.size = scale * 25;

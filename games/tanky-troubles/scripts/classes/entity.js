@@ -81,7 +81,7 @@ export class DefaultEntity extends Entity {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
         super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
         this.type = "default";
-        const tileSize = getGlobal().tileSize
+        const tileSize = getGlobal().zoomLevel
         this.size = scale * (tileSize / 12);
         this.lifeSpan = 10000;
     }

@@ -20,7 +20,8 @@ let statisticUpdatesPerSecond = 10
 
 
 export function renderGameStatistics(ctx, currentTime, deltaTime) {
-    const canvasScale = getGlobal().canvasScale;
+    
+    const canvasScale = getGlobal().canvasScale * getGlobal().zoomLevel;
 
     // Calculate FPS with smoothing
     const fps = (overlayFps * 0.8) + (1 / deltaTime * 0.2);
@@ -32,7 +33,7 @@ export function renderGameStatistics(ctx, currentTime, deltaTime) {
         lastRenderStatisticsTime = currentTime;
     }
 
-    // Background
+    // Background (unit: pixel)
     let pos = { x: 5 / canvasScale, y: 5 / canvasScale };
     const padding = 10 / canvasScale;
     const textSpacing = 2 / canvasScale;
@@ -42,7 +43,7 @@ export function renderGameStatistics(ctx, currentTime, deltaTime) {
     const font = "Consolas";
     const textColor = "#fff";
     const outlineColor = "#000";
-    const outlineWidth = 2;
+    const outlineWidth = 2 / canvasScale;
     const linesOfText = 5;
     const backgroundWidth = 150 / canvasScale + 2 * padding;
     const backgroundHeight = linesOfText * fontSize + (linesOfText - 1) * textSpacing + 2 * padding;
@@ -66,9 +67,9 @@ export function renderGameStatistics(ctx, currentTime, deltaTime) {
     const buttonPos = { x: pos.x, y: pos.y + 5 * fontSize + 5 * textSpacing + padding };  // Position button below the overlay
 
     // Draw the button
-    drawRect(ctx, buttonPos, { width: buttonWidth, height: buttonHeight }, "rgba(0, 0, 0, 0.7)", "white", 2, 5);
+    drawRect(ctx, buttonPos, { width: buttonWidth, height: buttonHeight }, "rgba(0, 0, 0, 0.7)", "white", 2 / canvasScale, 5 / canvasScale);
 
     // Button text (showing current state of debugMode)
     const debugText = getGlobal().debugMode ? "Debug: ON" : "Debug: OFF";
-    drawText(ctx, debugText, { x: buttonPos.x + buttonWidth / 2, y: buttonPos.y + buttonHeight / 2 }, "center", "middle", fontSize, font, "white", "black", 2);
+    drawText(ctx, debugText, { x: buttonPos.x + buttonWidth / 2, y: buttonPos.y + buttonHeight / 2 }, "center", "middle", fontSize, font, "white", "black", 2 / canvasScale);
 }

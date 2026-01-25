@@ -32,7 +32,7 @@ export const OVERLAY_STATE_KEYS = Object.freeze({
  * @property {boolean} debugMode
  * @property {boolean} showStatistics
  * @property {number} canvasScale
- * @property {number} tileSize
+ * @property {number} zoomLevel
  * @property {EntityType} entities
  * @property {string} gameState
  * @property {string} overlayState
@@ -42,8 +42,8 @@ export const OVERLAY_STATE_KEYS = Object.freeze({
 const GlobalVariables = {
     debugMode: true,
     showStatistics: true,
-    canvasScale: 0.5,
-    tileSize: 0.1,
+    canvasScale: 1280,
+    zoomLevel: 0.1,
     entities: {
         tanks: [],
         bullets: [],

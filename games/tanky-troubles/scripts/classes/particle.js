@@ -4,7 +4,7 @@ import { spawnRelativeClass } from './spawner.js';
 
 
 // References
-const tileSize = getGlobal().tileSize;
+const tileSize = getGlobal().zoomLevel;
 
 
 
@@ -28,7 +28,7 @@ class Particle {
         this.velocity = { x: Math.cos(angleSpawn) * spawnSpeed, y: Math.sin(angleSpawn) * spawnSpeed };
         this.angle = angleSpawn;
         this.rotationSpeed = rotationSpeed;
-        this.size = scale * (getGlobal().tileSize / 12);
+        this.size = scale * (getGlobal().zoomLevel / 12);
         this.active = true;
         this.creationTime = Date.now();
 
