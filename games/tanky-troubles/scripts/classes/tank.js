@@ -27,7 +27,7 @@ export class Tank {
         this.size = { length: size.length * scale, width: size.width * scale };
         this.color = color;
         this.controls = controls;
-        this.weapon = new FlameThrower(this); // Default weapon
+        this.weapon = new ChainShotgunBOOM(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
         this.trackRotation = {left: 0, right: 0}

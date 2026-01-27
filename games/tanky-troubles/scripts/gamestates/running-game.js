@@ -1,4 +1,4 @@
-import { getGlobal, GLOBAL_COLOR_KEYS } from '../global-state.js';
+import { getGlobal, GLOBAL_COLOR_KEYS, recordDebugFrame } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawRegPolygon, drawVectorArrow} from '../graphics-utils.js';
 import { generateMaze} from '../generate-maze.js';
 import { Tank } from '../classes/tank.js';
@@ -105,9 +105,11 @@ function updateAndRenderWind(ctx, deltaTime) {
 
     // Draw the wind vector arrow at position (50, 50)
     drawVectorArrow(ctx, { x: 5, y: 1 }, { x: windVel.x * 5, y: windVel.y * 5 }, "#ffcc23", 0.05);
-    drawVectorArrow(ctx, { x: 5, y: 1 }, { x: windAcc.x * 5, y: windAcc.y * 5 }, "#b39a48", 0.05);
+
+    // debugging
+    // drawVectorArrow(ctx, { x: 5, y: 1 }, { x: windAcc.x * 5, y: windAcc.y * 5 }, "#b39a48", 0.05);
     // drawVectorArrow(ctx, { x: 5, y: 1 }, { x: windJerk.x * 5, y: windJerk.y * 5 }, "#776835", 0.05);
-    console.log(`wind velocity vector: (${windVel.x},${windVel.y})`);
+    // console.log(`wind velocity vector: (${windVel.x},${windVel.y})`);
 }
 
 function updateWindEffect(bullet, deltaTime) {
@@ -373,6 +375,9 @@ export function ExecuteGameLoop(ctx, deltaTime) {
         if (windEnabled) {
             updateAndRenderWind(ctx, deltaTime);
         }
+
+        // After everything is updated and rendered:
+        recordDebugFrame(totalTimeForCalculating, totalTimeForRendering, 1000 / deltaTime);
 
         // Debugging
         debuggingStep();

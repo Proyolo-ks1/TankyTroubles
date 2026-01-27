@@ -1,3 +1,6 @@
+
+// Enum Definitions 
+
 export const GLOBAL_COLOR_KEYS = Object.freeze({
     CHECKERBOARD_1: "#E6E6E6", 
     CHECKERBOARD_2: "#D6D6D6",
@@ -20,6 +23,9 @@ export const OVERLAY_STATE_KEYS = Object.freeze({
 });
 
 
+
+// Objects Definitions
+
 /**
  * @typedef {Object} EntityType
  * @property {Tank[]} tanks
@@ -28,7 +34,7 @@ export const OVERLAY_STATE_KEYS = Object.freeze({
  */
 
 /**
- * @typedef {Object} DebugRingBuffersType
+ * @typedef {Object} StatsRingBuffersType
  * @property {number[]} calculateTime
  * @property {number[]} renderTime
  * @property {number[]} fps
@@ -42,10 +48,12 @@ export const OVERLAY_STATE_KEYS = Object.freeze({
  * @property {number} zoomLevel
  * @property {number} renderScale
  * @property {EntityType} entities
- * @property {DebugRingBuffersType} debugRingBuffers
+ * @property {StatsRingBuffersType} statsRingBuffers
  * @property {string} gameState
  * @property {string} overlayState
  */
+
+const DEBUG_HISTORY_SIZE = 100;
 
 /** @type {GlobalVariablesType} */
 const GlobalVariables = {
@@ -59,10 +67,12 @@ const GlobalVariables = {
         bullets: [],
         particles: [],
     },
-    debugRingBuffers: {
-        calculateTime: [],
-        renderTime: [],
-        fps: [],
+    statsRingBuffers: {
+        calculateTime: new Float32Array(DEBUG_HISTORY_SIZE),
+        renderTime: new Float32Array(DEBUG_HISTORY_SIZE),
+        fps: new Float32Array(DEBUG_HISTORY_SIZE),
+        index: 0, // current write position
+        count: 0, // how many valid samples we have
     },
     gameState: GAME_STATE_KEYS.MAIN_MENU,
     overlayState: OVERLAY_STATE_KEYS.NONE,
@@ -82,4 +92,15 @@ const GlobalVariables = {
 /** @returns {GlobalVariablesType} */
 export function getGlobal() {
     return GlobalVariables;
+}
+
+export function recordDebugFrame(calcTime, renderTime, fps) {
+    const dbg = getGlobal().statsRingBuffers;
+
+    dbg.calculateTime[dbg.index] = calcTime;
+    dbg.renderTime[dbg.index] = renderTime;
+    dbg.fps[dbg.index] = fps;
+
+    dbg.index = (dbg.index + 1) % DEBUG_HISTORY_SIZE;
+    dbg.count = Math.min(dbg.count + 1, DEBUG_HISTORY_SIZE);
 }

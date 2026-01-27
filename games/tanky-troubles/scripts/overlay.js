@@ -22,6 +22,7 @@ let statisticUpdatesPerSecond = 10
 export function renderGameStatistics(ctx, currentTime, deltaTime) {
     
     const renderScale = getGlobal().renderScale
+    const dbg = getGlobal().statsRingBuffers;
 
     // Calculate FPS with smoothing
     const fps = (overlayFps * 0.8) + (1 / deltaTime * 0.2);
@@ -33,8 +34,47 @@ export function renderGameStatistics(ctx, currentTime, deltaTime) {
         lastRenderStatisticsTime = currentTime;
     }
 
+    // Graph area
+    const graphWidth = 100 / renderScale;       // width in pixels
+    const graphHeight = 40 / renderScale;       // height in pixels
+    const graphPadding = 5 / renderScale;
+    let graphX = 5 / renderScale;
+    let graphY = 5 / renderScale;
+
+    // Draw background for graphs
+    drawRect(ctx, { x: graphX, y: graphY }, { width: graphWidth + 2 * graphPadding, height: 2 * graphHeight + 3 * graphPadding }, "rgba(0,0,0,0.5)", null, 0, 0.02);
+
+    // Draw bars
+    for (let i = 0; i < dbg.count; i++) {
+        const idx = (dbg.index + i) % dbg.calculateTime.length;
+
+        const calcMs = dbg.calculateTime[idx];
+        const renderMs = dbg.renderTime[idx];
+
+        // Map ms → pixel height
+        const maxMs = 50; // 50 ms = top of graph
+        const calcHeight = Math.min(calcMs / maxMs, 1) * graphHeight;
+        const renderHeight = Math.min(renderMs / maxMs, 1) * graphHeight;
+
+        const barWidth = graphWidth / dbg.calculateTime.length;
+
+        // Draw calculateTime bar (top graph)
+        drawRect(ctx, 
+            { x: graphX + i * barWidth, y: graphY + graphHeight - calcHeight }, 
+            { width: barWidth, height: calcHeight }, 
+            "#0f0"
+        );
+
+        // Draw renderTime bar (bottom graph)
+        drawRect(ctx, 
+            { x: graphX + i * barWidth, y: graphY + 2 * graphPadding + graphHeight + graphHeight - renderHeight }, 
+            { width: barWidth, height: renderHeight }, 
+            "#0ff"
+        );
+    }
+
     // Background (unit: pixel)
-    let pos = { x: 5 / renderScale, y: 5 / renderScale };
+    let pos = { x: graphX, y: graphY + 2 * graphHeight + 3 * graphPadding + 5 / renderScale };
     const padding = 10 / renderScale;
     const textSpacing = 2 / renderScale;
     const align = "left";

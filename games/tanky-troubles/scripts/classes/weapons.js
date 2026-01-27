@@ -237,6 +237,7 @@ export class FlameThrower extends Weapon {
         super(tank);
         this.isCharging = false;
         this.chargeStartTime = 0;
+        this.turretSize = { width: this.tank.size.length * 0.7, height: this.tank.size.width / 3 };
     }
 
     press() {
@@ -249,9 +250,9 @@ export class FlameThrower extends Weapon {
 
             // Randomize the angle offset for each bullet
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
-            const bulletSpeed = 3.0 + Math.random() * 0.5; // tiles per second
+            const bulletSpeed = 3.0 + Math.random() * 0.5 * this.tank.scale; // tiles per second
             const lifeSpan = 5000 - Math.random() * (5000 / 2); // 2500-7500 ms
-            spawnRelativeClass(FireBullet, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
+            spawnRelativeClass(FireBullet, this.tank, this.tank.pos, this.tank.angle, { x: this.turretSize.width, y: 0 }, randomBulletAngleOffset + 0.2 * Math.sin(performance.now() / 50), bulletSpeed, this.tank.scale, lifeSpan);
     }
 
     release() {
@@ -259,8 +260,7 @@ export class FlameThrower extends Weapon {
     }
 
     renderTurret(ctx, deltaTime) {
-        let turretSize = { width: this.tank.size.length * 0.7, height: this.tank.size.width / 3 };
-        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, "#FFA500", "black", 0.05);
+        drawRect(ctx, { x: 0, y: -this.turretSize.height / 2 }, this.turretSize, "#FFA500", "black", 0.05);
         const customShape = [
             { x: 50, y: 0 },
             { x: 100, y: 50 },
@@ -396,6 +396,8 @@ export class ShrepnalBombWeapon extends Weapon {
         super(tank);
         this.isCharging = false;
         this.chargeStartTime = 0;
+        this.turretSize = { width: this.barrelLength, height: this.barrelWidth };
+        this.barrelLength = this.tank.size.length * 0.7;
     }
 
     press() {
@@ -412,8 +414,16 @@ export class ShrepnalBombWeapon extends Weapon {
     }
     
     renderTurret(ctx, deltaTime) {
-        let turretSize = { width: this.barrelLength, height: this.barrelWidth };
-        drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize,this.tank.color, "black", 0.02);
+        // Barrel
+        const barrelLength = this.tank.size.length * 0.7;
+        const barrelWidth = this.tank.size.width / 2.5;
+        const x = 0;
+        const y = -barrelWidth / 2;
+        drawRect(ctx, { x: x, y: y }, { width: barrelLength, height: barrelWidth }, this.tank.color, "black", 0.02);
+
+        // Dome
+        const domeRadius = this.tank.size.width / 3;
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.tank.color, "black", 0.02);
     }
 }
 
@@ -432,7 +442,7 @@ export class ExperimentalWeapon extends Weapon {
         let randomNumber = Math.random()
         let randomBulletAngleOffset = (randomNumber - 0.5) * spreadAngleRadians;
         randomNumber = Math.random()
-        spawnRelativeClass(Shrapnel, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, randomBulletAngleOffset, 500 * (randomNumber + 0.5), 1);
+        spawnRelativeClass(Shrapnel, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, randomBulletAngleOffset, (randomNumber + 0.5), 1);
     }
 
     hold() {

@@ -1,6 +1,6 @@
 import { getGlobal } from '../global-state.js';
 import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '../graphics-utils.js';
-import { spawnRelativeClass } from './spawner.js';
+import { spawnRelativeClass as spawnClassRelatively } from './spawner.js';
 
 
 
@@ -30,7 +30,7 @@ class Bullet {
         this.active = true;
         this.creationTime = Date.now();
 
-        getGlobal().entities.bullets.push(this);
+        getGlobal().entities.bullets.unshift(this);
     }
 
     update(deltaTime) {
@@ -170,7 +170,7 @@ export class ShrapnelBomb extends Bullet {
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
             const bulletSpeed = 1 + Math.random() * 0.5;
             const lifeSpan = 3000 - Math.random() * (3000 / 2);
-            spawnRelativeClass(Shrapnel, this, this.pos, this.angle, {x: 0, y: 0}, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
+            spawnClassRelatively(Shrapnel, this, this.pos, this.angle, {x: 0, y: 0}, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
         }
     }
 
@@ -267,10 +267,10 @@ export class OppenheimerBullet extends Bullet {
         let bulletSpeed = 50;
         
         // Left at -45 degreesq
-        spawnRelativeClass(OppenheimerNeutron, this, this.pos, this.angle, { x: 0, y: 0 }, -Math.PI / 4, bulletSpeed, 1, this.lifeSpan);
+        spawnClassRelatively(OppenheimerNeutron, this, this.pos, this.angle, { x: 0, y: 0 }, -Math.PI / 4, bulletSpeed, 1, this.lifeSpan);
 
         // Right at +45 degrees
-        spawnRelativeClass(OppenheimerNeutron, this, this.pos, this.angle, { x: 0, y: 0 }, Math.PI / 4, bulletSpeed, 1, this.lifeSpan);
+        spawnClassRelatively(OppenheimerNeutron, this, this.pos, this.angle, { x: 0, y: 0 }, Math.PI / 4, bulletSpeed, 1, this.lifeSpan);
 }
 
     render(ctx, deltaTime) {
@@ -311,10 +311,10 @@ export class OppenheimerNeutron extends Bullet {
         let bulletSpeed = 50;
         
         // Left at -45 degreesq
-        spawnRelativeClass(OppenheimerNeutron, this, this.pos, this.angle, { x: 0, y: 0 }, -Math.PI / 4, bulletSpeed, 1, this.lifeSpan);
+        spawnClassRelatively(OppenheimerNeutron, this, this.pos, this.angle, { x: 0, y: 0 }, -Math.PI / 4, bulletSpeed, 1, this.lifeSpan);
 
         // Right at +45 degrees
-        spawnRelativeClass(OppenheimerNeutron, this, this.pos, this.angle, { x: 0, y: 0 }, Math.PI / 4, bulletSpeed, 1, this.lifeSpan);
+        spawnClassRelatively(OppenheimerNeutron, this, this.pos, this.angle, { x: 0, y: 0 }, Math.PI / 4, bulletSpeed, 1, this.lifeSpan);
 }
 
     render(ctx, deltaTime) {
