@@ -7,9 +7,9 @@ import { spawnRelativeClass as spawnClassRelatively } from './spawner.js';
 
 
 
-//      |===================|
-//      |      BULLETS      |
-//      |===================|
+//      |==================|
+//      |      BULLET      |
+//      |==================|
 
 
 

@@ -13,9 +13,9 @@ const globalKeys = gameApi.globalKeys
 
 
 
-//      |====================|
-//      |      POWERUPS      |
-//      |====================|
+//      |===================|
+//      |      POWERUPS     |
+//      |===================|
 
 
 // MARK: Weapon
