@@ -3,7 +3,7 @@ import { drawRect, drawCircle, drawText, drawRegPolygon, drawVectorArrow} from '
 import { generateMaze} from '../generate-maze.js';
 import { Tank } from '../classes/tank.js';
 import { loadMainMenu } from '../gamestates/main-menu.js';
-import { signedSquare, signedPower } from '../helpers/math-helper.js';
+import { signedSquare, signedPower } from '../helpers/math-utils.js';
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -249,7 +249,7 @@ let powerUpSpawnChance = 1;
 let windVel = {x: 0, y: 0};
 let windAcc = {x: 0, y: 0};
 let windJerk = {x: 0, y: 0};
-let windEnabled = true;
+let windEnabled = false;
 
 // Support Variables
 let lastPowerUpSpawnTime = 0;

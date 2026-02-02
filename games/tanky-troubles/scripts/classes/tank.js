@@ -1,7 +1,7 @@
 import { getGlobal } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../graphics-utils.js';
 import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ShrepnalBombWeapon, ExperimentalWeapon, ChainShotgunBOOM, OppenheimerBOOOM } from './weapons.js';
-import { posMod } from '../helpers/math-helper.js';
+import { posMod } from '../helpers/math-utils.js';
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;

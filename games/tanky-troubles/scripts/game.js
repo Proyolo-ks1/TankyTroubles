@@ -62,10 +62,8 @@ function printDebugGlobals() {
 // Game Big Picture
 getGlobal().gameState = GAME_STATE_KEYS.RUNNING;
 getGlobal().overlayState = OVERLAY_STATE_KEYS.NONE;
-getGlobal().debugMode = false;
+getGlobal().debugMode = true;
 getGlobal().showStatistics = true;
-
-
 
 // Statistics
 let lastTime = performance.now();

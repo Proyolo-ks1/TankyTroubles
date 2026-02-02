@@ -1,4 +1,3 @@
-
 // Enum Definitions 
 
 export const GLOBAL_COLOR_KEYS = Object.freeze({
