@@ -5,6 +5,10 @@ const gameApi = document.getElementById("game-container").runningGameApi;
 
 
 
+
+
+
+
 const numberKeyPressActions = {
     '1': () => {
         getGlobal().debugMode = !getGlobal().debugMode;
@@ -76,6 +80,7 @@ const timeKeyPressActions = {
 };
 
 const keyPressedLastFrame = {};
+const MAX_SCROLL_DELTA = 0.1; // clamp per frame
 
 export function globalGameControlsStep(realDeltaTime) {
     for (const key in numberKeyPressActions) {
@@ -99,23 +104,25 @@ export function globalGameControlsStep(realDeltaTime) {
             numberKeyHoldActions[key](realDeltaTime);
         }
     }
+
+    const scrollDelta = gameApi.globalScroll.deltaY;
+    if (scrollDelta !== 0) {
+        // Clamp to avoid huge zoom jumps
+        const clampedDelta = Math.max(-MAX_SCROLL_DELTA, Math.min(MAX_SCROLL_DELTA, scrollDelta));
+        getGlobal().zoomLevel *= Math.pow(2, -clampedDelta);
+        console.log(`DB: Zoom factor applied: ${Math.pow(2, clampedDelta).toFixed(3)}`);
+
+        // Reset accumulated delta
+        gameApi.globalScroll.deltaY = 0;
+    }
 }
 
-const SCROLL_SENSITIVITY = 0.001;
+const SCROLL_SENSITIVITY = 0.0;
 
 document.addEventListener("wheel", (e) => {
-    const realDeltaTime = Math.abs(e.deltaY) * SCROLL_SENSITIVITY;
-
-    if (e.deltaY < 0) {
-        // Scroll up → zoom in (like key '6')
-        getGlobal().zoomLevel *= Math.pow(2, realDeltaTime);
-        console.log(`DB: Increased zoomLevel by ~${Math.round((Math.pow(2, realDeltaTime)-1)*100)}%`);
-    } else if (e.deltaY > 0) {
-        // Scroll down → zoom out (like key '5')
-        getGlobal().zoomLevel *= Math.pow(0.5, realDeltaTime);
-        console.log(`DB: Decreased zoomLevel by ~${Math.round((1-Math.pow(0.5, realDeltaTime))*100)}%`);
-    }
-
-    // Prevent page from scrolling
+    if (!gameApi.isGameFocused) return;
     e.preventDefault();
+
+    // Accumulate scroll delta
+    gameApi.globalScroll.deltaY += e.deltaY * SCROLL_SENSITIVITY;
 }, { passive: false });

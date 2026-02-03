@@ -27,7 +27,8 @@ class Particle extends PhysicsObject{
             vel: { x: Math.cos(angleSpawn) * spawnSpeed, y: Math.sin(angleSpawn) * spawnSpeed },
             angle: angleSpawn,
         });
-        this.name = `particle${Particle.nextId++}`;
+        this.name = `Particle ${Particle.nextId}`;
+        this.shortName = `p${Tank.nextId++}`;
         this.owner = owner;
 
         this.rotationSpeed = rotationSpeed;

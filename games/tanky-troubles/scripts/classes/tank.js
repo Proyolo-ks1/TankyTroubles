@@ -22,7 +22,7 @@ const globalKeys = gameApi.globalKeys
 
 
 export class Tank extends PhysicsObject {
-    static tankCount = 0;
+    static nextId = 0;
 
     // This constructor has as default values, the values that were analyzed from the original game 
     constructor(posSpawn = { x: 1, y: 1 }, angleSpawn = 0, size = {length: 2 / 5, width: 1 / 3}, speed = 1.6, turningSpeed = 5, scale = 1, color = "#555", controls = { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }) {
@@ -31,7 +31,8 @@ export class Tank extends PhysicsObject {
             vel: { x: 0, y: 0 },
             angle: angleSpawn,
         });
-        this.name = `tank${Tank.tankCount++}`;
+        this.name = `Tank ${Tank.nextId}`;
+        this.shortName = `t${Tank.nextId++}`;
         
         this.speed = speed;
         this.turningSpeed = turningSpeed;
@@ -39,7 +40,7 @@ export class Tank extends PhysicsObject {
         this.size = { length: size.length * scale, width: size.width * scale };
         this.color = color;
         this.controls = controls;
-        this.weapon = new Shotgun(this); // Default weapon
+        this.weapon = new OppenheimerBOOOM(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
         this.trackRotation = {left: 0, right: 0}

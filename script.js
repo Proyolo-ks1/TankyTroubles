@@ -127,6 +127,9 @@ const runningGameApi = gameContainer.runningGameApi = {
     canvasWidth: canvas.clientWidth,
     canvasHeight: canvas.clientHeight,
     globalKeys: {},
+    globalScroll: {
+        deltaY: 0,
+    },
 };
 
 function resizeCanvas() {
@@ -183,3 +186,12 @@ window.addEventListener("keyup", (e) => {
     e.preventDefault();
     runningGameApi.globalKeys[e.key] = false;
 });
+
+// globalScroll
+window.addEventListener("wheel", (e) => {
+    if (!runningGameApi.isGameFocused) return;
+
+    e.preventDefault();
+
+    runningGameApi.globalScroll.deltaY += e.deltaY;
+}, { passive: false });

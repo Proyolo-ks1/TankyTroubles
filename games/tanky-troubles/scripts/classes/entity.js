@@ -19,7 +19,9 @@ class Entity {
     static nextId = 0;
 
     constructor(type = "entity") {
-        this.id = Entity.nextId++;
+        this.id = Entity.nextId;
+        this.name = `Entity ${Entity.nextId}`;
+        this.shortName = `e${Entity.nextId++}`;
         this.type = type;
         this.active = true;
     }

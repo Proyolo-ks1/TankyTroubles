@@ -28,8 +28,10 @@ class Bullet extends PhysicsObject {
             angleVel: angleVel,
             lifeSpan: lifeSpan,
         });
-        this.name = `bullet${Bullet.nextId++}`;
+        this.name = `Bullet ${Bullet.nextId}`;
+        this.shortName = `b${Bullet.nextId++}`;
         this.owner = owner;
+
         this.size = scale * (1 / 12);
         this.active = true;
 
@@ -60,12 +62,12 @@ class Bullet extends PhysicsObject {
             drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#4c00ff", 0.02); // Red color for the heading line
 
             // name
-            const text = `${this.name} (age: ${this.age.toFixed(2)}/${this.lifeSpan.toFixed(2)})`;
+            const text = `${this.shortName}(${this.age.toFixed(2)}/${this.lifeSpan.toFixed(2)})`;
             const textPos = { x: headingX, y: headingY };
             const textStyle = {
                 align: "center",
                 baseline: "bottom",
-                fontSize: 0.1,
+                fontSize: 0.15,
                 font: "Consolas",
                 textColor: "#000000",
                 outlineColor: "#ffffff",
