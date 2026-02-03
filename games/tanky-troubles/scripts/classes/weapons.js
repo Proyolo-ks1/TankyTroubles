@@ -50,7 +50,7 @@ export class NoWeapon extends Weapon {
 
     press() {
         const bulletSpeed = 1.8 // tiles per second
-        spawnRelativeClass(DefaultBullet, this.tank, this.tank.pos, this.tank.angle, {x: this.barrelLength, y: 0}, 0, bulletSpeed, this.tank.scale);
+        spawnRelativeClass(DefaultBullet, this.tank, this.tank.pos, this.tank.angle, {x: this.barrelLength, y: 0}, 0, bulletSpeed, 1, 0, this.tank.scale);
     }
 
     hold() {
@@ -138,7 +138,7 @@ export class Chaingun extends Weapon {
                 };
 
                 // Fire the bullet at the corrected position
-                spawnRelativeClass(ChaingunBullet, this.tank, this.tank.pos, this.tank.angle, compensatedPos, randomBulletAngleOffset, bulletSpeed, this.tank.scale);
+                spawnRelativeClass(ChaingunBullet, this.tank, this.tank.pos, this.tank.angle, compensatedPos, randomBulletAngleOffset, bulletSpeed, 1, 0, this.tank.scale);
             }
         }
     }
@@ -209,7 +209,7 @@ export class Shotgun extends Weapon {
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
             const bulletSpeed = 3.0 + Math.random() * 0.5; // tiles per second
             const lifeSpan = 1750 - Math.random() * (1750 / 15);
-            spawnRelativeClass(ShotgunBullet, this.tank, this.tank.pos, this.tank.angle, { x: this.barrelLength, y: randomBulletBarrelPosY }, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
+            spawnRelativeClass(ShotgunBullet, this.tank, this.tank.pos, this.tank.angle, { x: this.barrelLength, y: randomBulletBarrelPosY }, randomBulletAngleOffset, bulletSpeed, 1, 0, lifeSpan);
         }
     }
 
@@ -251,8 +251,10 @@ export class FlameThrower extends Weapon {
             // Randomize the angle offset for each bullet
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
             const bulletSpeed = 3.0 + Math.random() * 0.5 * this.tank.scale; // tiles per second
-            const lifeSpan = 5000 - Math.random() * (5000 / 2); // 2500-7500 ms
-            spawnRelativeClass(FireBullet, this.tank, this.tank.pos, this.tank.angle, { x: this.turretSize.width, y: 0 }, randomBulletAngleOffset + 0.2 * Math.sin(this.tank.age / 50), bulletSpeed, this.tank.scale, lifeSpan);
+            const lifeSpan = 5.000 - Math.random() * (2.500); // 2500-7500 ms
+            const relPos = { x: this.turretSize.width, y: 0 };
+            const relAngle = randomBulletAngleOffset + 0.2 * Math.sin(this.tank.age / 50);
+            spawnRelativeClass(FireBullet, this.tank, this.tank.pos, this.tank.angle, relPos, relAngle, bulletSpeed, this.tank.scale, 0, lifeSpan);
     }
 
     release() {
@@ -343,7 +345,7 @@ export class ChainShotgun extends Weapon {
                     const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
                     const bulletSpeed = 3.0 + Math.random() * 0.5; // tiles per second
                     const lifeSpan = 1750 - Math.random() * (1750 / 15);
-                    spawnRelativeClass(ShotgunBullet, this.tank, this.tank.pos, this.tank.angle, { x: this.barrelLength, y: randomBulletBarrelPosY }, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
+                    spawnRelativeClass(ShotgunBullet, this.tank, this.tank.pos, this.tank.angle, { x: this.barrelLength, y: randomBulletBarrelPosY }, randomBulletAngleOffset, bulletSpeed, 1, 0, lifeSpan);
                 }
             }
         }
@@ -402,7 +404,7 @@ export class ShrepnalBombWeapon extends Weapon {
 
     press() {
         const bulletSpeed = 1.8 // tiles per second
-        spawnRelativeClass(ShrapnelBomb, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, 0, bulletSpeed, 1);
+        spawnRelativeClass(ShrapnelBomb, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, 0, bulletSpeed, 1, 0, 1.000);
     }
 
     hold() {
@@ -440,7 +442,7 @@ export class ExperimentalWeapon extends Weapon {
         const spreadAngleRadians = spreadAngle * (Math.PI / 180);
 
         let randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
-        spawnRelativeClass(Shrapnel, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, randomBulletAngleOffset, (Math.random() + 0.5), 1);
+        spawnRelativeClass(Shrapnel, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, randomBulletAngleOffset, (Math.random() + 0.5), 1, 0, 1.000);
     }
 
     hold() {
@@ -521,7 +523,7 @@ export class ChainShotgunBOOM extends Weapon {
                     const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
                     const bulletSpeed = 3.0 + Math.random() * 0.5; // tiles per second
                     const lifeSpan = 1750 - Math.random() * (1750 / 15);
-                    spawnRelativeClass(ShrapnelBomb, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
+                    spawnRelativeClass(ShrapnelBomb, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, randomBulletAngleOffset, bulletSpeed, 1, 0, lifeSpan);
                 }
             }
         }
@@ -578,7 +580,7 @@ export class OppenheimerBOOOM extends Weapon {
 
     press() {
         const bulletSpeed = 1.8; // tiles per second
-        spawnRelativeClass(OppenheimerBullet, this.tank, this.tank.pos, this.tank.angle, {x: this.barrelLength, y: 0}, 0, bulletSpeed, this.tank.scale);
+        spawnRelativeClass(OppenheimerBullet, this.tank, this.tank.pos, this.tank.angle, {x: this.barrelLength, y: 0}, 0, bulletSpeed, this.tank.scale, 0, 1.000);
     }
 
     hold() {

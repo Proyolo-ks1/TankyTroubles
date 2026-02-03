@@ -123,7 +123,7 @@ function gameLoop(currentTime) {
                     gameDeltaTime = 0;
                 }
             } else {
-                gameDeltaTime = Math.min(realDeltaTime * gameTime.gameSpeed, gameTime.maxDelta);
+                gameDeltaTime = realDeltaTime * gameTime.gameSpeed;
             }
             ExecuteGameLoop(ctx, gameDeltaTime);
 

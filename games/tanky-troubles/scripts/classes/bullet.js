@@ -203,14 +203,13 @@ export class FireBullet extends Bullet {
 
     update(gameDeltaTime) {
         super.update(gameDeltaTime);
-        this.size *= 1.004;
-        this.vel.x *= 0.99;
-        this.vel.y *= 0.99;
+        this.size *= 1 + 0.5 * gameDeltaTime;
+        this.vel.x *= 1 - 0.9 * gameDeltaTime;
+        this.vel.y *= 1 - 0.9 * gameDeltaTime;
 
         // Gradually decrease the color towards black
-        
-        const fadeDurationColor = 2; // seconds to fade from full to black
-        const fadeDurationAlpha = this.lifeSpan / 1000; // seconds to fade from full to black
+        const fadeDurationColor = 2.000; // seconds to fade from full to black
+        const fadeDurationAlpha = this.lifeSpan / 1.000; // seconds to fade from full to black
         const fadePerSecondColor = 255 / fadeDurationColor;
         const fadePerSecondAlpha = 1 / fadeDurationAlpha;
         const fadeAmountColor = fadePerSecondColor * gameDeltaTime;
