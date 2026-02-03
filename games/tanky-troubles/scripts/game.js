@@ -3,6 +3,7 @@ import { loadMainMenu } from './gamestates/main-menu.js';
 import { initializeGame, ExecuteGameLoop } from './gamestates/running-game.js';
 import { renderGameStatistics } from './overlay.js';
 import { drawDebugIni, drawDebug } from './debugging/canvas-testing-script.js';
+import { globalGameControlsStep } from './global-game-controls.js'
 // import { preloadImages, rescaleImages, getImage } from "./asset-handler.js";
 
 // RunningGameApi
@@ -25,20 +26,22 @@ let lastDebugGlobalsJSON = "";
 function printDebugGlobals() {
     const g = getGlobal();
     const e = getGlobal().entities;
-    const totalEntities =
-    e.tanks.length +
-    e.bullets.length +
-    e.particles.length;
-    const DebugGlobals = {
+    const totalEntities = e.tanks.length + e.bullets.length + e.particles.length;
+    const debugGlobals = {
         ...g,
         entities: totalEntities,
+        statsRingBuffers: {
+            buffers: "calculateTime, renderTime, fps",
+            index: g.statsRingBuffers.index,
+            count: g.statsRingBuffers.count,
+        },
         tanks: g.entities.tanks.length,
         bullets: g.entities.bullets.length,
         particles: g.entities.particles.length,
         gameApi 
     };
 
-    const newJSON = JSON.stringify(DebugGlobals, null, 2);
+    const newJSON = JSON.stringify(debugGlobals, null, 2);
 
     if (newJSON !== lastDebugGlobalsJSON) {
         document.querySelector("#game-description > :first-child").innerHTML =
@@ -68,6 +71,15 @@ getGlobal().showStatistics = true;
 // Statistics
 let lastTime = performance.now();
 
+// debugging
+let lastDebugPrint = 0;
+const DEBUG_INTERVAL = 100; // ms
+
+// Just normal stuff i guess?
+let realDeltaTime = 0;
+let gameDeltaTime = 0;
+const gameTime = getGlobal().gameTime
+
 
 
 
@@ -76,12 +88,6 @@ let lastTime = performance.now();
 //      |=====================|
 //      |      GAME LOOP      |
 //      |=====================|
-
-
-
-// debugging
-let lastDebugPrint = 0;
-const DEBUG_INTERVAL = 100; // ms
 
 
 
@@ -96,7 +102,7 @@ function gameLoop(currentTime) {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     
     if (!lastTime) lastTime = currentTime;  // Initialize lastTime on the first loop
-    let deltaTime = (currentTime - lastTime) / 1000;  // Time difference in seconds
+    realDeltaTime = (currentTime - lastTime) / 1000;  // Time difference in seconds
     
     // Game State
     switch (getGlobal().gameState) {
@@ -109,7 +115,17 @@ function gameLoop(currentTime) {
                 initializeGame();
                 gameInitialized = true;
             }
-            ExecuteGameLoop(ctx, deltaTime);
+            if (gameTime.paused) {
+                if (gameTime.stepOnce) {
+                    gameDeltaTime = gameTime.maxDelta;
+                    gameTime.stepOnce = false; // consume step
+                } else {
+                    gameDeltaTime = 0;
+                }
+            } else {
+                gameDeltaTime = Math.min(realDeltaTime * gameTime.gameSpeed, gameTime.maxDelta);
+            }
+            ExecuteGameLoop(ctx, gameDeltaTime);
 
             break;
             
@@ -134,9 +150,14 @@ function gameLoop(currentTime) {
     
     }
     if (getGlobal().showStatistics) {
-        renderGameStatistics(ctx, currentTime, deltaTime);
+        renderGameStatistics(ctx, currentTime, realDeltaTime);
     }
     lastTime = currentTime;
+
+    globalGameControlsStep(realDeltaTime);
+    if (window.globalSyncConsoleLogStr) {
+        // console.log(window.globalSyncConsoleLogStr);
+    }
 
     // Debugging every 500 ms
     if (currentTime - lastDebugPrint >= DEBUG_INTERVAL) {

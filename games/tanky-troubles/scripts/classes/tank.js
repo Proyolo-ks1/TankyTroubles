@@ -1,7 +1,9 @@
 import { getGlobal } from '../global-state.js';
-import { drawRect, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../graphics-utils.js';
+import { drawRect, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../utils/graphics-utils.js';
 import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ShrepnalBombWeapon, ExperimentalWeapon, ChainShotgunBOOM, OppenheimerBOOOM } from './weapons.js';
-import { posMod } from '../helpers/math-utils.js';
+import { posMod } from '../utils/math-utils.js';
+import { PhysicsObject } from './entity.js';
+import { OppenheimerBullet } from './bullet.js';
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -19,23 +21,25 @@ const globalKeys = gameApi.globalKeys
 
 
 
-export class Tank {
+export class Tank extends PhysicsObject {
     static tankCount = 0;
 
     // This constructor has as default values, the values that were analyzed from the original game 
     constructor(posSpawn = { x: 1, y: 1 }, angleSpawn = 0, size = {length: 2 / 5, width: 1 / 3}, speed = 1.6, turningSpeed = 5, scale = 1, color = "#555", controls = { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }) {
-        this.id = `tank${Tank.tankCount++}`;
-
-        this.pos = posSpawn;
-        this.velocity = { x: 0, y: 0 };
-        this.angle = angleSpawn;
+        super({ // PhysicsObject
+            pos: posSpawn,
+            vel: { x: 0, y: 0 },
+            angle: angleSpawn,
+        });
+        this.name = `tank${Tank.tankCount++}`;
+        
         this.speed = speed;
         this.turningSpeed = turningSpeed;
         this.scale = scale
         this.size = { length: size.length * scale, width: size.width * scale };
         this.color = color;
         this.controls = controls;
-        this.weapon = new ChainShotgunBOOM(this); // Default weapon
+        this.weapon = new Shotgun(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
         this.trackRotation = {left: 0, right: 0}
@@ -51,8 +55,8 @@ export class Tank {
     }
 
     // Triggered as long as the shoot-key is pressed down
-    shootHold(deltaTime) {
-        this.weapon.hold(deltaTime);
+    shootHold(gameDeltaTime) {
+        this.weapon.hold(gameDeltaTime);
     }
 
     // Triggered once the shoot-key is released
@@ -61,11 +65,11 @@ export class Tank {
     }
 
     applyPowerUp(PowerUpClass) {
-        console.log(`%cTank ${this.id} - PowerUp applied: ${PowerUpClass.name}`, "color: aqua; font-weight: bold;");
+        console.log(`%cTank ${this.name} - PowerUp applied: ${PowerUpClass.name}`, "color: aqua; font-weight: bold;");
         this.weapon = new PowerUpClass(this);
     }
 
-    update(deltaTime) {
+    update(realDeltaTime) {
 
         // Detect shooting press & release
         const isShooting = globalKeys[this.controls.shoot];
@@ -80,7 +84,7 @@ export class Tank {
 
         // Handle shoot hold
         if (globalKeys[this.controls.shoot]) {
-            this.shootHold(deltaTime);
+            this.shootHold(realDeltaTime);
         }
     
         // Rotation - Turning
@@ -88,46 +92,46 @@ export class Tank {
             let trackCenterRadius = 5 / 12 * this.size.width
             const linearVelocityAtRadius = trackCenterRadius * this.turningSpeed
             if (globalKeys[this.controls.left]) {
-                this.angle -= this.turningSpeed * deltaTime;
-                this.trackRotation.left -= linearVelocityAtRadius * deltaTime;
-                this.trackRotation.right += linearVelocityAtRadius * deltaTime;
+                this.angle -= this.turningSpeed * realDeltaTime;
+                this.trackRotation.left -= linearVelocityAtRadius * realDeltaTime;
+                this.trackRotation.right += linearVelocityAtRadius * realDeltaTime;
             }
             if (globalKeys[this.controls.right]) {
-                this.angle += this.turningSpeed * deltaTime;
-                this.trackRotation.left += linearVelocityAtRadius * deltaTime;
-                this.trackRotation.right -= linearVelocityAtRadius * deltaTime;
+                this.angle += this.turningSpeed * realDeltaTime;
+                this.trackRotation.left += linearVelocityAtRadius * realDeltaTime;
+                this.trackRotation.right -= linearVelocityAtRadius * realDeltaTime;
             }
             this.angle = (this.angle + 2 * Math.PI) % (2 * Math.PI);
         }
     
         // Reset velocity to (0, 0) when no keys are pressed
-        this.velocity.x = 0;
-        this.velocity.y = 0;
+        this.vel.x = 0;
+        this.vel.y = 0;
     
         // Velocity-based movement
         if (globalKeys[this.controls.up]) {
-            this.velocity.x = Math.cos(this.angle) * this.speed;
-            this.velocity.y = Math.sin(this.angle) * this.speed;
+            this.vel.x = Math.cos(this.angle) * this.speed;
+            this.vel.y = Math.sin(this.angle) * this.speed;
         }
         if (globalKeys[this.controls.down]) {
-            this.velocity.x = -Math.cos(this.angle) * this.speed;
-            this.velocity.y = -Math.sin(this.angle) * this.speed;
+            this.vel.x = -Math.cos(this.angle) * this.speed;
+            this.vel.y = -Math.sin(this.angle) * this.speed;
         }
 
         // Update position using velocity
-        this.pos.x += this.velocity.x * deltaTime;
-        this.pos.y += this.velocity.y * deltaTime;
+        this.pos.x += this.vel.x * realDeltaTime;
+        this.pos.y += this.vel.y * realDeltaTime;
 
         // Update track rotation
-        const forwardSpeed = Math.cos(this.angle) * this.velocity.x + Math.sin(this.angle) * this.velocity.y;
-        this.trackRotation.left += forwardSpeed * deltaTime;
-        this.trackRotation.right += forwardSpeed * deltaTime;
-        if (this.id === "tank0") {
-            window.globalSyncConsoleLogStr += `Tank0\nforwardSpeed: ${forwardSpeed.toFixed(3)} tl/s\ntrack L: ${this.trackRotation.left.toFixed(3)}\ttrack R: ${this.trackRotation.right.toFixed(3)}`;
-        }
+        const forwardSpeed = Math.cos(this.angle) * this.vel.x + Math.sin(this.angle) * this.vel.y;
+        this.trackRotation.left += forwardSpeed * realDeltaTime;
+        this.trackRotation.right += forwardSpeed * realDeltaTime;
+        // if (this.name === "tank0") {
+        //     window.globalSyncConsoleLogStr += `Tank0\nforwardSpeed: ${forwardSpeed.toFixed(3)} tl/s\ntrack L: ${this.trackRotation.left.toFixed(3)}\ttrack R: ${this.trackRotation.right.toFixed(3)}`;
+        // }
     }
 
-    render(ctx, deltaTime) {
+    render(ctx, realDeltaTime) {
         ctx.save();
 
         const renderScale = getGlobal().canvasScale * getGlobal().zoomLevel;
@@ -164,24 +168,33 @@ export class Tank {
         }
         
         // TEMP DEBUGGING FOR FIXING TRACK VISUALS
-        if (this.id === "tank0") {
-            window.globalSyncConsoleLogStr += `\ntrackLinkLength: ${trackLinkLength.toFixed(3)}\ntrackr L: ${trackLeftRotationRemainder.toFixed(3)}\ttrackr R: ${trackRightRotationRemainder.toFixed(3)}`;
-        }
+        // if (this.id === "tank0") {
+        //     window.globalSyncConsoleLogStr += `\ntrackLinkLength: ${trackLinkLength.toFixed(3)}\ntrackr L: ${trackLeftRotationRemainder.toFixed(3)}\ttrackr R: ${trackRightRotationRemainder.toFixed(3)}`;
+        // }
 
         // Turret
-        this.weapon.renderTurret(ctx, deltaTime);
+        this.weapon.renderTurret(ctx, realDeltaTime);
 
         ctx.restore();
 
         // Player Name or ID
-        const text = this.id
+        const text = this.name
         const textPos = { x: this.pos.x, y: this.pos.y - 0.3 * this.scale };
-        drawText(ctx, text, textPos, "center", "bottom", 1, "Consolas", this.color, "#000000", 0.02);
+        const textStyle = {
+            align: "center",
+            baseline: "bottom",
+            fontSize: 1,
+            font: "Consolas",
+            textColor: this.color,
+            outlineColor: "#000000",
+            outlineWidth: 0.02
+        };
+        drawText(ctx, text, textPos, textStyle);
     }
 
-    debugrender(ctx, deltaTime) {
+    debugrender(ctx, realDeltaTime) {
         // Velocity Arrow
-        drawVectorArrow(ctx, this.pos, this.velocity, "#0000FF", 0.02);
+        drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 0.02);
 
         // Heading Line
         const headingLength = 1; // Adjust this value to control the length of the heading line

@@ -1,5 +1,5 @@
-import { getGlobal } from '../global-state.js';
-import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '../graphics-utils.js';
+import { getGlobal, ENTITY_TYPES} from '../global-state.js';
+import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '../utils/graphics-utils.js';
 import { spawnRelativeClass } from './spawner.js';
 
 
@@ -16,79 +16,135 @@ import { spawnRelativeClass } from './spawner.js';
 // MARK: Entity
 // Entity class (base class for all types of game entities)
 class Entity {
-    static entityCount = 0;
+    static nextId = 0;
 
-    constructor(pos = { x: 0, y: 0 }, vel = { x: 0, y: 0 }, acc = { x: 0, y: 0 }, angle = 0, angleVel = 0, angleAcc = 0, scale = 1, lifeSpan = -1) {
-        this.id = `entity${Entity.entityCount++}`;
-        this.pos = pos;
-        this.vel = vel;
-        this.acc = acc;
-        this.angle = angle;
-        this.angleVel = angleVel;
-        this.angleAcc = angleAcc;
-        this.scale = scale;
+    constructor(type = "entity") {
+        this.id = Entity.nextId++;
+        this.type = type;
         this.active = true;
-        this.creationTime = Date.now();
-        this.lifeSpan = lifeSpan;
-
-        getGlobal().entities.push(this);
     }
 
-    update(deltaTime) {
-        // Position
-        this.pos.x += this.velocity.x * deltaTime;
-        this.pos.y += this.velocity.y * deltaTime;
-
-        // Velocity
-        this.vel.x += this.acc.x * deltaTime;
-        this.vel.y += this.acc.y * deltaTime;
-
-        // Rotation
-        this.angle += this.rotationSpeed * deltaTime;        
-
-        // Check if bullet's lifespan is over and make it inactive
-        if (Date.now() - this.creationTime > this.lifeSpan) {
-            this.destroy();
-        }
+    update(realDeltaTime) {
+        // Nothing
     }
 
     destroy() {
         this.active = false;
     }
 
-    render(ctx, deltaTime) {
+    render(ctx, gameDeltaTime) {
         // Default bullet rendering, can be overridden
     }
+}
 
-    debugrender(ctx, deltaTime) {
+// MARK: StaticEntity
+export class StaticEntity extends Entity {
+    constructor({
+        pos = { x: 0, y: 0 },
+        angle = 0,
+        size = 1,
+    } = {}) {
+        super(ENTITY_TYPES.STATIC_ENTITY);
+        this.pos = pos;
+        this.angle = angle;
+        this.size = size;
+    }
+
+    render(ctx, gameDeltaTime) {
         if (this.active) {
-            // Velocity Arrow
-            drawVectorArrow(ctx, this.pos, this.velocity, "#0000FF", 2);
-
-            // Heading Line
-            const headingLength = 50;
-            const headingX = this.pos.x + Math.cos(this.angle) * headingLength;
-            const headingY = this.pos.y + Math.sin(this.angle) * headingLength;
-
-            // Draw the heading line
-            drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#FF0000", 2); // Red color for the heading line
+            drawCircle(ctx, this.pos, this.size / 2, "#000", "#000");
         }
     }
 }
 
-// MARK: DefaultEntity
-export class DefaultEntity extends Entity {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 50, scale = 1) {
-        super(owner, posSpawn, angleSpawn, spawnSpeed, scale);
-        this.type = "default";
-        const tileSize = getGlobal().zoomLevel
-        this.size = scale * (tileSize / 12);
-        this.lifeSpan = 10000;
+// MARK: PhysicsObject
+export class PhysicsObject extends Entity {
+    constructor({
+        pos = { x: 0, y: 0 },
+        vel = { x: 0, y: 0 },
+        acc = { x: 0, y: 0 },
+        angle = 0,
+        angleVel = 0,
+        angleAcc = 0,
+        lifeSpan = -1,
+    } = {}) {
+        super(ENTITY_TYPES.PHYSICS);
+
+        this.pos = pos;
+        this.vel = vel;
+        this.acc = acc;
+
+        this.angle = angle;
+        this.angleVel = angleVel;
+        this.angleAcc = angleAcc;
+
+        this.lifeSpan = lifeSpan;
+        this.age = 0;
     }
 
-    render(ctx, deltaTime) {
-        if (this.active) {
-            drawCircle(ctx, this.pos, this.size / 2, "#000", "#000");
+    update(gameDeltaTime) {
+        this.updatePosition(gameDeltaTime);
+        this.updateVelocity(gameDeltaTime);
+        this.updateRotation(gameDeltaTime);
+        this.updateAge(gameDeltaTime);
+        this.updateHitbox(); // or any collision / bounding updates
+    }
+
+    updatePosition(gameDeltaTime) {
+        this.pos.x += this.vel.x * gameDeltaTime;
+        this.pos.y += this.vel.y * gameDeltaTime;
+    }
+
+    updateVelocity(gameDeltaTime) {
+        this.vel.x += this.acc.x * gameDeltaTime;
+        this.vel.y += this.acc.y * gameDeltaTime;
+    }
+
+    updateRotation(gameDeltaTime) {
+        this.angle += this.angleVel * gameDeltaTime;
+        this.angleVel += this.angleAcc * gameDeltaTime;
+    }
+
+    updateAge(gameDeltaTime) {
+        this.age += gameDeltaTime;
+        if (this.lifeSpan >= 0 && this.age > this.lifeSpan) {
+            this.destroy();
         }
+    }
+
+    updateHitbox() {
+        // e.g., recalc collision bounds, radius, etc.
+    }
+
+    destroy() {
+        this.active = false;
+    }
+
+    render(ctx, gameDeltaTime) {
+        if (this.active) {
+            // name
+            const text = `This is a default physics object`;
+            const textPos = { x: this.pos.x, y: this.pos.y - 0.3 * this.size };
+            const textStyle = {
+                align: "center",
+                baseline: "bottom",
+                fontSize: 0.2,
+                font: "Consolas",
+                textColor: this.color,
+                outlineColor: "#000000",
+                outlineWidth: 0.02
+            };
+
+            drawText(ctx, text, textPos, textStyle);
+        }
+    }
+
+    debugrender(ctx) {
+        if (!this.active) return;
+
+        // drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 2);
+
+        // const len = 50;
+        // drawLine(ctx, this.pos, {x: this.pos.x + Math.cos(this.angle) * len, y: this.pos.y + Math.sin(this.angle) * len}, "#FF0000", 2);
     }
 }

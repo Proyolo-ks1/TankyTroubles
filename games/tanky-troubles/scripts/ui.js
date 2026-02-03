@@ -1,5 +1,5 @@
 import { getGlobal } from './global-state.js';
-import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from './graphics-utils.js';
+import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from './utils/graphics-utils.js';
 
 
 
@@ -21,9 +21,15 @@ export class Button {
 
     render() {
         drawRect(this.ctx, this.pos, this.size, "#ccc", "#000"); // Basic button
+        const buttonTextStyle = {
+            align: "center",
+            baseline: "middle",
+            font: "16px Arial",
+            textColor: "#000"
+        };
         drawText(this.ctx, "Click Me", { 
             x: this.pos.x + this.size.w / 2, 
             y: this.pos.y + this.size.h / 2 
-        }, { align: "center", baseline: "middle", font: "16px Arial", fill: "#000" });
+        }, buttonTextStyle);
     }
 }

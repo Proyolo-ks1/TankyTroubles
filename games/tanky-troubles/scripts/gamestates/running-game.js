@@ -1,9 +1,9 @@
 import { getGlobal, GLOBAL_COLOR_KEYS, recordDebugFrame } from '../global-state.js';
-import { drawRect, drawCircle, drawText, drawRegPolygon, drawVectorArrow} from '../graphics-utils.js';
+import { drawRect, drawCircle, drawText, drawRegPolygon, drawVectorArrow} from '../utils/graphics-utils.js';
+import { signedPower } from '../utils/math-utils.js';
 import { generateMaze} from '../generate-maze.js';
 import { Tank } from '../classes/tank.js';
 import { loadMainMenu } from '../gamestates/main-menu.js';
-import { signedSquare, signedPower } from '../helpers/math-utils.js';
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -77,7 +77,7 @@ function cleanupInactiveBullets(bullets) {
     }
 }
 
-function updateAndRenderWind(ctx, deltaTime) {
+function updateAndRenderWind(ctx, realDeltaTime) {
     const maxSpeed = 1;       // max wind speed in any direction (tiles per second)
     const dampingFactor = 0.1;  // how strong the wind drifts back to zero
     const randomness = 2;   // max random change per update
@@ -86,18 +86,18 @@ function updateAndRenderWind(ctx, deltaTime) {
     windJerk.x = (Math.random() * 2 - 1 - signedPower(windVel.x, 1.1)) * randomness;
     windJerk.y = (Math.random() * 2 - 1 - signedPower(windVel.y, 1.1)) * randomness;
 
-    windAcc.x += windJerk.x * deltaTime;
-    windAcc.y += windJerk.y * deltaTime;
+    windAcc.x += windJerk.x * realDeltaTime;
+    windAcc.y += windJerk.y * realDeltaTime;
     
     windAcc.x *= 0.999
     windAcc.y *= 0.999
 
-    windVel.x += windAcc.x * deltaTime;
-    windVel.y += windAcc.y * deltaTime;
+    windVel.x += windAcc.x * realDeltaTime;
+    windVel.y += windAcc.y * realDeltaTime;
 
     // Drift back to zero (damping)
-    windVel.x -= windVel.x * dampingFactor * deltaTime;
-    windVel.y -= windVel.y * dampingFactor * deltaTime;
+    windVel.x -= windVel.x * dampingFactor * realDeltaTime;
+    windVel.y -= windVel.y * dampingFactor * realDeltaTime;
 
     // Clamp max speed so it doesn't go wild
     windVel.x = Math.max(-maxSpeed, Math.min(maxSpeed, windVel.x));
@@ -112,78 +112,23 @@ function updateAndRenderWind(ctx, deltaTime) {
     // console.log(`wind velocity vector: (${windVel.x},${windVel.y})`);
 }
 
-function updateWindEffect(bullet, deltaTime) {
+function updateWindEffect(bullet, realDeltaTime) {
     const windForceFactor = 1; // strength of wind force (can be tuned)
     const mass = bullet.mass || 1; // default to 1 if no mass set
 
-    const dx = windVel.x - bullet.velocity.x;
-    const dy = windVel.y - bullet.velocity.y;
+    const dx = windVel.x - bullet.vel.x;
+    const dy = windVel.y - bullet.vel.y;
 
     // acceleration = force / mass
     const accelX = (dx * windForceFactor) / mass;
     const accelY = (dy * windForceFactor) / mass;
 
-    bullet.velocity.x += accelX * deltaTime;
-    bullet.velocity.y += accelY * deltaTime;
+    bullet.vel.x += accelX * realDeltaTime;
+    bullet.vel.y += accelY * realDeltaTime;
 
-    bullet.pos.x += bullet.velocity.x * deltaTime;
-    bullet.pos.y += bullet.velocity.y * deltaTime;
+    bullet.pos.x += bullet.vel.x * realDeltaTime;
+    bullet.pos.y += bullet.vel.y * realDeltaTime;
 }
-
-const numberKeyPressActions = {
-    '1': () => {
-        getGlobal().debugMode = !getGlobal().debugMode;
-        console.log(`DB: toggled debugMode: ${getGlobal().debugMode}`);
-    },
-    '2': () => {
-        getGlobal().showStatistics = !getGlobal().showStatistics;
-        console.log(`DB: toggled showStatistics: ${getGlobal().showStatistics}`);
-    },
-};
-
-const numberKeyHoldActions = {
-    '3': () => {
-        getGlobal().entities.tanks.forEach(tank => {
-            tank.size.length *= 0.99;
-            tank.size.width  *= 0.99;
-        });
-        console.log("DB: Decreased tank size 1%");
-    },
-    '4': () => {
-        getGlobal().entities.tanks.forEach(tank => {
-            tank.size.length *= 1.01;
-            tank.size.width  *= 1.01;
-        });
-        console.log("DB: Inscreased tank size 1%");
-    },
-    '5': () => {
-        getGlobal().zoomLevel *= 0.99;
-        console.log(`DB: Decreased zoomLevel by 1%: ${Math.round(getGlobal().zoomLevel*1000) / 10}%`);
-    },
-    '6': () => {
-        getGlobal().zoomLevel *= 1.01;
-        console.log(`DB: Increased zoomLevel by 1%: ${Math.round(getGlobal().zoomLevel*1000) / 10}%`);
-    },
-};
-
-const keyPressedLastFrame = {};
-
-function debuggingStep() {
-    for (const key in numberKeyPressActions) {
-        const isDown = gameApi.globalKeys[key];
-        if (isDown && !keyPressedLastFrame[key]) {
-            numberKeyPressActions[key]();
-        }
-        keyPressedLastFrame[key] = isDown;
-    }
-
-    for (const key in numberKeyHoldActions) {
-        if (gameApi.globalKeys[key]) {
-            numberKeyHoldActions[key]();
-        }
-    }
-}
-
 
 // Draw grid
 function drawGrid(ctx, canvasWidth, canvasHeight) {
@@ -221,7 +166,7 @@ function drawCorners(ctx, canvasWidth, canvasHeight) {
 }
 
 // Draw the game scene
-export function drawWindowDebug(ctx, canvasWidth, canvasHeight, deltaTime) {
+export function drawWindowDebug(ctx, canvasWidth, canvasHeight, realDeltaTime) {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);  // Clear
     drawGrid(ctx, canvasWidth, canvasHeight);
     drawCorners(ctx, canvasWidth, canvasHeight);
@@ -300,7 +245,7 @@ export function initializeGame() {
 
 
 
-export function ExecuteGameLoop(ctx, deltaTime) {
+export function ExecuteGameLoop(ctx, gameDeltaTime) {
     window.globalSyncConsoleLogStr = "Global Logging:\n"
     if (!gameApi.isGamePaused) {
 
@@ -316,36 +261,36 @@ export function ExecuteGameLoop(ctx, deltaTime) {
         const bullets = entities.bullets;
         bullets.forEach(bullet => {
             let t0 = performance.now()
-            bullet.update(deltaTime);
+            bullet.update(gameDeltaTime);
             totalTimeForCalculating += performance.now() - t0
 
             t0 = performance.now()
-            bullet.render(ctx, deltaTime);
+            bullet.render(ctx, gameDeltaTime);
             totalTimeForRendering += performance.now() - t0
 
             if (debugActive) {
                 t0 = performance.now()
-                bullet.debugrender(ctx, deltaTime);
+                bullet.debugrender(ctx, gameDeltaTime);
                 totalTimeForRendering += performance.now() - t0
             }
             if (windEnabled) {
-                updateWindEffect(bullet, deltaTime);
+                updateWindEffect(bullet, gameDeltaTime);
             }
         });
 
         const tanks = entities.tanks;
         tanks.forEach(tank => {
             let t0 = performance.now();
-            tank.update(deltaTime);
+            tank.update(gameDeltaTime);
             totalTimeForCalculating += performance.now() - t0;
 
             t0 = performance.now();
-            tank.render(ctx, deltaTime);
+            tank.render(ctx, gameDeltaTime);
             totalTimeForRendering += performance.now() - t0;
 
             if (debugActive) {
                 t0 = performance.now();
-                tank.debugrender(ctx, deltaTime);
+                tank.debugrender(ctx, gameDeltaTime);
                 totalTimeForRendering += performance.now() - t0;
             }
         });
@@ -353,16 +298,16 @@ export function ExecuteGameLoop(ctx, deltaTime) {
         const particles = entities.particles;
         particles.forEach(particle => {
             let t0 = performance.now();
-            particle.update(deltaTime);
+            particle.update(gameDeltaTime);
             totalTimeForCalculating += performance.now() - t0;
 
             t0 = performance.now();
-            particle.render(ctx, deltaTime);
+            particle.render(ctx, gameDeltaTime);
             totalTimeForRendering += performance.now() - t0;
 
             if (debugActive) {
                 t0 = performance.now();
-                particle.debugrender(ctx, deltaTime);
+                particle.debugrender(ctx, gameDeltaTime);
                 totalTimeForRendering += performance.now() - t0;
             }
         });
@@ -373,18 +318,14 @@ export function ExecuteGameLoop(ctx, deltaTime) {
         // updateGame(currentTime);
 
         if (windEnabled) {
-            updateAndRenderWind(ctx, deltaTime);
+            updateAndRenderWind(ctx, gameDeltaTime);
         }
 
         // After everything is updated and rendered:
-        recordDebugFrame(totalTimeForCalculating, totalTimeForRendering, 1000 / deltaTime);
+        recordDebugFrame(totalTimeForCalculating, totalTimeForRendering, 1000 / gameDeltaTime);
 
         // Debugging
-        debuggingStep();
-        if (window.globalSyncConsoleLogStr) {
-            // console.log(window.globalSyncConsoleLogStr);
-        }
-        // drawWindowDebug(ctx, canvasWidth, canvasHeight, deltaTime);
+        // drawWindowDebug(ctx, canvasWidth, canvasHeight, realDeltaTime);
 
         lastFrameCtx.clearRect(0, 0, gameApi.canvasWidth, gameApi.canvasHeight);
         lastFrameCtx.drawImage(ctx.canvas, 0, 0);

@@ -21,6 +21,11 @@ export const OVERLAY_STATE_KEYS = Object.freeze({
     GAME_OVER: "GAME_OVER",
 });
 
+export const ENTITY_TYPES = Object.freeze({
+    STATIC_ENTITY: "STATIC_ENTITY",
+    PHYSICS: "PHYSICS",
+});
+
 
 
 // Objects Definitions
@@ -34,9 +39,19 @@ export const OVERLAY_STATE_KEYS = Object.freeze({
 
 /**
  * @typedef {Object} StatsRingBuffersType
- * @property {number[]} calculateTime
- * @property {number[]} renderTime
- * @property {number[]} fps
+ * @property {Float32Array} calculateTime
+ * @property {Float32Array} renderTime
+ * @property {Float32Array} fps
+ * @property {number} index
+ * @property {number} count
+ */
+
+/**
+ * @typedef {Object} GameTime
+ * @property {number} gameSpeed
+ * @property {boolean} paused
+ * @property {boolean} stepOnce
+ * @property {number} maxDelta
  */
 
 /**
@@ -46,10 +61,11 @@ export const OVERLAY_STATE_KEYS = Object.freeze({
  * @property {number} canvasScale
  * @property {number} zoomLevel
  * @property {number} renderScale
- * @property {EntityType} entities
- * @property {StatsRingBuffersType} statsRingBuffers
  * @property {string} gameState
  * @property {string} overlayState
+ * @property {EntityType} entities
+ * @property {StatsRingBuffersType} statsRingBuffers
+ * @property {GameTime} gameTime
  */
 
 const DEBUG_HISTORY_SIZE = 100;
@@ -58,9 +74,11 @@ const DEBUG_HISTORY_SIZE = 100;
 const GlobalVariables = {
     debugMode: true,
     showStatistics: true,
-    canvasScale: 1280,
+    canvasScale: 1280,  // dynamically scales with canvas width
     zoomLevel: 0.1,
     renderScale: 128,
+    gameState: GAME_STATE_KEYS.MAIN_MENU,
+    overlayState: OVERLAY_STATE_KEYS.NONE,
     entities: {
         tanks: [],
         bullets: [],
@@ -73,8 +91,12 @@ const GlobalVariables = {
         index: 0, // current write position
         count: 0, // how many valid samples we have
     },
-    gameState: GAME_STATE_KEYS.MAIN_MENU,
-    overlayState: OVERLAY_STATE_KEYS.NONE,
+    gameTime: {
+        gameSpeed: 1.0,      // 1.0 = normal, 0.5 = half speed, 0 = paused
+        paused: false,
+        stepOnce: false,   // single-frame advance
+        maxDelta: 1 / 60,  // safety clamp
+    },
 };
 
 

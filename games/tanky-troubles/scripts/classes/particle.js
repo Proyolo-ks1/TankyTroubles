@@ -1,5 +1,6 @@
 import { getGlobal } from '../global-state.js';
-import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '../graphics-utils.js';
+import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '../utils/graphics-utils.js';
+import { PhysicsObject } from './entity.js';
 import { spawnRelativeClass } from './spawner.js';
 
 
@@ -17,50 +18,46 @@ const tileSize = getGlobal().zoomLevel;
 
 // MARK: PARTICLE
 // Particle class (base class for all types of particles)
-class Particle {
-    static ParticleCount = 0;
+class Particle extends PhysicsObject{
+    static nextId = 0;
 
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, spawnSpeed = 100, scale = 1, rotationSpeed = 0) {
-        this.id = `particle${Particle.ParticleCount++}`;
-
+        super({ // PhysicsObject
+            pos: posSpawn,
+            vel: { x: Math.cos(angleSpawn) * spawnSpeed, y: Math.sin(angleSpawn) * spawnSpeed },
+            angle: angleSpawn,
+        });
+        this.name = `particle${Particle.nextId++}`;
         this.owner = owner;
-        this.pos = posSpawn;
-        this.velocity = { x: Math.cos(angleSpawn) * spawnSpeed, y: Math.sin(angleSpawn) * spawnSpeed };
-        this.angle = angleSpawn;
+
         this.rotationSpeed = rotationSpeed;
         this.size = scale * (getGlobal().zoomLevel / 12);
         this.active = true;
-        this.creationTime = Date.now();
 
         getGlobal().entities.particles.push(this);
     }
 
-    update(deltaTime) {
+    update(realDeltaTime) {
         // Position
-        this.pos.x += this.velocity.x * deltaTime;
-        this.pos.y += this.velocity.y * deltaTime;
+        this.pos.x += this.vel.x * realDeltaTime;
+        this.pos.y += this.vel.y * realDeltaTime;
 
         // Rotation
-        this.angle += this.rotationSpeed * deltaTime;        
-
-        // Check if particle's lifespan is over and make it inactive
-        if (Date.now() - this.creationTime > this.lifeSpan) {
-            this.destroy();
-        }
+        this.angle += this.rotationSpeed * realDeltaTime;
     }
 
     destroy() {
         this.active = false;
     }
 
-    render(ctx, deltaTime) {
+    render(ctx, realDeltaTime) {
         // Default particle rendering, can be overridden
     }
 
-    debugrender(ctx, deltaTime) {
+    debugrender(ctx, realDeltaTime) {
         if (this.active) {
             // Velocity Arrow
-            drawVectorArrow(ctx, this.pos, this.velocity, "#0000FF", 2);
+            drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 2);
 
             // Heading Line
             const headingLength = 50;
@@ -82,7 +79,7 @@ export class TankDriveParticle extends Particle {
         this.lifeSpan = 10000;
     }
 
-    render(ctx, deltaTime) {
+    render(ctx, gameDeltaTime) {
         if (this.active) {
             drawCircle(ctx, this.pos, this.size / 2, "#000", "#000");
         }
@@ -98,7 +95,7 @@ export class TankTrackParticle extends Particle {
         this.lifeSpan = 10000;
     }
 
-    render(ctx, deltaTime) {
+    render(ctx, gameDeltaTime) {
         if (this.active) {
             drawCircle(ctx, this.pos, this.size / 2, "#000", "#000");
         }

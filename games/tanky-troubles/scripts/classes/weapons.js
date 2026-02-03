@@ -1,7 +1,7 @@
 import { getGlobal } from '../global-state.js';
 import { DefaultBullet, ChaingunBullet, ShotgunBullet, Shrapnel, ShrapnelBomb, FireBullet, HomingMissle, OppenheimerBullet } from './bullet.js';
 import { spawnRelativeClass } from './spawner.js';
-import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../graphics-utils.js';
+import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../utils/graphics-utils.js';
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -36,7 +36,7 @@ class Weapon {
         // Default release behavior, can be overridden
     }
 
-    renderTurret(ctx, deltaTime) {
+    renderTurret(ctx, realDeltaTime) {
         // Default turret rendering, can be overridden
     }
 }
@@ -61,7 +61,7 @@ export class NoWeapon extends Weapon {
         // empty
     }
 
-    renderTurret(ctx, deltaTime) {
+    renderTurret(ctx, realDeltaTime) {
         // Barrel
         const barrelLength = this.tank.size.length * 0.7;
         const barrelWidth = this.tank.size.width * 4 / 15;
@@ -99,14 +99,14 @@ export class Chaingun extends Weapon {
         this.isReadyToFire = false; // Reset firing state
     }
 
-    hold(deltaTime) {
+    hold(realDeltaTime) {
         if (!this.isCharging) return;
 
         const spreadAngle = 10;// Spread angle in degrees
         const spreadAngleRadians = spreadAngle * (Math.PI / 180);
 
         // Accumulate time since charge started
-        this.timeSinceChargeStarted += deltaTime;
+        this.timeSinceChargeStarted += realDeltaTime;
 
         // Start firing only after charge time has passed
         if (this.timeSinceChargeStarted >= this.chargeTime) {
@@ -115,7 +115,7 @@ export class Chaingun extends Weapon {
 
         // If ready to fire, continue shooting
         if (this.isReadyToFire) {
-            this.timeSinceLastShot += deltaTime; // Accumulate time for rapid fire
+            this.timeSinceLastShot += realDeltaTime; // Accumulate time for rapid fire
 
             while (this.timeSinceLastShot > this.fireRateCooldown) {
                 this.timeSinceLastShot -= this.fireRateCooldown; // Reduce accumulated time
@@ -148,7 +148,7 @@ export class Chaingun extends Weapon {
         this.isReadyToFire = false; // Stop firing when button is released
     }
 
-    renderTurret(ctx, deltaTime) {
+    renderTurret(ctx, realDeltaTime) {
         
         // Dome
         const domeRadius = this.tank.size.width / 3;
@@ -159,7 +159,7 @@ export class Chaingun extends Weapon {
         let turretColor = this.tank.color
         if (globalKeys[this.tank.controls.shoot]) {
             turretColor = "orange"
-            this.barrelRotation += 60 * this.fireRate * deltaTime;
+            this.barrelRotation += 60 * this.fireRate * realDeltaTime;
             this.barrelRotation %= 60;
         }
         drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, turretColor, "black", 0.02);
@@ -221,7 +221,7 @@ export class Shotgun extends Weapon {
         // empty
     }
 
-    renderTurret(ctx, deltaTime) {
+    renderTurret(ctx, realDeltaTime) {
         // Barrel
         const length = this.barrelLength
         const width = this.barrelWidth
@@ -252,14 +252,14 @@ export class FlameThrower extends Weapon {
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
             const bulletSpeed = 3.0 + Math.random() * 0.5 * this.tank.scale; // tiles per second
             const lifeSpan = 5000 - Math.random() * (5000 / 2); // 2500-7500 ms
-            spawnRelativeClass(FireBullet, this.tank, this.tank.pos, this.tank.angle, { x: this.turretSize.width, y: 0 }, randomBulletAngleOffset + 0.2 * Math.sin(performance.now() / 50), bulletSpeed, this.tank.scale, lifeSpan);
+            spawnRelativeClass(FireBullet, this.tank, this.tank.pos, this.tank.angle, { x: this.turretSize.width, y: 0 }, randomBulletAngleOffset + 0.2 * Math.sin(this.tank.age / 50), bulletSpeed, this.tank.scale, lifeSpan);
     }
 
     release() {
         // empty
     }
 
-    renderTurret(ctx, deltaTime) {
+    renderTurret(ctx, realDeltaTime) {
         drawRect(ctx, { x: 0, y: -this.turretSize.height / 2 }, this.turretSize, "#FFA500", "black", 0.05);
         const customShape = [
             { x: 50, y: 0 },
@@ -299,11 +299,11 @@ export class ChainShotgun extends Weapon {
         this.isReadyToFire = false;
     }
 
-    hold(deltaTime) {
+    hold(realDeltaTime) {
         if (!this.isCharging) return;
 
         // Accumulate time since charge started
-        this.timeSinceChargeStarted += deltaTime;
+        this.timeSinceChargeStarted += realDeltaTime;
 
         // Start firing only after charge time has passed
         if (this.timeSinceChargeStarted >= this.chargeTime) {
@@ -312,7 +312,7 @@ export class ChainShotgun extends Weapon {
 
         // If ready to fire, continue shooting
         if (this.isReadyToFire) {
-            this.timeSinceLastShot += deltaTime; // Accumulate time for rapid fire
+            this.timeSinceLastShot += realDeltaTime; // Accumulate time for rapid fire
 
             while (this.timeSinceLastShot > this.fireRateCooldown) {
                 this.timeSinceLastShot -= this.fireRateCooldown; // Reduce accumulated time
@@ -354,13 +354,13 @@ export class ChainShotgun extends Weapon {
         this.isReadyToFire = false; // Stop firing when button is released
     }
     
-    renderTurret(ctx, deltaTime) {
+    renderTurret(ctx, realDeltaTime) {
         // Draw the base of the chaingun turret
         let turretSize = { width: this.tank.size.length * 0.7, height: this.tank.size.width * 4 / 15 };
         let turretColor = this.tank.color
         if (globalKeys[this.tank.controls.shoot]) {
             turretColor = "orange"
-            this.barrelRotation += 60 * this.fireRate * deltaTime;
+            this.barrelRotation += 60 * this.fireRate * realDeltaTime;
             this.barrelRotation %= 60;
         }
         drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, turretColor, "black", 0.02);
@@ -413,7 +413,7 @@ export class ShrepnalBombWeapon extends Weapon {
         // empty
     }
     
-    renderTurret(ctx, deltaTime) {
+    renderTurret(ctx, realDeltaTime) {
         // Barrel
         const barrelLength = this.tank.size.length * 0.7;
         const barrelWidth = this.tank.size.width / 2.5;
@@ -439,10 +439,8 @@ export class ExperimentalWeapon extends Weapon {
         const spreadAngle = 20; // Spread angle in degrees
         const spreadAngleRadians = spreadAngle * (Math.PI / 180);
 
-        let randomNumber = Math.random()
-        let randomBulletAngleOffset = (randomNumber - 0.5) * spreadAngleRadians;
-        randomNumber = Math.random()
-        spawnRelativeClass(Shrapnel, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, randomBulletAngleOffset, (randomNumber + 0.5), 1);
+        let randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
+        spawnRelativeClass(Shrapnel, this.tank, this.tank.pos, this.tank.angle, { x: this.tank.size.width, y: 0 }, randomBulletAngleOffset, (Math.random() + 0.5), 1);
     }
 
     hold() {
@@ -453,7 +451,7 @@ export class ExperimentalWeapon extends Weapon {
         // empty
     }
 
-    renderTurret(ctx, deltaTime) {
+    renderTurret(ctx, realDeltaTime) {
         let turretSize = { width: this.tank.size.length * 0.7, height: this.tank.size.width / 3 };
         drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize,this.tank.color, "black", 0.02);
     }
@@ -480,11 +478,11 @@ export class ChainShotgunBOOM extends Weapon {
         this.isReadyToFire = false;
     }
 
-    hold(deltaTime) {
+    hold(realDeltaTime) {
         if (!this.isCharging) return;
 
         // Accumulate time since charge started
-        this.timeSinceChargeStarted += deltaTime;
+        this.timeSinceChargeStarted += realDeltaTime;
 
         // Start firing only after charge time has passed
         if (this.timeSinceChargeStarted >= this.chargeTime) {
@@ -493,7 +491,7 @@ export class ChainShotgunBOOM extends Weapon {
 
         // If ready to fire, continue shooting
         if (this.isReadyToFire) {
-            this.timeSinceLastShot += deltaTime; // Accumulate time for rapid fire
+            this.timeSinceLastShot += realDeltaTime; // Accumulate time for rapid fire
 
             while (this.timeSinceLastShot > this.fireRateCooldown) {
                 this.timeSinceLastShot -= this.fireRateCooldown; // Reduce accumulated time
@@ -535,13 +533,13 @@ export class ChainShotgunBOOM extends Weapon {
     }
 
     
-    renderTurret(ctx, deltaTime) {
+    renderTurret(ctx, realDeltaTime) {
         // Draw the base of the chaingun turret
         let turretSize = { width: this.tank.size.length * 0.7, height: this.tank.size.width * 4 / 15 };
         let turretColor = this.tank.color
         if (globalKeys[this.tank.controls.shoot]) {
             turretColor = "orange"
-            this.barrelRotation += 60 * this.fireRate * deltaTime;
+            this.barrelRotation += 60 * this.fireRate * realDeltaTime;
             this.barrelRotation %= 60;
         }
         drawRect(ctx, { x: 0, y: -turretSize.height / 2 }, turretSize, turretColor, "black", 0.02);
@@ -591,7 +589,7 @@ export class OppenheimerBOOOM extends Weapon {
         // empty
     }
 
-    renderTurret(ctx, deltaTime) {
+    renderTurret(ctx, realDeltaTime) {
         // Barrel
         const length = this.tank.size.length * 0.7;
         const width = this.tank.size.width / 5;

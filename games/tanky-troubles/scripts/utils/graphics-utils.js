@@ -1,4 +1,5 @@
-import { getGlobal } from './global-state.js';
+import { getGlobal } from '../global-state.js';
+import { randomColorHSLSeeded } from './math-utils.js';
 
 
 
@@ -13,28 +14,65 @@ import { getGlobal } from './global-state.js';
 
 // MARK: drawText
 // Function to draw text with optional outline, applying canvas scaling
-export function drawText(ctx, text, pos, align = "left", baseline = "top", fontSize, font, color, outlineColor = null, outlineWidth = 0.02) {
+export function drawText(ctx, text, pos, textStyle) {
     const renderScale = getGlobal().canvasScale * getGlobal().zoomLevel;
 
-    // Scale the position and font size according to the canvas scale
+    // Destructure style object with defaults
+    const {
+        align = "left",
+        baseline = "top",
+        fontSize = 16 / renderScale,
+        font = "Consolas",
+        textColor = "#fff",
+        outlineColor = null,
+        outlineWidth = 0.02,
+    } = textStyle;
+
+    // Scale the position and font size according to canvas scale
     const scaledX = pos.x * renderScale;
     const scaledY = pos.y * renderScale;
     const scaledFontSize = fontSize * renderScale;
 
-    // Set the font size and alignment for the text
+    // Set font and alignment
     ctx.font = `${scaledFontSize.toFixed(0)}px ${font}`;
-    ctx.fillStyle = color;
+    ctx.fillStyle = textColor;
     ctx.textAlign = align;
     ctx.textBaseline = baseline;
 
-    // Draw the text outline if outlineColor is provided
+    // Draw outline if provided
     if (outlineColor) {
         ctx.strokeStyle = outlineColor;
-        ctx.lineWidth = outlineWidth * renderScale; // Scale stroke width according to canvas scale
-        ctx.strokeText(text, scaledX, scaledY); // Draw the outline
+        ctx.lineWidth = outlineWidth * renderScale;
+        ctx.strokeText(text, scaledX, scaledY);
     }
 
-    // Draw the text on the canvas
+    // Debugging - Textbox
+    if (getGlobal().debugMode) {
+        const metrics = ctx.measureText(text);
+
+        const textWidth = metrics.width;
+        const textHeight = scaledFontSize;
+
+        let boxX = scaledX;
+        let boxY = scaledY;
+
+        // Horizontal alignment
+        if (align === "center") boxX -= textWidth / 2;
+        else if (align === "right") boxX -= textWidth;
+
+        // Vertical baseline
+        if (baseline === "middle") boxY -= textHeight / 2;
+        else if (baseline === "bottom") boxY -= textHeight;
+
+        ctx.strokeStyle = '#f0f' // or random: randomColorHSLSeeded(text.length, 100, 220);
+        // seed,
+        // saturation
+        // lightness
+        ctx.lineWidth = 1;
+        ctx.strokeRect(boxX, boxY, textWidth, textHeight);
+    }
+
+    // Draw the text
     ctx.fillText(text, scaledX, scaledY);
 }
 
@@ -103,6 +141,47 @@ export function drawRect(ctx, pos, size, fillColor, strokeColor = null, strokeWi
             ctx.stroke();
         }
     }
+}
+
+// MARK: drawTextBox
+// Draws a rectangle (background / border) with text on top
+export function drawTextBox(ctx, text, pos, size, options = {}) {
+    const {
+        // Box
+        backgroundColor = null,
+        borderColor = null,
+        borderWidth = 0.02,
+        borderRadius = 0,
+        padding = { x: 0.3, y: 0.2 },
+
+        // Text
+        textStyle = {},
+    } = options;
+
+    // Draw background / border if requested
+    if (backgroundColor || borderColor) {
+        drawRect(
+            ctx,
+            pos,
+            size,
+            backgroundColor ?? "transparent",
+            borderColor,
+            borderWidth,
+            borderRadius
+        );
+    }
+
+    // Text position inside the box (top-left by default)
+    const textPos = {
+        x: pos.x + padding.x,
+        y: pos.y + padding.y,
+    };
+
+    drawText(ctx, text, textPos, {
+        baseline: "top",
+        align: "left",
+        ...textStyle,
+    });
 }
 
 // MARK: drawCircle
