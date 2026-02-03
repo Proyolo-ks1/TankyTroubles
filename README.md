@@ -1,6 +1,6 @@
 # Tanky Troubles (Fan Remake)
 
-This is an unofficial fan remake of [Tank Trouble](https://tanktrouble.com/) by Subterranean Software.
+This is an unofficial fan remake of [Tank Trouble](https://tanktrouble.com/) by [Subterranean Software](https://www.subterraneansoftware.com/).
 
 This project is independently developed and is **not affiliated with or endorsed by Subterranean Software**.
 
