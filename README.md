@@ -4,6 +4,10 @@ This is an unofficial fan remake of [Tank Trouble](https://tanktrouble.com/) by 
 
 This project is independently developed and is **not affiliated with or endorsed by Subterranean Software**.
 
+## Wanna Play?
+The game can be played [here](https://proyolo-ks1.github.io/TankyTroubles/) and is hosted on Github Pages.
+- note: the game is not finished and might be even set to debug mode by default with no single explaination on how to toggle it and other secret things :)
+
 ## License
 
 The content of this project is licensed under the [Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/legalcode).
