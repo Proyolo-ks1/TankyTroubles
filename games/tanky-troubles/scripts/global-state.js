@@ -26,6 +26,12 @@ export const ENTITY_TYPES = Object.freeze({
     PHYSICS: "PHYSICS",
 });
 
+export const HITBOX_TYPES = Object.freeze({
+    CIRCLE: "CIRCLE",
+    RECTANGLE: "RECTANGLE",
+    OTHER_HITBOX: "OTHER_HITBOX",
+});
+
 
 
 // Objects Definitions

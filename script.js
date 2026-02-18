@@ -1,4 +1,3 @@
-// Define file paths for the icons at the top
 const ICON_PATH = 'assets/icons/';
 const ICONS = {
     theaterModeEnter: `${ICON_PATH}expand_content_40dp_E3E3E3_FILL1_wght400_GRAD0_opsz40.svg`,
@@ -9,7 +8,7 @@ const ICONS = {
     volumeOff: `${ICON_PATH}volume_off_40dp_E3E3E3_FILL1_wght400_GRAD0_opsz40.svg`
 };
 
-// Get the buttons and their icons id's
+// Buttons
 const fullscreenButton = document.getElementById('toggle-fullscreen');
 const theaterModeButton = document.getElementById('toggle-theater-mode');
 const audioButton = document.getElementById('toggle-audio');
@@ -17,12 +16,12 @@ const fullscreenIcon = document.getElementById('fullscreen-icon');
 const theaterModeIcon = document.getElementById('theater-icon');
 const audioIcon = document.getElementById('audio-icon');
 
- // defaults
+ // Defaults
 let currentViewingMode = 'normal';
-let theaterModeEnabled = false;
+let theaterModeEnabled = true;
 let isMuted = false;
 
-// Function to update the button icons
+// Button icon updates
 function updateButtonIcons() {
     if (currentViewingMode === 'fullscreen') {
         fullscreenIcon.setAttribute('src', ICONS.fullscreenExit);
@@ -39,7 +38,7 @@ function updateButtonIcons() {
     }
 }
 
-// Function to toggle fullscreen mode
+// Toggle fullscreen mode
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
         document.getElementById('game-canvas-container').requestFullscreen()
@@ -55,7 +54,7 @@ function toggleFullscreen() {
     updateButtonIcons();
 }
 
-// Function to toggle theater mode
+// Toggle theater mode
 function toggleTheaterMode() {
     const gameContainer = document.getElementById('game-container');
     gameContainer.classList.toggle('theater-mode');
@@ -76,7 +75,7 @@ function toggleTheaterMode() {
     updateButtonIcons();
 }
 
-// Function to toggle audio (mute/unmute)
+// Toggle audio (mute/unmute)
 function toggleAudio() {
     isMuted = !isMuted;
     // If you're controlling actual audio (e.g., an audio element), you'd mute/unmute it here
@@ -118,8 +117,7 @@ const ctx = canvas.getContext("2d");
 ctx.fillStyle = "#fff";
 
 // The Running Game API, can be used by the currently running game to communicate things between Host (browser window) and Game itself. - or something like that lol.
-
-const runningGameApi = gameContainer.runningGameApi = {
+const gameApi = gameContainer.runningGameApi = {
     isGameFocused: false,
     isGamePaused: false,
     externalDebugging: false,
@@ -135,8 +133,8 @@ const runningGameApi = gameContainer.runningGameApi = {
 function resizeCanvas() {
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
-    runningGameApi.canvasWidth = canvas.clientWidth;
-    runningGameApi.canvasHeight = canvas.clientHeight;
+    gameApi.canvasWidth = canvas.clientWidth;
+    gameApi.canvasHeight = canvas.clientHeight;
 }
 
 // EventListeners
@@ -145,53 +143,58 @@ ro.observe(gameContainer);
 
 gameContainer.addEventListener('focus', () => {
     console.log("Game Focused");
-    runningGameApi.isGameFocused = true;
-    runningGameApi.isGamePaused = false;
+    gameApi.isGameFocused = true;
+    gameApi.isGamePaused = false;
     gameUnfocusOverlay.style.opacity = "0";
 });
 
 gameContainer.addEventListener('blur', () => {
     console.log("Game Unfocused");
-    runningGameApi.isGameFocused = false;
-    runningGameApi.isGamePaused = true;
+    gameApi.isGameFocused = false;
+    gameApi.isGamePaused = true;
     gameUnfocusOverlay.style.opacity = "1";
 
-    if (!runningGameApi.globalKeys) {
+    if (!gameApi.globalKeys) {
         console.log("%c!runningGameApi.globalKeys", "color: red; font-weight: bold;");
         return; // Prevent crash if not yet initialized
     }
     
     // Trigger keyup event for all keys that are currently pressed
-    const allKeys = Object.keys(runningGameApi.globalKeys);
+    const allKeys = Object.keys(gameApi.globalKeys);
     allKeys.forEach((key) => {
-        if (runningGameApi.globalKeys[key]) { // Only trigger keyup for pressed keys
+        if (gameApi.globalKeys[key]) { // Only trigger keyup for pressed keys
             const event = new KeyboardEvent('keyup', { key: key });
             window.dispatchEvent(event);
-            runningGameApi.globalKeys[key] = false;
+            gameApi.globalKeys[key] = false;
         }
     });
 });
 
 // globalKeys
 window.addEventListener("keydown", (e) => {
-    if (!runningGameApi.isGameFocused) return;
+    if (!gameApi.isGameFocused) return;
     
-    e.preventDefault();
-    runningGameApi.globalKeys[e.key] = true;
+    if (e.key !== "F5" && e.key !== "F12") {
+        e.preventDefault();
+    }
+    gameApi.globalKeys[e.key] = true;
 });
 
 window.addEventListener("keyup", (e) => {
-    if (!runningGameApi.isGameFocused) return;
+    if (!gameApi.isGameFocused) return;
     
-    e.preventDefault();
-    runningGameApi.globalKeys[e.key] = false;
+    if (e.key !== "F5" && e.key !== "F12") {
+        e.preventDefault();
+    }
+    gameApi.globalKeys[e.key] = false;
 });
 
 // globalScroll
 window.addEventListener("wheel", (e) => {
-    if (!runningGameApi.isGameFocused) return;
+    if (!gameApi.isGameFocused) return;
 
-    e.preventDefault();
-
-    runningGameApi.globalScroll.deltaY += e.deltaY;
+    if (e.key !== "F5" && e.key !== "F12") {
+        e.preventDefault();
+    }
+    gameApi.globalScroll.deltaY += e.deltaY;
 }, { passive: false });

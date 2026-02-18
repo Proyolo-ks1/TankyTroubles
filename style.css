@@ -15,6 +15,25 @@ body {
     min-width: 450px;
 }
 
+a {
+    color: #1e90ff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a:active {
+    color: #1e90ff;
+    text-decoration: underline;
+}
+
+a:focus {
+    outline: none;
+    text-decoration: underline;
+}
+
 
 
 
@@ -224,15 +243,6 @@ body {
     font-size: 0.9em;
     height: 37px;  /* Fixed footer height */
     flex-shrink: 0;  /* Prevent footer from shrinking */
-}
-
-.footer-container a {
-    color: #1e90ff;
-    text-decoration: none;
-}
-
-.footer-container a:hover {
-    text-decoration: underline;
 }
 
 

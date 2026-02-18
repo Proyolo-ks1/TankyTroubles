@@ -4,6 +4,7 @@ import { signedPower } from '../utils/math-utils.js';
 import { generateMaze} from '../generate-maze.js';
 import { Tank } from '../classes/tank.js';
 import { loadMainMenu } from '../gamestates/main-menu.js';
+import { spawnAllTestObjects } from '../debugging/spawn-all-objects-static.js';
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -30,7 +31,7 @@ function renderBackground(ctx) {
         for (let col = 0; col < Math.ceil(mazeWidth); col++) {
             const color = (row + col) % 2 === 0 ? GLOBAL_COLOR_KEYS.CHECKERBOARD_1 : GLOBAL_COLOR_KEYS.CHECKERBOARD_2;
             const pos = { x: col, y: row };
-            const size = { width: 1, height: 1 };
+            const size = { w: 1, h: 1 };
 
             drawRect(ctx, pos, size, color);
         }
@@ -214,24 +215,24 @@ const entities = getGlobal().entities
 export function initializeGame() {
 
     // startGame();
+    // time, spawning, score and stuff or something
 
 
-    // Create tanks with position, color, and controls
-    const defaultTankLength = 2 / 5; // Tiles
-    const defaultTankWidth = 1 / 3 // Tiles
-    const defaultTankSize = {length: defaultTankLength, width: defaultTankWidth}
-    const defaultTankSpeed = 1.6; // Tiles per second
-    const defaultTankRotSpeed = 5; // radians per second
 
+    // Create 2 tanks with position, color, and controls
     let angleSpawn = Math.random() * Math.PI * 2;
-    angleSpawn = 0;
-    const posSpawn1 = { x: 2, y: 4 }
-    new Tank(posSpawn1, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 5, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
+    const posSpawn1 = { x: 1, y: 1 }
+    new Tank(posSpawn1, angleSpawn, undefined, undefined, undefined, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
 
     angleSpawn = Math.random() * Math.PI * 2;
-    angleSpawn = 0;
-    const posSpawn2 = { x: 7, y: 2 }
-    new Tank(posSpawn2, angleSpawn, defaultTankSize, defaultTankSpeed, defaultTankRotSpeed, 1, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
+    const posSpawn2 = { x: 2, y: 1 }
+    new Tank(posSpawn2, angleSpawn, undefined, undefined, undefined, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
+
+    // Debugging
+    const iniDebugging = true;
+    if (iniDebugging) {
+        spawnAllTestObjects();
+    }
 }
 
 
@@ -311,6 +312,25 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
                 totalTimeForRendering += performance.now() - t0;
             }
         });
+
+        // const utilityEntities = entities.particles;
+        // particles.forEach(particle => {
+        //     let t0 = performance.now();
+        //     particle.update(gameDeltaTime);
+        //     totalTimeForCalculating += performance.now() - t0;
+
+        //     t0 = performance.now();
+        //     particle.render(ctx, gameDeltaTime);
+        //     totalTimeForRendering += performance.now() - t0;
+
+        //     if (debugActive) {
+        //         t0 = performance.now();
+        //         particle.debugrender(ctx, gameDeltaTime);
+        //         totalTimeForRendering += performance.now() - t0;
+        //     }
+        // });
+
+
         
         // Cleanup inactive bullets (every frame (for now?))
         cleanupInactiveBullets(bullets);

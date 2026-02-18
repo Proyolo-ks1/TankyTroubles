@@ -1,9 +1,10 @@
 import { getGlobal } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../utils/graphics-utils.js';
-import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ShrepnalBombWeapon, ExperimentalWeapon, ChainShotgunBOOM, OppenheimerBOOOM } from './weapons.js';
+import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ShrepnalBombWeapon, ExperimentalWeapon, ChainShotgunBOOM, OppenheimerBOOOM, MissleLauncher } from './weapons.js';
 import { posMod } from '../utils/math-utils.js';
 import { PhysicsObject } from './entity.js';
 import { OppenheimerBullet } from './bullet.js';
+import { drawSmiley} from '../utils/graphics-shapes.js';
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -24,27 +25,45 @@ const globalKeys = gameApi.globalKeys
 export class Tank extends PhysicsObject {
     static nextId = 0;
 
-    // This constructor has as default values, the values that were analyzed from the original game 
-    constructor(posSpawn = { x: 1, y: 1 }, angleSpawn = 0, size = {length: 2 / 5, width: 1 / 3}, speed = 1.6, turningSpeed = 5, scale = 1, color = "#555", controls = { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" }) {
+    // This constructor has as default values, the values that were analyzed from the original game
+    constructor(
+        posSpawn = { x: 1, y: 1 },
+        angleSpawn = 0,
+        scale = 1,
+        speed = 1.6,
+        turningSpeed = 5,
+        color = "#555",
+        controls = {
+            up: "ArrowUp",
+            down: "ArrowDown",
+            left: "ArrowLeft",
+            right: "ArrowRight",
+            shoot: "m",
+        }
+    ) {        
         super({ // PhysicsObject
             pos: posSpawn,
             vel: { x: 0, y: 0 },
             angle: angleSpawn,
+            scale: scale,
         });
+
         this.name = `Tank ${Tank.nextId}`;
         this.shortName = `t${Tank.nextId++}`;
+
+        this.length = 2 / 5; // Tiles
+        this.width = 1 / 3 // Tiles
         
         this.speed = speed;
         this.turningSpeed = turningSpeed;
-        this.scale = scale
-        this.size = { length: size.length * scale, width: size.width * scale };
         this.color = color;
         this.controls = controls;
-        this.weapon = new FlameThrower(this); // Default weapon
+
+        this.weapon = new MissleLauncher(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
-        this.trackRotation = {left: 0, right: 0}
 
+        this.trackRotation = {left: 0, right: 0}
         this.health = 1;
 
         getGlobal().entities.tanks.push(this);
@@ -90,8 +109,8 @@ export class Tank extends PhysicsObject {
     
         // Rotation - Turning
         if (!(globalKeys[this.controls.left] && globalKeys[this.controls.right])) {
-            let trackCenterRadius = 5 / 12 * this.size.width
-            const linearVelocityAtRadius = trackCenterRadius * this.turningSpeed
+            let trackCenterRadius = 5 / 12 * this.width;
+            const linearVelocityAtRadius = trackCenterRadius * this.turningSpeed;
             if (globalKeys[this.controls.left]) {
                 this.angle -= this.turningSpeed * realDeltaTime;
                 this.trackRotation.left -= linearVelocityAtRadius * realDeltaTime;
@@ -135,21 +154,21 @@ export class Tank extends PhysicsObject {
     render(ctx, realDeltaTime) {
         ctx.save();
 
-        const renderScale = getGlobal().canvasScale * getGlobal().zoomLevel;
+        const renderScale = getGlobal().renderScale
 
         ctx.translate(this.pos.x * renderScale, this.pos.y * renderScale);
         ctx.rotate(this.angle);
 
         // Body
-        const BodyLength = this.size.length
-        const BodyWidth = this.size.width
-        drawRect(ctx, { x: -BodyLength / 2, y: -BodyWidth / 2 }, { width: BodyLength, height: BodyWidth }, this.color, "black", 0.02);
+        const BodyLength = this.length * this.radius;
+        const BodyWidth = this.width * this.radius;
+        drawRect(ctx, { x: -BodyLength / 2, y: -BodyWidth / 2 }, { w: BodyLength, h: BodyWidth }, this.color, "black", 0.02);
 
         // Tracks
-        const trackLength = BodyLength
-        const trackWidth = this.size.width / 6
-        drawRect(ctx, { x: -trackLength / 2, y: -BodyWidth / 2 }, { width: trackLength, height: trackWidth }, this.color, "black", 0.02);
-        drawRect(ctx, { x: -trackLength / 2, y: BodyWidth / 2 - trackWidth }, { width: trackLength, height: trackWidth }, this.color, "black", 0.02);
+        const trackLength = BodyLength;
+        const trackWidth = BodyWidth / 6;
+        drawRect(ctx, { x: -trackLength / 2, y: -BodyWidth / 2 }, { w: trackLength, h: trackWidth }, this.color, "black", 0.02);
+        drawRect(ctx, { x: -trackLength / 2, y: BodyWidth / 2 - trackWidth }, { w: trackLength, h: trackWidth }, this.color, "black", 0.02);
 
         const amountOfTrackLinks = 12;
         this.trackRotation.left = posMod(this.trackRotation.left, amountOfTrackLinks * 2);
@@ -160,12 +179,12 @@ export class Tank extends PhysicsObject {
         for (let i = 0; i <= amountOfTrackLinks / 2; i++) {
             const trackLeftX1 = Math.min(Math.max(-trackLength / 2 + trackLinkLength * (2 * i - 1.5) + trackLeftRotationRemainder, -trackLength / 2), trackLength / 2)
             const trackLeftX2 = Math.min(Math.max(-trackLength / 2 + trackLinkLength * (2 * i - 1.5) + trackLeftRotationRemainder + trackLinkLength, -trackLength / 2), trackLength / 2)
-            drawRect(ctx, { x: trackLeftX1, y: -BodyWidth / 2 }, { width: trackLeftX2 - trackLeftX1, height: trackWidth }, "rgba(0, 0, 0, 0.3)");
+            drawRect(ctx, { x: trackLeftX1, y: -BodyWidth / 2 }, { w: trackLeftX2 - trackLeftX1, h: trackWidth }, "rgba(0, 0, 0, 0.3)");
         }
         for (let i = 0; i <= amountOfTrackLinks / 2; i++) {
             const trackRightX1 = Math.min(Math.max(-trackLength / 2 + trackLinkLength * (2 * i - 1.5) + trackRightRotationRemainder, -trackLength / 2), trackLength / 2)
             const trackRightX2 = Math.min(Math.max(-trackLength / 2 + trackLinkLength * (2 * i - 1.5) + trackRightRotationRemainder + trackLinkLength, -trackLength / 2), trackLength / 2)
-            drawRect(ctx, { x: trackRightX1, y: BodyWidth / 2 - trackWidth }, { width: trackRightX2 - trackRightX1, height: trackWidth }, "rgba(0, 0, 0, 0.3)");
+            drawRect(ctx, { x: trackRightX1, y: BodyWidth / 2 - trackWidth }, { w: trackRightX2 - trackRightX1, h: trackWidth }, "rgba(0, 0, 0, 0.3)");
         }
         
         // TEMP DEBUGGING FOR FIXING TRACK VISUALS
@@ -180,15 +199,16 @@ export class Tank extends PhysicsObject {
 
         // Player Name or ID
         const text = this.name
-        const textPos = { x: this.pos.x, y: this.pos.y - 0.3 * this.scale };
+        const textPos = { x: this.pos.x, y: this.pos.y - 0.3};
         const textStyle = {
             align: "center",
             baseline: "bottom",
-            fontSize: 1,
+            fontSize: 32 / renderScale, //px
             font: "Consolas",
+            fontWeight: "bold",
             textColor: this.color,
             outlineColor: "#000000",
-            outlineWidth: 0.02
+            outlineWidth: 2 / renderScale
         };
         drawText(ctx, text, textPos, textStyle);
     }
@@ -204,5 +224,10 @@ export class Tank extends PhysicsObject {
 
         // Draw the heading line
         drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#808", 0.02);
+
+        // Smiley :D
+        const renderScale = getGlobal().renderScale
+        const smileSize = 15 / renderScale; //px
+        drawSmiley(ctx, this.pos, smileSize)
     }
 }

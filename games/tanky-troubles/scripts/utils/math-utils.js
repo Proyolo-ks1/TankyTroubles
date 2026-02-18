@@ -19,6 +19,14 @@ export function randomSeeded(seed) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 }
 
+export function randomRange(min, max) {
+    return min + Math.random() * (max - min);
+}
+
+export function randomRangeSeeded(seed, min, max) {
+    return min + randomSeeded(seed) * (max - min);
+}
+
 function hslToHex(h, s, l) {
     s /= 100;
     l /= 100;

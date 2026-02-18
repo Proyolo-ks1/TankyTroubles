@@ -5,7 +5,9 @@ const gameApi = document.getElementById("game-container").runningGameApi;
 
 
 
-
+//      |================================|
+//      |      GLOBAL GAME CONTROLS      |
+//      |================================|
 
 
 
@@ -23,17 +25,15 @@ const numberKeyPressActions = {
 const numberKeyHoldActions = {
     '3': (realDeltaTime) => {
         getGlobal().entities.tanks.forEach(tank => {
-            tank.size.length *= Math.pow(0.5, realDeltaTime);
-            tank.size.width  *= Math.pow(0.5, realDeltaTime);
+            tank.scale *= Math.pow(0.5, realDeltaTime);
         });
-        console.log("DB: Decreased tank size 1%");
+        console.log("DB: Decreased tank scale 1%");
     },
     '4': (realDeltaTime) => {
         getGlobal().entities.tanks.forEach(tank => {
-            tank.size.length *= Math.pow(2, realDeltaTime);
-            tank.size.width  *= Math.pow(2, realDeltaTime);
+            tank.scale *= Math.pow(2, realDeltaTime);
         });
-        console.log("DB: Inscreased tank size 1%");
+        console.log("DB: Inscreased tank scale 1%");
     },
     '5': (realDeltaTime) => {
         getGlobal().zoomLevel *= Math.pow(0.5, realDeltaTime);
@@ -74,14 +74,15 @@ const timeKeyPressActions = {
 
     '>': () => {
         const gt = getGlobal().gameTime;
-        gt.gameSpeed = Math.min(gt.gameSpeed * 2, 16);
+        gt.gameSpeed = Math.min(gt.gameSpeed * 2, 32);
         console.log(`Time: speed = ${gt.gameSpeed}`);
     },
 };
 
 const keyPressedLastFrame = {};
-const MAX_SCROLL_DELTA = 0.1; // clamp per frame
-
+let previousScrollY = 0;
+let smoothedScroll = 0;
+const SMOOTHING = 0.9; // more is smoother
 export function globalGameControlsStep(realDeltaTime) {
     for (const key in numberKeyPressActions) {
         const isDown = gameApi.globalKeys[key];
@@ -105,24 +106,14 @@ export function globalGameControlsStep(realDeltaTime) {
         }
     }
 
-    const scrollDelta = gameApi.globalScroll.deltaY;
-    if (scrollDelta !== 0) {
-        // Clamp to avoid huge zoom jumps
-        const clampedDelta = Math.max(-MAX_SCROLL_DELTA, Math.min(MAX_SCROLL_DELTA, scrollDelta));
-        getGlobal().zoomLevel *= Math.pow(2, -clampedDelta);
-        console.log(`DB: Zoom factor applied: ${Math.pow(2, clampedDelta).toFixed(3)}`);
-
-        // Reset accumulated delta
-        gameApi.globalScroll.deltaY = 0;
+    let scrollY = gameApi.globalScroll.deltaY / 180;
+    const SCROLL_SENSITIVITY = 0.15;
+    const scrollDelta = previousScrollY - scrollY;
+    previousScrollY = scrollY;
+    smoothedScroll = smoothedScroll * SMOOTHING + scrollDelta * (1 - SMOOTHING);
+    if (smoothedScroll < -0.02 || smoothedScroll > 0.02) {
+        getGlobal().zoomLevel *= Math.pow(2, smoothedScroll * SCROLL_SENSITIVITY);
+    } else{
+        smoothedScroll = 0
     }
 }
-
-const SCROLL_SENSITIVITY = 0.0;
-
-document.addEventListener("wheel", (e) => {
-    if (!gameApi.isGameFocused) return;
-    e.preventDefault();
-
-    // Accumulate scroll delta
-    gameApi.globalScroll.deltaY += e.deltaY * SCROLL_SENSITIVITY;
-}, { passive: false });

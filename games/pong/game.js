@@ -1,10 +1,5 @@
-import { GAME_STATE_KEYS, OVERLAY_STATE_KEYS, getGlobal, GLOBAL_COLOR_KEYS } from './global-state.js';
-import { loadMainMenu } from './gamestates/main-menu.js';
-import { initializeGame, ExecuteGameLoop } from './gamestates/running-game.js';
-import { renderGameStatistics } from './overlay.js';
-import { drawDebugIni, drawDebug } from './debugging/canvas-testing-script.js';
-import { globalGameControlsStep } from './global-game-controls.js'
-// import { preloadImages, rescaleImages, getImage } from "./asset-handler.js";
+// Imports
+// none
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -66,10 +61,7 @@ function printDebugGlobals() {
 
 
 // Game Big Picture
-getGlobal().gameState = GAME_STATE_KEYS.RUNNING;
-getGlobal().overlayState = OVERLAY_STATE_KEYS.NONE;
-getGlobal().debugMode = false;
-getGlobal().showStatistics = false;
+time = 0;
 
 // Statistics
 let lastTime = performance.now();

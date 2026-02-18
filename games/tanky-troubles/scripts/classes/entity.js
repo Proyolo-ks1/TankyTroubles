@@ -1,4 +1,4 @@
-import { getGlobal, ENTITY_TYPES} from '../global-state.js';
+import { getGlobal, ENTITY_TYPES } from '../global-state.js';
 import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '../utils/graphics-utils.js';
 import { spawnRelativeClass } from './spawner.js';
 
@@ -44,18 +44,19 @@ export class StaticEntity extends Entity {
     constructor({
         pos = { x: 0, y: 0 },
         angle = 0,
-        size = 1,
+        scale: scale = 1,
     } = {}) {
         super(ENTITY_TYPES.STATIC_ENTITY);
         this.pos = pos;
         this.angle = angle;
-        this.size = size;
+        this.scale = scale;
     }
 
-    render(ctx, gameDeltaTime) {
-        if (this.active) {
-            drawCircle(ctx, this.pos, this.size / 2, "#000", "#000");
-        }
+    debugrender(ctx) {
+        if (!this.active) return;
+
+        const len = 3;
+        drawLine(ctx, this.pos, {x: this.pos.x + Math.cos(this.angle) * len, y: this.pos.y + Math.sin(this.angle) * len}, "#FF0000", 0.02);
     }
 }
 
@@ -68,6 +69,7 @@ export class PhysicsObject extends Entity {
         angle = 0,
         angleVel = 0,
         angleAcc = 0,
+        scale: scale = 1,
         lifeSpan = -1,
     } = {}) {
         super(ENTITY_TYPES.PHYSICS);
@@ -80,6 +82,8 @@ export class PhysicsObject extends Entity {
         this.angleVel = angleVel;
         this.angleAcc = angleAcc;
 
+        this.radius = scale;
+
         this.lifeSpan = lifeSpan;
         this.age = 0;
     }
@@ -89,7 +93,7 @@ export class PhysicsObject extends Entity {
         this.updateVelocity(gameDeltaTime);
         this.updateRotation(gameDeltaTime);
         this.updateAge(gameDeltaTime);
-        this.updateHitbox(); // or any collision / bounding updates
+        this.updateHitbox();
     }
 
     updatePosition(gameDeltaTime) {
@@ -116,37 +120,19 @@ export class PhysicsObject extends Entity {
 
     updateHitbox() {
         // e.g., recalc collision bounds, radius, etc.
+        // or any collision / bounding updates
     }
 
     destroy() {
         this.active = false;
     }
 
-    render(ctx, gameDeltaTime) {
-        if (this.active) {
-            // name
-            const text = `This is a default physics object`;
-            const textPos = { x: this.pos.x, y: this.pos.y - 0.3 * this.size };
-            const textStyle = {
-                align: "center",
-                baseline: "bottom",
-                fontSize: 0.2,
-                font: "Consolas",
-                textColor: this.color,
-                outlineColor: "#000000",
-                outlineWidth: 0.02
-            };
-
-            drawText(ctx, text, textPos, textStyle);
-        }
-    }
-
     debugrender(ctx) {
         if (!this.active) return;
 
-        // drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 2);
+        drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 2);
 
-        // const len = 50;
-        // drawLine(ctx, this.pos, {x: this.pos.x + Math.cos(this.angle) * len, y: this.pos.y + Math.sin(this.angle) * len}, "#FF0000", 2);
+        const len = 50;
+        drawLine(ctx, this.pos, {x: this.pos.x + Math.cos(this.angle) * len, y: this.pos.y + Math.sin(this.angle) * len}, "#FF0000", 2);
     }
 }

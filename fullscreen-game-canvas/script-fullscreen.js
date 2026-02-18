@@ -1,4 +1,3 @@
-// Define file paths for the icons at the top
 const ICON_PATH = '../assets/icons/';
 const ICONS = {
     theaterModeEnter: `${ICON_PATH}expand_content_40dp_E3E3E3_FILL1_wght400_GRAD0_opsz40.svg`,
@@ -9,7 +8,7 @@ const ICONS = {
     volumeOff: `${ICON_PATH}volume_off_40dp_E3E3E3_FILL1_wght400_GRAD0_opsz40.svg`
 };
 
-// Get the buttons and their icons id's
+// Buttons
 const fullscreenButton = document.getElementById('toggle-fullscreen');
 const theaterModeButton = document.getElementById('toggle-theater-mode');
 const audioButton = document.getElementById('toggle-audio');
@@ -17,12 +16,12 @@ const fullscreenIcon = document.getElementById('fullscreen-icon');
 const theaterModeIcon = document.getElementById('theater-icon');
 const audioIcon = document.getElementById('audio-icon');
 
- // defaults
+ // Defaults
 let currentViewingMode = 'normal';
-let theaterModeEnabled = false;
+let theaterModeEnabled = true;
 let isMuted = false;
 
-// Function to update the button icons
+// Button icon updates
 function updateButtonIcons() {
     if (currentViewingMode === 'fullscreen') {
         fullscreenIcon.setAttribute('src', ICONS.fullscreenExit);
@@ -39,10 +38,10 @@ function updateButtonIcons() {
     }
 }
 
-// Function to toggle fullscreen mode
+// Toggle fullscreen mode
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
-        document.getElementById('game-container').requestFullscreen()
+        document.getElementById('game-canvas-container').requestFullscreen()
             .catch(err => console.log("Error attempting to enable fullscreen mode: ", err));
         currentViewingMode = 'fullscreen';
     } else {
@@ -55,7 +54,7 @@ function toggleFullscreen() {
     updateButtonIcons();
 }
 
-// Function to toggle theater mode
+// Toggle theater mode
 function toggleTheaterMode() {
     const gameContainer = document.getElementById('game-container');
     gameContainer.classList.toggle('theater-mode');
@@ -76,7 +75,7 @@ function toggleTheaterMode() {
     updateButtonIcons();
 }
 
-// Function to toggle audio (mute/unmute)
+// Toggle audio (mute/unmute)
 function toggleAudio() {
     isMuted = !isMuted;
     // If you're controlling actual audio (e.g., an audio element), you'd mute/unmute it here
@@ -109,45 +108,93 @@ updateButtonIcons();
 //      |=======================|
 
 
-
-// Define the global variable here
-window.isGameFocused = false;
-window.isGamePaused = false;
-
 const canvas = document.getElementById("game-canvas");
 const gameContainer = document.getElementById("game-container");
 const gameUnfocusOverlay = document.getElementById("game-unfocus-overlay");
 
-function focusOnGame() {
-    console.log("focusOnGame()");
-    window.isGameFocused = true;
-    gameUnfocusOverlay.style.opacity = "0";
-    window.isGamePaused = false;
+// Set up the canvas
+const ctx = canvas.getContext("2d");
+ctx.fillStyle = "#fff";
+
+// The Running Game API, can be used by the currently running game to communicate things between Host (browser window) and Game itself. - or something like that lol.
+const gameApi = gameContainer.runningGameApi = {
+    isGameFocused: false,
+    isGamePaused: false,
+    externalDebugging: false,
+    canvasCtx: ctx,
+    canvasWidth: canvas.clientWidth,
+    canvasHeight: canvas.clientHeight,
+    globalKeys: {},
+    globalScroll: {
+        deltaY: 0,
+    },
+};
+
+function resizeCanvas() {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    gameApi.canvasWidth = canvas.clientWidth;
+    gameApi.canvasHeight = canvas.clientHeight;
 }
 
-function unfocusOnGame() {
-    console.log("unfocusOnGame()");
-    window.isGameFocused = false;
-    gameUnfocusOverlay.style.opacity = "1";
-    window.isGamePaused = true;
-    
-    // Trigger keyup event for all keys that are currently pressed
-    const allKeys = Object.keys(window.globalKeys);
-    allKeys.forEach((key) => {
-        if (window.globalKeys[key]) { // Only trigger keyup for pressed keys
-            const event = new KeyboardEvent('keyup', { key: key });
-            window.dispatchEvent(event);
-            window.globalKeys[key] = false;
-        }
-    });
-}
+// EventListeners
+const ro = new ResizeObserver(resizeCanvas);
+ro.observe(gameContainer);
 
 gameContainer.addEventListener('focus', () => {
-    console.log("Event: gameContainer focus");
-    focusOnGame();
+    console.log("Game Focused");
+    gameApi.isGameFocused = true;
+    gameApi.isGamePaused = false;
+    gameUnfocusOverlay.style.opacity = "0";
 });
 
 gameContainer.addEventListener('blur', () => {
-    console.log("Event: gameContainer blur");
-    unfocusOnGame();
+    console.log("Game Unfocused");
+    gameApi.isGameFocused = false;
+    gameApi.isGamePaused = true;
+    gameUnfocusOverlay.style.opacity = "1";
+
+    if (!gameApi.globalKeys) {
+        console.log("%c!runningGameApi.globalKeys", "color: red; font-weight: bold;");
+        return; // Prevent crash if not yet initialized
+    }
+    
+    // Trigger keyup event for all keys that are currently pressed
+    const allKeys = Object.keys(gameApi.globalKeys);
+    allKeys.forEach((key) => {
+        if (gameApi.globalKeys[key]) { // Only trigger keyup for pressed keys
+            const event = new KeyboardEvent('keyup', { key: key });
+            window.dispatchEvent(event);
+            gameApi.globalKeys[key] = false;
+        }
+    });
 });
+
+// globalKeys
+window.addEventListener("keydown", (e) => {
+    if (!gameApi.isGameFocused) return;
+    
+    if (e.key !== "F5" && e.key !== "F12") {
+        e.preventDefault();
+    }
+    gameApi.globalKeys[e.key] = true;
+});
+
+window.addEventListener("keyup", (e) => {
+    if (!gameApi.isGameFocused) return;
+    
+    if (e.key !== "F5" && e.key !== "F12") {
+        e.preventDefault();
+    }
+    gameApi.globalKeys[e.key] = false;
+});
+
+// globalScroll
+window.addEventListener("wheel", (e) => {
+    if (!gameApi.isGameFocused) return;
+
+    if (e.key !== "F5" && e.key !== "F12") {
+        e.preventDefault();
+    }
+    gameApi.globalScroll.deltaY += e.deltaY;
+}, { passive: false });

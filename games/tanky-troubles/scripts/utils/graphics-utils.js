@@ -6,16 +6,16 @@ import { randomColorHSLSeeded } from './math-utils.js';
 
 
 
-//      |=====================|
-//      |      FUNCTIONS      |
-//      |=====================|
+//      |==============================|
+//      |      Graphics Utilities      |
+//      |==============================|
 
 
 
 // MARK: drawText
 // Function to draw text with optional outline, applying canvas scaling
 export function drawText(ctx, text, pos, textStyle) {
-    const renderScale = getGlobal().canvasScale * getGlobal().zoomLevel;
+    const renderScale = getGlobal().renderScale;
 
     // Destructure style object with defaults
     const {
@@ -23,6 +23,7 @@ export function drawText(ctx, text, pos, textStyle) {
         baseline = "top",
         fontSize = 16 / renderScale,
         font = "Consolas",
+        fontWeight = "normal",
         textColor = "#fff",
         outlineColor = null,
         outlineWidth = 0.02,
@@ -34,7 +35,7 @@ export function drawText(ctx, text, pos, textStyle) {
     const scaledFontSize = fontSize * renderScale;
 
     // Set font and alignment
-    ctx.font = `${scaledFontSize.toFixed(0)}px ${font}`;
+    ctx.font = `${fontWeight} ${scaledFontSize.toFixed(0)}px ${font}`;
     ctx.fillStyle = textColor;
     ctx.textAlign = align;
     ctx.textBaseline = baseline;
@@ -76,9 +77,10 @@ export function drawText(ctx, text, pos, textStyle) {
     ctx.fillText(text, scaledX, scaledY);
 }
 
-
+// MARK: drawImg
+// Function to draw an image
 export function drawImg(ctx, pos, size, img, strokeColor = null, strokeWidth = 0.02, borderRadius = 0) {
-    const renderScale = getGlobal().canvasScale * getGlobal().zoomLevel;
+    const renderScale = getGlobal().renderScale
 
     // Scale values
     const scaledX = pos.x * renderScale;
@@ -90,29 +92,24 @@ export function drawImg(ctx, pos, size, img, strokeColor = null, strokeWidth = 0
     // TODO?
 }
 
-
-
-// MARK: SHAPES
-// TODO?
-
-
-
 // MARK: drawRect
 // Function to draw a rectangle with optional rounded corners, applying canvas scaling
-export function drawRect(ctx, pos, size, fillColor, strokeColor = null, strokeWidth = 0.02, borderRadius = 0) {
+export function drawRect(ctx, pos = {x: null, y: null}, size = {w: null, h: null}, fillColor = null, strokeColor = null, strokeWidth = null, borderRadius = 0) {
     const renderScale = getGlobal().renderScale
 
     // Scale values
     const scaledX = pos.x * renderScale;
     const scaledY = pos.y * renderScale;
-    const scaledWidth = size.width * renderScale;
-    const scaledHeight = size.height * renderScale;
+    const scaledWidth = size.w * renderScale;
+    const scaledHeight = size.h * renderScale;
     const scaledBorderRadius = borderRadius * renderScale;
 
     // If borderRadius is 0, use a simple fillRect and strokeRect for efficiency
     if (scaledBorderRadius === 0) {
-        ctx.fillStyle = fillColor;
-        ctx.fillRect(scaledX, scaledY, scaledWidth, scaledHeight);
+        if (fillColor) {
+            ctx.fillStyle = fillColor;
+            ctx.fillRect(scaledX, scaledY, scaledWidth, scaledHeight);
+        }
 
         if (strokeColor && strokeWidth > 0) {
             ctx.strokeStyle = strokeColor;
@@ -121,7 +118,6 @@ export function drawRect(ctx, pos, size, fillColor, strokeColor = null, strokeWi
         }
     } else {
         // Use arc to draw rounded corners when borderRadius is provided
-        ctx.fillStyle = fillColor;
         ctx.beginPath();
         ctx.moveTo(scaledX + scaledBorderRadius, scaledY); // Top-left corner
         ctx.lineTo(scaledX + scaledWidth - scaledBorderRadius, scaledY); // Top-right corner
@@ -133,9 +129,13 @@ export function drawRect(ctx, pos, size, fillColor, strokeColor = null, strokeWi
         ctx.lineTo(scaledX, scaledY + scaledBorderRadius); // Top-left corner
         ctx.arcTo(scaledX, scaledY, scaledX + scaledBorderRadius, scaledY, scaledBorderRadius); // Top-left rounded corner
         ctx.closePath();
-        ctx.fill();
 
-        if (strokeColor) {
+        if (fillColor) {
+            ctx.fillStyle = fillColor;
+            ctx.fill();
+        }
+
+        if (strokeColor && strokeWidth) {
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = strokeWidth * renderScale;
             ctx.stroke();
@@ -187,7 +187,7 @@ export function drawTextBox(ctx, text, pos, size, options = {}) {
 // MARK: drawCircle
 // Function to draw a circle with optional outline, applying canvas scaling
 export function drawCircle(ctx, posCenter, radius, fillColor, strokeColor = null, strokeWidth = 0.02) {
-    const renderScale = getGlobal().canvasScale * getGlobal().zoomLevel;
+    const renderScale = getGlobal().renderScale
 
     const scaledX = posCenter.x * renderScale;
     const scaledY = posCenter.y * renderScale;
@@ -208,7 +208,7 @@ export function drawCircle(ctx, posCenter, radius, fillColor, strokeColor = null
 // MARK: drawRegPolygon
 // Function to draw a regular polygon with one flat side facing the bottom
 export function drawRegPolygon(ctx, posCenter, radius, n, direction = 0, fillColor, strokeColor = null, strokeWidth = 0.02) {
-    const renderScale = getGlobal().canvasScale * getGlobal().zoomLevel;
+    const renderScale = getGlobal().renderScale
     const angleStep = (Math.PI * 2) / n;
 
     // Scale the center position and radius early
@@ -254,7 +254,7 @@ export function drawRegPolygon(ctx, posCenter, radius, n, direction = 0, fillCol
 // MARK: drawLine
 // Function to draw a line between two points
 export function drawLine(ctx, startPos, endPos, strokeColor = "#000000", strokeWidth = 0.02) {
-    const renderScale = getGlobal().canvasScale * getGlobal().zoomLevel;
+    const renderScale = getGlobal().renderScale
     
     // Apply canvas scaling
     const scaledStartX = startPos.x * renderScale;
@@ -270,10 +270,76 @@ export function drawLine(ctx, startPos, endPos, strokeColor = "#000000", strokeW
     ctx.stroke();
 }
 
+// MARK: drawVertexLine
+// Draw a line following a set of vertices
+export function drawVertexLine(ctx, pos, angle, vertices, strokeColor = "#000", strokeWidth = 0.02) {
+    const renderScale = getGlobal().renderScale;
+    
+    if (vertices.length < 2) {
+        console.warn("A (poly)line needs at least 2 vertices.");
+        return;
+    }
+
+    ctx.beginPath();
+
+    // Transform and move to the first vertex
+    const firstVertex = transformVertex(vertices[0], pos, angle * (Math.PI / 180), renderScale);
+    ctx.moveTo(firstVertex.x, firstVertex.y);
+
+    // Draw lines to the remaining vertices
+    for (let i = 1; i < vertices.length; i++) {
+        const vertex = transformVertex(vertices[i], pos, angle * (Math.PI / 180), renderScale);
+        ctx.lineTo(vertex.x, vertex.y);
+    }
+
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = strokeWidth * renderScale;
+    ctx.stroke();
+}
+
+// MARK: drawVertexPolygon
+// Function to draw a polygon based on a list of positions relative to a position and angle
+export function drawVertexPolygon(ctx, pos, angle, vertices, fillColor, strokeColor = null, strokeWidth = 0.02) {
+    const renderScale = getGlobal().renderScale
+    
+    if (vertices.length < 3) {
+        console.warn("A polygon must have at least 3 vertices.");
+        return;
+    }
+
+    ctx.beginPath();
+
+    // Apply translation and rotation to each vertex
+    const angleInRadians = angle * (Math.PI / 180); // Convert to radians
+
+    // Start at the first transformed vertex
+    const firstVertex = transformVertex(vertices[0], pos, angleInRadians, renderScale);
+    ctx.moveTo(firstVertex.x, firstVertex.y);
+
+    // Transform and draw lines to the remaining vertices
+    for (let i = 1; i < vertices.length; i++) {
+        const vertex = transformVertex(vertices[i], pos, angleInRadians, renderScale);
+        ctx.lineTo(vertex.x, vertex.y);
+    }
+
+    ctx.closePath();
+
+    // Fill color
+    ctx.fillStyle = fillColor;
+    ctx.fill();
+
+    // Stroke color
+    if (strokeColor) {
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = strokeWidth * renderScale;
+        ctx.stroke();
+    }
+}
+
 // MARK: drawVectorArrow
 // Function to draw a vector arrow from a start position in the direction of a vector
 export function drawVectorArrow(ctx, startPos, vector, strokeColor = "#000000", strokeWidth = 0.02) {
-    const renderScale = getGlobal().canvasScale * getGlobal().zoomLevel;
+    const renderScale = getGlobal().renderScale
 
     
     const endPos = {
@@ -309,45 +375,6 @@ export function drawVectorArrow(ctx, startPos, vector, strokeColor = "#000000", 
     ctx.moveTo(endPos.x * renderScale, endPos.y * renderScale);
     ctx.lineTo(arrowHead2.x * renderScale, arrowHead2.y * renderScale);
     ctx.stroke();
-}
-
-// MARK: drawVertexPolygon
-// Function to draw a polygon based on a list of positions relative to a position and angle
-export function drawVertexPolygon(ctx, pos, angle, vertices, fillColor, strokeColor = null, strokeWidth = 0.02) {
-    const renderScale = getGlobal().canvasScale * getGlobal().zoomLevel;
-    
-    if (vertices.length < 3) {
-        console.warn("A polygon must have at least 3 vertices.");
-        return;
-    }
-
-    ctx.beginPath();
-
-    // Apply translation and rotation to each vertex
-    const angleInRadians = angle * (Math.PI / 180); // Convert to radians
-
-    // Start at the first transformed vertex
-    const firstVertex = transformVertex(vertices[0], pos, angleInRadians, renderScale);
-    ctx.moveTo(firstVertex.x, firstVertex.y);
-
-    // Transform and draw lines to the remaining vertices
-    for (let i = 1; i < vertices.length; i++) {
-        const vertex = transformVertex(vertices[i], pos, angleInRadians, renderScale);
-        ctx.lineTo(vertex.x, vertex.y);
-    }
-
-    ctx.closePath();
-
-    // Fill color
-    ctx.fillStyle = fillColor;
-    ctx.fill();
-
-    // Stroke color
-    if (strokeColor) {
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = strokeWidth * renderScale;
-        ctx.stroke();
-    }
 }
 
 
