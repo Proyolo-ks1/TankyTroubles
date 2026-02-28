@@ -32,7 +32,7 @@ class Particle extends PhysicsObject {
     ) {
         super({ // PhysicsObject
             pos: posSpawn,
-            vel: { x: Math.cos(angleSpawn) * speedSpawn, y: Math.sin(angleSpawn) * speedSpawn },
+            vel: { x: Math.cos(angleSpawn) * speedSpawn, y: Math.sin(-angleSpawn) * speedSpawn },
             angle: angleSpawn,
             angleVel: angleVel,
             lifeSpan: lifeSpan,
@@ -79,7 +79,7 @@ class Particle extends PhysicsObject {
             // Heading Line
             const headingLength = 1;
             let headingX = this.pos.x + Math.cos(this.angle) * headingLength;
-            let headingY = this.pos.y + Math.sin(this.angle) * headingLength;
+            let headingY = this.pos.y + Math.sin(-this.angle) * headingLength;
             
             // Draw the heading line
             drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#FF0000", 0.02); // Red color for the heading line
@@ -87,7 +87,7 @@ class Particle extends PhysicsObject {
             // Draw the random indicator
             const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
             headingX = this.pos.x + Math.cos(randomAngle) * 1.2 * headingLength;
-            headingY = this.pos.y + Math.sin(randomAngle) * 1.2 * headingLength;
+            headingY = this.pos.y + Math.sin(-randomAngle) * 1.2 * headingLength;
             drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#4c00ff", 0.02); // Red color for the heading line
 
             // name
@@ -134,16 +134,13 @@ export class TankTrackParticle extends Particle {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "chaingun";
         this.scale = scaleSpawn;
-        this.radius = 1 / 25;
+        this.diameter = 1 / 25 * this.scale;
     }
 
     render(ctx, gameDeltaTime) {
         const offset = 1 / 12;
         if (this.active) {
-            drawCircle(ctx, this.pos, this.radius / 2, "#333", "#000");
-            drawCircle(ctx, this.pos, this.radius / 2, "#333", "#000");
-            drawCircle(ctx, this.pos, this.radius / 2, "#333", "#000");
-            drawCircle(ctx, this.pos, this.radius / 2, "#333", "#000");
+            drawRect(ctx, this.pos, { w: this.diameter, h: this.diameter }, "#333");
         }
     }
 }

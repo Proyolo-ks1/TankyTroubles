@@ -1,4 +1,4 @@
-import { getGlobal } from '../global-state.js';
+import { getGlobal, GLOBAL_COLOR_KEYS } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawRegPolygon, drawLine, drawVectorArrow } from '../utils/graphics-utils.js';
 import { spawnRelativeClass as spawnClassRelatively } from './spawner.js';
 import { PhysicsObject } from './entity.js';
@@ -32,7 +32,7 @@ class Bullet extends PhysicsObject {
     ) {
         super({ // PhysicsObject
             pos: posSpawn,
-            vel: { x: Math.cos(angleSpawn) * speedSpawn, y: Math.sin(angleSpawn) * speedSpawn },
+            vel: { x: Math.cos(angleSpawn) * speedSpawn, y: Math.sin(-angleSpawn) * speedSpawn },
             angle: angleSpawn,
             angleVel: angleVel,
             lifeSpan: lifeSpan,
@@ -79,7 +79,7 @@ class Bullet extends PhysicsObject {
             // Heading Line
             const headingLength = 1;
             let headingX = this.pos.x + Math.cos(this.angle) * headingLength;
-            let headingY = this.pos.y + Math.sin(this.angle) * headingLength;
+            let headingY = this.pos.y + Math.sin(-this.angle) * headingLength;
             
             // Draw the heading line
             drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#FF0000", 0.02); // Red color for the heading line
@@ -87,7 +87,7 @@ class Bullet extends PhysicsObject {
             // Draw the random indicator
             const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
             headingX = this.pos.x + Math.cos(randomAngle) * 1.2 * headingLength;
-            headingY = this.pos.y + Math.sin(randomAngle) * 1.2 * headingLength;
+            headingY = this.pos.y + Math.sin(-randomAngle) * 1.2 * headingLength;
             drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#4c00ff", 0.02); // Red color for the heading line
 
             // name
@@ -284,33 +284,33 @@ export class OppenheimerBullet extends Bullet {
         super.update(gameDeltaTime);
         this.vel.x *= 1 - 0.9 * gameDeltaTime;
         this.vel.y *= 1 - 0.9 * gameDeltaTime;
-        // drawRegPolygon(ctx, this.pos + trianglePos, radius * 0.55, 3, triangleAngle, "#000"); // Triangle
     }
     
     destroy() {
         super.destroy();
         let bulletSpeed = 1;
         
-        // Left at -45 degreesq
-        spawnClassRelatively(OppenheimerNeutron, this, this.pos, this.angle, { x: 0, y: 0 }, -Math.PI / 4, bulletSpeed, 1, 0, this.lifeSpan);
+        // Left at -45 degrees
+        spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, { x: 0, y: 0 }, -Math.PI / 4, bulletSpeed, 0, this.lifeSpan);
 
         // Right at +45 degrees
-        spawnClassRelatively(OppenheimerNeutron, this, this.pos, this.angle, { x: 0, y: 0 }, Math.PI / 4, bulletSpeed, 1, 0, this.lifeSpan);
+        spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, { x: 0, y: 0 }, Math.PI / 4, bulletSpeed, 0, this.lifeSpan);
 }
 
     render(ctx, realDeltaTime) {
         if (this.active) {
             const radius = this.radius / 3;
-            drawCircle(ctx, this.pos, radius, "black", "black", 0.05);
-            drawCircle(ctx, this.pos, radius * 0.8, "yellow");
+            drawCircle(ctx, this.pos, radius, "#000");
+            drawCircle(ctx, this.pos, radius * 0.8, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
             for (let i = 0; i < 3; i++) {
-                let triangleAngle = Math.PI * 2 / 3 * i;
-                let trianglePosRadius = -radius * 0.55
-                let trianglePos = { x: trianglePosRadius * Math.cos(triangleAngle) , y: trianglePosRadius * Math.sin(triangleAngle) };
-                drawRegPolygon(ctx, this.pos + trianglePos, radius * 0.55, 3, triangleAngle, "#000"); // Triangle
+                let triangleAngle = Math.PI / 2 + Math.PI * 2 / 3 * i;
+                let triangleRotAngle = triangleAngle + Math.PI;
+                let trianglePosRadius = radius * 0.55;
+                let trianglePos = { x: this.pos.x + trianglePosRadius * Math.cos(triangleAngle) , y: this.pos.y + trianglePosRadius * Math.sin(-triangleAngle) };
+                drawRegPolygon(ctx, trianglePos, trianglePosRadius, 3, triangleRotAngle, "#000000");
             }
-            drawCircle(ctx, this.pos, radius * 0.2, "black", "black", 0.05);
-            drawCircle(ctx, this.pos, radius * 0.1, "yellow");
+            drawCircle(ctx, this.pos, radius * 0.25, "#000");
+            drawCircle(ctx, this.pos, radius * 0.15, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
         }
     }
 }
@@ -334,17 +334,27 @@ export class OppenheimerNeutron extends Bullet {
         super.destroy();
         let bulletSpeed = 1;
         
-        // Left at -45 degreesq
-        spawnClassRelatively(FireBullet, this, this.pos, this.angle, { x: 0, y: 0 }, -Math.PI / 4, bulletSpeed, 1, 0, this.lifeSpan);
+        // Left at -45 degrees
+        spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, { x: 0, y: 0 }, -Math.PI / 4, bulletSpeed, 0, this.lifeSpan);
 
-        // Right at +45 degreesFireBullet
-        spawnClassRelatively(OppenheimerNeutron, this, this.pos, this.angle, { x: 0, y: 0 }, Math.PI / 4, bulletSpeed, 1, 0, this.lifeSpan);
+        // Right at +45 degrees
+        spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, { x: 0, y: 0 }, Math.PI / 4, bulletSpeed, 0, this.lifeSpan);
 }
 
     render(ctx, gameDeltaTime) {
         if (this.active) {
             const radius = this.radius / 3;
-            drawCircle(ctx, this.pos, radius, "black", "black", 0.05);
+            drawCircle(ctx, this.pos, radius, "#000");
+            drawCircle(ctx, this.pos, radius * 0.8, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
+            for (let i = 0; i < 3; i++) {
+                let triangleAngle = Math.PI / 2 + Math.PI * 2 / 3 * i;
+                let triangleRotAngle = triangleAngle + Math.PI;
+                let trianglePosRadius = radius * 0.55;
+                let trianglePos = { x: this.pos.x + trianglePosRadius * Math.cos(triangleAngle) , y: this.pos.y + trianglePosRadius * Math.sin(-triangleAngle) };
+                drawRegPolygon(ctx, trianglePos, trianglePosRadius, 11, triangleRotAngle, "#000000");
+            }
+            drawCircle(ctx, this.pos, radius * 0.25, "#000");
+            drawCircle(ctx, this.pos, radius * 0.15, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
         }
     }
 }
@@ -356,8 +366,8 @@ export class HomingMissle extends Bullet {
         this.type = "fire";
         this.scale = scaleSpawn;
         this.radius = 1 / 4;
-        this.spawnRatePerSecond = 50
-        this.timeSinceLastSpawn = 0;
+        this.exhaustsPerSecond = 50
+        this.timeSinceLastExhaust = 0;
     }
 
     update(gameDeltaTime) {
@@ -366,11 +376,11 @@ export class HomingMissle extends Bullet {
         this.vel.y *= 1 + 0.7 * gameDeltaTime;
 
         // --- spawn x times per second ---
-        this.timeSinceLastSpawn += gameDeltaTime;
-        const spawnCooldown = 1 / this.spawnRatePerSecond; // seconds per spawn
+        this.timeSinceLastExhaust += gameDeltaTime;
+        const spawnCooldown = 1 / this.exhaustsPerSecond; // seconds per spawn
 
-        while (this.timeSinceLastSpawn >= spawnCooldown) {
-            this.timeSinceLastSpawn -= spawnCooldown;
+        while (this.timeSinceLastExhaust >= spawnCooldown) {
+            this.timeSinceLastExhaust -= spawnCooldown;
 
             // position will have to be a bit behin the rockets direction and speed away from the rockets direciton. (TODO)
             spawnClassRelatively(
@@ -382,7 +392,7 @@ export class HomingMissle extends Bullet {
                 { x: 0, y: 0 },
                 0,
                 0.1,
-                1,
+                0,
                 undefined,
             );
         }
@@ -390,7 +400,7 @@ export class HomingMissle extends Bullet {
 
     render(ctx, gameDeltaTime) {
         if (this.active) {
-            drawRocket(ctx, this.pos, this.scale, this.owner.color)
+            drawRocket(ctx, this.pos, this.scale, 1, this.owner.color)
         }
     }
 }

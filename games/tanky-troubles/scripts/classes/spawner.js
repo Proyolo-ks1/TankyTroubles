@@ -14,8 +14,8 @@
 export function spawnRelativeClass(Class, owner, pos, angle, scale, relPos = {x: 0, y: 0}, relAngle = 0, speed = undefined, angleVel, lifeSpan = undefined) {
     // Calculate absolute position based on relative position
     const absPos = { 
-        x: pos.x + Math.cos(angle) * relPos.x - Math.sin(angle) * relPos.y, 
-        y: pos.y + Math.sin(angle) * relPos.x + Math.cos(angle) * relPos.y 
+        x: pos.x + Math.cos(angle) * relPos.x - Math.sin(-angle) * relPos.y, 
+        y: pos.y + Math.sin(-angle) * relPos.x + Math.cos(angle) * relPos.y 
     };
     const absAngle = angle + relAngle;
 

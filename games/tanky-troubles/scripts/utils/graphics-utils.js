@@ -229,7 +229,7 @@ export function drawRegPolygon(ctx, posCenter, radius, n, direction = 0, fillCol
 
         // Calculate the x and y position using polar coordinates, already scaled
         const vx = scaledX + scaledRadius * Math.cos(angle);
-        const vy = scaledY + scaledRadius * Math.sin(angle);
+        const vy = scaledY + scaledRadius * Math.sin(-angle);
 
         // Move to the first vertex or draw a line to the next vertex
         if (i === 0) {

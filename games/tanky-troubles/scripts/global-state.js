@@ -4,6 +4,7 @@ export const GLOBAL_COLOR_KEYS = Object.freeze({
     CHECKERBOARD_1: "#E6E6E6", 
     CHECKERBOARD_2: "#D6D6D6",
     VECTOR_ARROW: "#00f",
+    ATOMIC_YELLOW: "#F1CE41",
 });
 
 export const GAME_STATE_KEYS = Object.freeze({
@@ -81,7 +82,7 @@ const GlobalVariables = {
     debugMode: true,
     showStatistics: true,
     canvasScale: 1280,  // dynamically scales with canvas width
-    zoomLevel: 0.1,
+    zoomLevel: 2,
     renderScale: 128,
     gameState: GAME_STATE_KEYS.MAIN_MENU,
     overlayState: OVERLAY_STATE_KEYS.NONE,

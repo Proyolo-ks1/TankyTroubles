@@ -31,7 +31,7 @@ class PowerUp extends PhysicsObject {
     ) {
         super({ // PhysicsObject
             pos: posSpawn,
-            vel: { x: Math.cos(angleSpawn) * speedSpawn, y: Math.sin(angleSpawn) * speedSpawn },
+            vel: { x: Math.cos(angleSpawn) * speedSpawn, y: Math.sin(-angleSpawn) * speedSpawn },
             angle: angleSpawn,
             angleVel: angleVel,
             lifeSpan: lifeSpan,
@@ -78,7 +78,7 @@ class PowerUp extends PhysicsObject {
             // Heading Line
             const headingLength = 1;
             let headingX = this.pos.x + Math.cos(this.angle) * headingLength;
-            let headingY = this.pos.y + Math.sin(this.angle) * headingLength;
+            let headingY = this.pos.y + Math.sin(-this.angle) * headingLength;
             
             // Draw the heading line
             drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#FF0000", 0.02); // Red color for the heading line
@@ -86,7 +86,7 @@ class PowerUp extends PhysicsObject {
             // Draw the random indicator
             const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
             headingX = this.pos.x + Math.cos(randomAngle) * 1.2 * headingLength;
-            headingY = this.pos.y + Math.sin(randomAngle) * 1.2 * headingLength;
+            headingY = this.pos.y + Math.sin(-randomAngle) * 1.2 * headingLength;
             drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#4c00ff", 0.02); // Red color for the heading line
 
             // name

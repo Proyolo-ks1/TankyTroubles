@@ -1,7 +1,7 @@
 import { getGlobal } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../utils/graphics-utils.js';
 import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ShrepnalBombWeapon, ExperimentalWeapon, ChainShotgunBOOM, OppenheimerBOOOM, MissleLauncher } from './weapons.js';
-import { posMod } from '../utils/math-utils.js';
+import { posMod, randomSeeded} from '../utils/math-utils.js';
 import { PhysicsObject } from './entity.js';
 import { OppenheimerBullet } from './bullet.js';
 import { drawSmiley} from '../utils/graphics-shapes.js';
@@ -39,7 +39,8 @@ export class Tank extends PhysicsObject {
             left: "ArrowLeft",
             right: "ArrowRight",
             shoot: "m",
-        }
+        },
+        customName
     ) {        
         super({ // PhysicsObject
             pos: posSpawn,
@@ -48,7 +49,7 @@ export class Tank extends PhysicsObject {
             scale: scale,
         });
 
-        this.name = `Tank ${Tank.nextId}`;
+        this.name = customName ?? `Tank ${Tank.nextId}`;
         this.shortName = `t${Tank.nextId++}`;
 
         this.length = 2 / 5; // Tiles
@@ -112,12 +113,12 @@ export class Tank extends PhysicsObject {
             let trackCenterRadius = 5 / 12 * this.width;
             const linearVelocityAtRadius = trackCenterRadius * this.turningSpeed;
             if (globalKeys[this.controls.left]) {
-                this.angle -= this.turningSpeed * realDeltaTime;
+                this.angle += this.turningSpeed * realDeltaTime;
                 this.trackRotation.left -= linearVelocityAtRadius * realDeltaTime;
                 this.trackRotation.right += linearVelocityAtRadius * realDeltaTime;
             }
             if (globalKeys[this.controls.right]) {
-                this.angle += this.turningSpeed * realDeltaTime;
+                this.angle -= this.turningSpeed * realDeltaTime;
                 this.trackRotation.left += linearVelocityAtRadius * realDeltaTime;
                 this.trackRotation.right -= linearVelocityAtRadius * realDeltaTime;
             }
@@ -131,11 +132,11 @@ export class Tank extends PhysicsObject {
         // Velocity-based movement
         if (globalKeys[this.controls.up]) {
             this.vel.x = Math.cos(this.angle) * this.speed;
-            this.vel.y = Math.sin(this.angle) * this.speed;
+            this.vel.y = Math.sin(-this.angle) * this.speed;
         }
         if (globalKeys[this.controls.down]) {
             this.vel.x = -Math.cos(this.angle) * this.speed;
-            this.vel.y = -Math.sin(this.angle) * this.speed;
+            this.vel.y = -Math.sin(-this.angle) * this.speed;
         }
 
         // Update position using velocity
@@ -143,7 +144,7 @@ export class Tank extends PhysicsObject {
         this.pos.y += this.vel.y * realDeltaTime;
 
         // Update track rotation
-        const forwardSpeed = Math.cos(this.angle) * this.vel.x + Math.sin(this.angle) * this.vel.y;
+        const forwardSpeed = Math.cos(this.angle) * this.vel.x + Math.sin(-this.angle) * this.vel.y;
         this.trackRotation.left += forwardSpeed * realDeltaTime;
         this.trackRotation.right += forwardSpeed * realDeltaTime;
         // if (this.name === "tank0") {
@@ -157,7 +158,7 @@ export class Tank extends PhysicsObject {
         const renderScale = getGlobal().renderScale
 
         ctx.translate(this.pos.x * renderScale, this.pos.y * renderScale);
-        ctx.rotate(this.angle);
+        ctx.rotate(-this.angle);
 
         // Body
         const BodyLength = this.length * this.radius;
@@ -219,8 +220,8 @@ export class Tank extends PhysicsObject {
 
         // Heading Line
         const headingLength = 1; // Adjust this value to control the length of the heading line
-        const headingX = this.pos.x + Math.cos(this.angle) * headingLength;
-        const headingY = this.pos.y + Math.sin(this.angle) * headingLength;
+        let headingX = this.pos.x + Math.cos(this.angle) * headingLength;
+        let headingY = this.pos.y + Math.sin(-this.angle) * headingLength;
 
         // Draw the heading line
         drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#808", 0.02);
@@ -229,5 +230,26 @@ export class Tank extends PhysicsObject {
         const renderScale = getGlobal().renderScale
         const smileSize = 15 / renderScale; //px
         drawSmiley(ctx, this.pos, smileSize)
+
+        // Draw the random indicator
+        const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
+        headingX = this.pos.x + Math.cos(randomAngle) * 1.2 * headingLength;
+        headingY = this.pos.y + Math.sin(-randomAngle) * 1.2 * headingLength;
+        drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#4c00ff", 0.02); // Red color for the heading line
+
+        // name
+        const text = `a: ${this.angle.toFixed(2)}π rad`;
+        const textPos = { x: headingX, y: headingY };
+        const textStyle = {
+            align: "center",
+            baseline: "bottom",
+            fontSize: 16 / renderScale, //px
+            font: "Consolas",
+            textColor: "#000000",
+            outlineColor: "#ffffff",
+            outlineWidth: 2 / renderScale,
+        };
+
+        drawText(ctx, text, textPos, textStyle);
     }
 }

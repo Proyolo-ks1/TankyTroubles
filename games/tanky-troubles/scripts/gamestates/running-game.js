@@ -78,6 +78,13 @@ function cleanupInactiveBullets(bullets) {
     }
 }
 
+// Function to clean up inactive bullets
+function cleanupInactiveParticles(particles) {
+    for (let i = particles.length - 1; i >= 0; i--) {
+        if (!particles[i].active) particles.splice(i, 1);
+    }
+}
+
 function updateAndRenderWind(ctx, realDeltaTime) {
     const maxSpeed = 1;       // max wind speed in any direction (tiles per second)
     const dampingFactor = 0.1;  // how strong the wind drifts back to zero
@@ -313,6 +320,7 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
             }
         });
 
+        // Might have to implement these at some point...
         // const utilityEntities = entities.particles;
         // particles.forEach(particle => {
         //     let t0 = performance.now();
@@ -332,8 +340,9 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
 
 
         
-        // Cleanup inactive bullets (every frame (for now?))
+        // Cleanup inactive entities (every frame single for now)
         cleanupInactiveBullets(bullets);
+        cleanupInactiveBullets(particles);
 
         // updateGame(currentTime);
 

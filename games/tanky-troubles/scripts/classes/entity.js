@@ -56,7 +56,7 @@ export class StaticEntity extends Entity {
         if (!this.active) return;
 
         const len = 3;
-        drawLine(ctx, this.pos, {x: this.pos.x + Math.cos(this.angle) * len, y: this.pos.y + Math.sin(this.angle) * len}, "#FF0000", 0.02);
+        drawLine(ctx, this.pos, {x: this.pos.x + Math.cos(this.angle) * len, y: this.pos.y + Math.sin(-this.angle) * len}, "#FF0000", 0.02);
     }
 }
 
@@ -133,6 +133,6 @@ export class PhysicsObject extends Entity {
         drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 2);
 
         const len = 50;
-        drawLine(ctx, this.pos, {x: this.pos.x + Math.cos(this.angle) * len, y: this.pos.y + Math.sin(this.angle) * len}, "#FF0000", 2);
+        drawLine(ctx, this.pos, {x: this.pos.x + Math.cos(this.angle) * len, y: this.pos.y + Math.sin(-this.angle) * len}, "#FF0000", 2);
     }
 }

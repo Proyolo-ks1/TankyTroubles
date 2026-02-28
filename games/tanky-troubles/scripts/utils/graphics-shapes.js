@@ -41,7 +41,7 @@ export function drawSmiley(ctx, pos, smileSize) {
         const t = i / segments;
         const angle = startAngle + t * (endAngle - startAngle);
         const x = pos.x + mouthRadius * Math.cos(angle);
-        const y = pos.y + mouthRadius * Math.sin(angle); // offset down a bit
+        const y = pos.y + mouthRadius * Math.sin(-angle); // offset down a bit
         mouthVertices.push({ x: x - pos.x, y: y - pos.y }); // relative to pos
     }
 
@@ -49,38 +49,63 @@ export function drawSmiley(ctx, pos, smileSize) {
 }
 
 // MARK: drawRocket
-export function drawRocket(ctx, pos, scale, color) {
+const ROCKET_VERTICES = [
+    { x:  1,     y: 0 },
+    { x:  0.8,   y: -0.33 },
+    { x:  0,     y: -0.5 },
+    { x: -0.4,   y: -0.5 },
+    { x: -0.77,  y: -0.66 },
+    { x: -1,     y: -0.66 },
+    { x: -0.55,  y: -0.28 },
+    { x: -0.55,  y: -0.16 },
+    { x: -0.66,  y: -0.16 },
+    { x: -0.62,  y: 0 },
+    { x: -0.66,  y: 0.16 },
+    { x: -0.55,  y: 0.16 },
+    { x: -0.55,  y: 0.28 },
+    { x: -1,     y: 0.66 },
+    { x: -0.77,  y: 0.66 },
+    { x: -0.4,   y: 0.5 },
+    { x:  0,     y: 0.5 },
+    { x:  0.8,   y: 0.33 },
+];
+
+export function drawRocket(ctx, pos, angle, scale, color) {
 
     scale *= 0.2; // needs to be fixed laterl lol (TODO)
-    
-    const rocketVertices = [
-        { x:  scale/1,    y: 0 },
-        { x:  scale/1.25, y: -scale/3 },
-        { x:  0,          y: -scale/2 },
-        { x: -scale/2.5,  y: -scale/2 },
-        { x: -scale/1.3,  y: -scale/1.5 },
-        { x: -scale/1,    y: -scale/1.5 },
-        { x: -scale/1.8,  y: -scale/3.5 },
-        { x: -scale/1.8,  y: -scale/6 },
-        { x: -scale/1.5,  y: -scale/6 },
-        { x: -scale/1.6,  y: 0 },
-        { x: -scale/1.5,  y: scale/6 },
-        { x: -scale/1.8,  y: scale/6 },
-        { x: -scale/1.8,  y: scale/3.5 },
-        { x: -scale/1,    y: scale/1.5 },
-        { x: -scale/1.3,  y: scale/1.5 },
-        { x: -scale/2.5,  y: scale/2 },
-        { x: 0,           y: scale/2 },
-        { x:  scale/1.25, y: scale/3 },
-    ];
+
+    ctx.save();
+
+    ctx.translate(pos.x, pos.y);
+    ctx.rotate(-angle);
+    ctx.scale(scale, scale);
 
     drawVertexPolygon(
         ctx,
         pos,
         0,
-        rocketVertices,
+        ROCKET_VERTICES,
         color,
         "#000000",
         0.02
     );
+
+    ctx.restore();
+}
+
+// MARK: drawNuclearIcon
+export function drawNuclearIcon(ctx, pos, scale, color) {
+
+    const domeRadius = this.tank.width / 3;
+    drawCircle(ctx, {x: 0, y: 0}, domeRadius, "#000");
+    drawCircle(ctx, {x: 0, y: 0}, domeRadius * 0.8, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
+    for (let i = 0; i < 3; i++) {
+        let triangleAngle = Math.PI + Math.PI * 2 / 3 * i;
+        let triangleRotAngle = triangleAngle + Math.PI;
+        let trianglePosRadius = domeRadius * 0.55;
+        let trianglePos = { x: trianglePosRadius * Math.cos(triangleAngle) , y: trianglePosRadius * Math.sin(-triangleAngle) };
+        drawRegPolygon(ctx, trianglePos, trianglePosRadius, 3, triangleRotAngle, "#000000");
+    }
+    drawCircle(ctx, {x: 0, y: 0}, domeRadius * 0.25, "#000");
+    drawCircle(ctx, {x: 0, y: 0}, domeRadius * 0.15, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
 }

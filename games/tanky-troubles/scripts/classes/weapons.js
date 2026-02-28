@@ -1,4 +1,4 @@
-import { getGlobal } from '../global-state.js';
+import { getGlobal, GLOBAL_COLOR_KEYS } from '../global-state.js';
 import { DefaultBullet, ChaingunBullet, ShotgunBullet, Shrapnel, ShrapnelBomb, FireBullet, HomingMissle, OppenheimerBullet } from './bullet.js';
 import { spawnRelativeClass } from './spawner.js';
 import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../utils/graphics-utils.js';
@@ -137,7 +137,7 @@ export class Chaingun extends Weapon {
                 // Move bullet forward to compensate for delay
                 const compensatedPos = {
                     x: spawnPos.x + Math.cos(angle) * extraDistance,
-                    y: spawnPos.y + Math.sin(angle) * extraDistance
+                    y: spawnPos.y + Math.sin(-angle) * extraDistance
                 };
 
                 // Fire the bullet at the corrected position
@@ -179,7 +179,7 @@ export class Chaingun extends Weapon {
             const flipped = this.barrelRotation < 30 ? 0 : 1;
             const flippedAngle = 30 - Math.abs(30 - barrelAngle);
             const barrelPositionX = Math.cos((flippedAngle + barrelAngles[i]) * Math.PI / 180) * (flipped === 0 ? 1 : -1);
-            const barrelPositionY = Math.sin((flippedAngle + barrelAngles[i]) * Math.PI / 180);
+            const barrelPositionY = Math.sin(-(flippedAngle + barrelAngles[i]) * Math.PI / 180);
             const barrelY = barrelPositionX * (barrelWidthDefault - subBarrelHeight) * 0.5 - subBarrelHeight * 0.5;
             const barrelPos = { x: turretSize.w / 2, y: barrelY };
             
@@ -256,7 +256,7 @@ export class FlameThrower extends Weapon {
             const bulletSpeed = 3.0 + Math.random() * 0.5 * this.tank.scale; // tiles per second
             const lifeSpan = 5.000 - Math.random() * (2.500); // 2500-7500 ms
             const relPos = { x: this.turretSize.w, y: 0 };
-            const relAngle = randomBulletAngleOffset + 0.2 * Math.sin(this.tank.age / 50);
+            const relAngle = randomBulletAngleOffset + 0.2 * Math.sin(-this.tank.age / 50);
             spawnRelativeClass(FireBullet, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, relPos, relAngle, bulletSpeed, this.tank.scale, 0, lifeSpan);
     }
 
@@ -334,7 +334,7 @@ export class ChainShotgun extends Weapon {
                 const angle = this.tank.angle;
                 const compensatedPos = {
                     x: spawnPos.x + Math.cos(angle) * extraDistance,
-                    y: spawnPos.y + Math.sin(angle) * extraDistance
+                    y: spawnPos.y + Math.sin(-angle) * extraDistance
                 };
 
                 const numBullets = 20;
@@ -382,7 +382,7 @@ export class ChainShotgun extends Weapon {
             const flipped = this.barrelRotation < 30 ? 0 : 1;
             const flippedAngle = 30 - Math.abs(30 - barrelAngle);
             const barrelPositionX = Math.cos((flippedAngle + barrelAngles[i]) * Math.PI / 180) * (flipped === 0 ? 1 : -1);
-            const barrelPositionY = Math.sin((flippedAngle + barrelAngles[i]) * Math.PI / 180);
+            const barrelPositionY = Math.sin(-(flippedAngle + barrelAngles[i]) * Math.PI / 180);
             const barrelY = barrelPositionX * (barrelWidthDefault - subBarrelHeight) * 0.5 - subBarrelHeight * 0.5;
             const barrelPos = { x: turretSize.w / 2, y: barrelY };
             
@@ -513,7 +513,7 @@ export class ChainShotgunBOOM extends Weapon {
                 const angle = this.tank.angle;
                 const compensatedPos = {
                     x: spawnPos.x + Math.cos(angle) * extraDistance,
-                    y: spawnPos.y + Math.sin(angle) * extraDistance
+                    y: spawnPos.y + Math.sin(-angle) * extraDistance
                 };
 
                 const numBullets = 20;
@@ -561,7 +561,7 @@ export class ChainShotgunBOOM extends Weapon {
             const flipped = this.barrelRotation < 30 ? 0 : 1;
             const flippedAngle = 30 - Math.abs(30 - barrelAngle);
             const barrelPositionX = Math.cos((flippedAngle + barrelAngles[i]) * Math.PI / 180) * (flipped === 0 ? 1 : -1);
-            const barrelPositionY = Math.sin((flippedAngle + barrelAngles[i]) * Math.PI / 180);
+            const barrelPositionY = Math.sin(-(flippedAngle + barrelAngles[i]) * Math.PI / 180);
             const barrelY = barrelPositionX * (barrelWidthDefault - subBarrelHeight) * 0.5 - subBarrelHeight * 0.5;
             const barrelPos = { x: turretSize.w / 2, y: barrelY };
             
@@ -604,16 +604,17 @@ export class OppenheimerBOOOM extends Weapon {
 
         // Dome
         const domeRadius = this.tank.width / 3;
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, "#000", "#000", 0.05);
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.8, "#ff0");
+        drawCircle(ctx, {x: 0, y: 0}, domeRadius, "#000");
+        drawCircle(ctx, {x: 0, y: 0}, domeRadius * 0.8, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
         for (let i = 0; i < 3; i++) {
-            let triangleAngle = Math.PI * 2 / 3 * i;
-            let trianglePosRadius = -domeRadius * 0.55
-            let trianglePos = { x: trianglePosRadius * Math.cos(triangleAngle) , y: trianglePosRadius * Math.sin(triangleAngle) };
-            drawRegPolygon(ctx, trianglePos, domeRadius * 0.55, 3, triangleAngle, "#000"); // Triangle
+            let triangleAngle = Math.PI + Math.PI * 2 / 3 * i;
+            let triangleRotAngle = triangleAngle + Math.PI;
+            let trianglePosRadius = domeRadius * 0.55;
+            let trianglePos = { x: trianglePosRadius * Math.cos(triangleAngle) , y: trianglePosRadius * Math.sin(-triangleAngle) };
+            drawRegPolygon(ctx, trianglePos, trianglePosRadius, 3, triangleRotAngle, "#000000");
         }
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.2, "#000", "#000", 0.05);
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius * 0.1, "#ff0");
+        drawCircle(ctx, {x: 0, y: 0}, domeRadius * 0.25, "#000");
+        drawCircle(ctx, {x: 0, y: 0}, domeRadius * 0.15, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
     }
 }
 
