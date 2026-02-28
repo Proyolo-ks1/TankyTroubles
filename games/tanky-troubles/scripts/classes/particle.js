@@ -2,7 +2,7 @@ import { getGlobal } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawRegPolygon, drawLine, drawVectorArrow} from '../utils/graphics-utils.js';
 import { PhysicsObject } from './entity.js';
 import { spawnRelativeClass } from './spawner.js';
-import { randomSeeded } from "../utils/math-utils.js";
+import { randomSeeded, hexToRGB } from "../utils/math-utils.js";
 
 
 // References
@@ -65,11 +65,13 @@ class Particle extends PhysicsObject {
     }
     
     render(ctx, gameDeltaTime) {
-        // Nothing
+        if(this.active && getGlobal().showParticles) {
+            // Nothing
+        }
     }
     
     debugrender(ctx, gameDeltaTime) {
-        if (this.active) {
+        if (this.active && getGlobal().showParticles) {
             
             const renderScale = getGlobal().renderScale
 
@@ -122,7 +124,7 @@ export class TankDriveParticle extends Particle {
     }
 
     render(ctx, gameDeltaTime) {
-        if (this.active) {
+        if (this.active && getGlobal().showParticles) {
             drawRect(ctx, { x: this.pos.x - 1/24, y: this.pos.y - 1/24 }, { w: 1/12, h: 1/12 }, "rgba(0, 0, 0, 0.3)");
         }
     }
@@ -139,21 +141,21 @@ export class TankTrackParticle extends Particle {
 
     render(ctx, gameDeltaTime) {
         const offset = 1 / 12;
-        if (this.active) {
+        if (this.active && getGlobal().showParticles) {
             drawRect(ctx, this.pos, { w: this.diameter, h: this.diameter }, "#333");
         }
     }
 }
+
 // MARK: RocketExhaustParticle
 export class RocketExhaustParticle extends Particle {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "RocketExhaustParticle";
         this.scale = scaleSpawn;
-        this.radius = 1 / 12;
-        this.color = "#FFA500";
+        this.radius = 1 / 20;
         this.alpha = 1.0;
-        this.initialColor = { r: 255, g: 165, b: 0 };
+        this.initialColor = hexToRGB(this.owner.color); //{ r: 255, g: 165, b: 0 };
         this.currentColor = { ...this.initialColor };
     }
 
@@ -188,7 +190,7 @@ export class RocketExhaustParticle extends Particle {
     }
 
     render(ctx, gameDeltaTime) {
-        if (this.active) {
+        if (this.active && getGlobal().showParticles) {
             drawCircle(ctx, this.pos, this.radius / 2, this.color);
         }
     }

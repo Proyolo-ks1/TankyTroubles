@@ -271,6 +271,53 @@ export class FireBullet extends Bullet {
     }
 }
 
+// MARK: HomingMissle
+export class HomingMissle extends Bullet {
+    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0.5, angleVel = 0, lifeSpan = 5.000) {
+        super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
+        this.type = "fire";
+        this.scale = scaleSpawn;
+        this.radius = 1 / 4;
+        this.exhaustsPerSecond = 50
+        this.timeSinceLastExhaust = 0;
+        this.color = this.owner.color;
+    }
+
+    update(gameDeltaTime) {
+        super.update(gameDeltaTime);
+        this.vel.x *= 1 + 0.7 * gameDeltaTime;
+        this.vel.y *= 1 + 0.7 * gameDeltaTime;
+
+        // --- spawn x times per second ---
+        this.timeSinceLastExhaust += gameDeltaTime;
+        const spawnCooldown = 1 / this.exhaustsPerSecond; // seconds per spawn
+
+        while (this.timeSinceLastExhaust >= spawnCooldown) {
+            this.timeSinceLastExhaust -= spawnCooldown;
+
+            // position will have to be a bit behin the rockets direction and speed away from the rockets direciton. (TODO)
+            spawnClassRelatively(
+                RocketExhaustParticle,
+                this,
+                this.pos,
+                this.angle + randomRange(-0.2, 0.2),
+                this.scale,
+                { x: 0, y: 0 },
+                0,
+                -0.5 + randomRange(-0.2, 0.2),
+                0,
+                undefined,
+            );
+        }
+    }
+
+    render(ctx, gameDeltaTime) {
+        if (this.active) {
+            drawRocket(ctx, this.pos, this.angle, this.scale, this.color)
+        }
+    }
+}
+
 // MARK: OppenheimerBullet
 export class OppenheimerBullet extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 1.000) {
@@ -355,52 +402,6 @@ export class OppenheimerNeutron extends Bullet {
             }
             drawCircle(ctx, this.pos, radius * 0.25, "#000");
             drawCircle(ctx, this.pos, radius * 0.15, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
-        }
-    }
-}
-
-// MARK: HomingMissle
-export class HomingMissle extends Bullet {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0.5, angleVel = 0, lifeSpan = 5.000) {
-        super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
-        this.type = "fire";
-        this.scale = scaleSpawn;
-        this.radius = 1 / 4;
-        this.exhaustsPerSecond = 50
-        this.timeSinceLastExhaust = 0;
-    }
-
-    update(gameDeltaTime) {
-        super.update(gameDeltaTime);
-        this.vel.x *= 1 + 0.7 * gameDeltaTime;
-        this.vel.y *= 1 + 0.7 * gameDeltaTime;
-
-        // --- spawn x times per second ---
-        this.timeSinceLastExhaust += gameDeltaTime;
-        const spawnCooldown = 1 / this.exhaustsPerSecond; // seconds per spawn
-
-        while (this.timeSinceLastExhaust >= spawnCooldown) {
-            this.timeSinceLastExhaust -= spawnCooldown;
-
-            // position will have to be a bit behin the rockets direction and speed away from the rockets direciton. (TODO)
-            spawnClassRelatively(
-                RocketExhaustParticle,
-                this,
-                this.pos,
-                randomRange(0, 2 * Math.PI),
-                this.scale,
-                { x: 0, y: 0 },
-                0,
-                0.1,
-                0,
-                undefined,
-            );
-        }
-    }
-
-    render(ctx, gameDeltaTime) {
-        if (this.active) {
-            drawRocket(ctx, this.pos, this.scale, 1, this.owner.color)
         }
     }
 }

@@ -70,24 +70,28 @@ const ROCKET_VERTICES = [
     { x:  0.8,   y: 0.33 },
 ];
 
+const ROCKET_SIZE = 0.1; // Tiles
+
 export function drawRocket(ctx, pos, angle, scale, color) {
 
-    scale *= 0.2; // needs to be fixed laterl lol (TODO)
+    const renderScale = getGlobal().renderScale
+
+    scale = ROCKET_SIZE * scale; // needs to be fixed laterl lol (TODO)
 
     ctx.save();
 
-    ctx.translate(pos.x, pos.y);
+    ctx.translate(pos.x * renderScale, pos.y * renderScale);
     ctx.rotate(-angle);
     ctx.scale(scale, scale);
 
     drawVertexPolygon(
         ctx,
-        pos,
+        { x: 0, y: 0 },
         0,
         ROCKET_VERTICES,
         color,
         "#000000",
-        0.02
+        0.05
     );
 
     ctx.restore();

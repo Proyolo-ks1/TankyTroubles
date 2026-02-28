@@ -21,7 +21,7 @@ export function spawnAllTestObjects() {
 
     const dummyOwner = new Tank(
             { x: 7.5, y: 0.5 },
-            3.14 * 0.25,
+            3.14 / 4,
             undefined,
             undefined,
             undefined,
@@ -31,18 +31,18 @@ export function spawnAllTestObjects() {
         );
 
     // Spawn at (0.1,0.1)
-    spawnRelativeClass(
-                    HomingMissle,
-                    dummyOwner,
-                    { x: 0.1, y: 0.1 },
-                    0,
-                    1,
-                    { x: 0, y: 0 },
-                    0,
-                    0,
-                    undefined,
-                    -1,
-                );
+    // spawnRelativeClass(
+    //                 HomingMissle,
+    //                 dummyOwner,
+    //                 { x: 0.1, y: 0.1 },
+    //                 0,
+    //                 1,
+    //                 { x: 0, y: 0 },
+    //                 0,
+    //                 0,
+    //                 undefined,
+    //                 -1,
+    //             );
 
     const weapons = [
         NoWeapon,

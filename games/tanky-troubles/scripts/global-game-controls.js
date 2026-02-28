@@ -20,21 +20,13 @@ const numberKeyPressActions = {
         getGlobal().showStatistics = !getGlobal().showStatistics;
         console.log(`DB: toggled showStatistics: ${getGlobal().showStatistics}`);
     },
+    '3': () => {
+        getGlobal().showParticles = !getGlobal().showParticles;
+        console.log(`DB: toggled showParticles: ${getGlobal().showParticles}`);
+    },
 };
 
 const numberKeyHoldActions = {
-    '3': (realDeltaTime) => {
-        getGlobal().entities.tanks.forEach(tank => {
-            tank.scale *= Math.pow(0.5, realDeltaTime);
-        });
-        console.log("DB: Decreased tank scale 1%");
-    },
-    '4': (realDeltaTime) => {
-        getGlobal().entities.tanks.forEach(tank => {
-            tank.scale *= Math.pow(2, realDeltaTime);
-        });
-        console.log("DB: Inscreased tank scale 1%");
-    },
     '5': (realDeltaTime) => {
         getGlobal().zoomLevel *= Math.pow(0.5, realDeltaTime);
         console.log(`DB: Decreased zoomLevel by 1%: ${Math.round(getGlobal().zoomLevel*1000) / 10}%`);

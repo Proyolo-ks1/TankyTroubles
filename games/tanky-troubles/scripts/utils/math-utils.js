@@ -48,6 +48,19 @@ function hslToHex(h, s, l) {
     );
 }
 
+export function hexToRGB(hex) {
+    hex = hex.replace(/^#/, '');
+    if (hex.length === 3) {
+        hex = hex.split('').map(c => c + c).join('');
+    }
+    const bigint = parseInt(hex, 16);
+    return {
+        r: (bigint >> 16) & 255,
+        g: (bigint >> 8) & 255,
+        b: bigint & 255
+    };
+}
+
 export function randomColorHSLSeeded(
     seed,
     saturation = 70,

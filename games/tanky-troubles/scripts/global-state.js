@@ -65,6 +65,7 @@ export const HITBOX_TYPES = Object.freeze({
  * @typedef {Object} GlobalVariablesType
  * @property {boolean} debugMode
  * @property {boolean} showStatistics
+ * @property {boolean} showParticles
  * @property {number} canvasScale
  * @property {number} zoomLevel
  * @property {number} renderScale
@@ -81,8 +82,9 @@ const DEBUG_HISTORY_SIZE = 100;
 const GlobalVariables = {
     debugMode: true,
     showStatistics: true,
+    showParticles: true,
     canvasScale: 1280,  // dynamically scales with canvas width
-    zoomLevel: 2,
+    zoomLevel: 1/8,
     renderScale: 128,
     gameState: GAME_STATE_KEYS.MAIN_MENU,
     overlayState: OVERLAY_STATE_KEYS.NONE,
