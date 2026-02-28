@@ -93,7 +93,7 @@ export function drawImg(ctx, pos, size, img, strokeColor = null, strokeWidth = 0
 }
 
 // MARK: drawRect
-// Function to draw a rectangle with optional rounded corners, applying canvas scaling
+// Function to draw a rectangle with optional rounded corners, applying canvas scaling - 0,0 topleft
 export function drawRect(ctx, pos = {x: null, y: null}, size = {w: null, h: null}, fillColor = null, strokeColor = null, strokeWidth = null, borderRadius = 0) {
     const renderScale = getGlobal().renderScale
 
@@ -142,6 +142,65 @@ export function drawRect(ctx, pos = {x: null, y: null}, size = {w: null, h: null
         }
     }
 }
+
+// MARK: drawRectRotated
+// Draw a rotated rectangle with optional rounded corners, center-based coordinates
+export function drawRectRotated(ctx, posCenter = {x: 0, y: 0}, angle = 0, size = {w: 0, h: 0}, fillColor = null, strokeColor = null, strokeWidth = 0, borderRadius = 0) {
+    const renderScale = getGlobal().renderScale;
+    const scaledWidth = size.w * renderScale;
+    const scaledHeight = size.h * renderScale;
+    const scaledBorderRadius = borderRadius * renderScale;
+
+    ctx.save();
+    ctx.translate(posCenter.x * renderScale, posCenter.y * renderScale);
+    ctx.rotate(-angle);
+
+    if (scaledBorderRadius === 0) {
+        // Simple rectangle
+        if (fillColor) {
+            ctx.fillStyle = fillColor;
+            ctx.fillRect(-scaledWidth/2, -scaledHeight/2, scaledWidth, scaledHeight);
+        }
+        if (strokeColor && strokeWidth > 0) {
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = strokeWidth * renderScale;
+            ctx.strokeRect(-scaledWidth/2, -scaledHeight/2, scaledWidth, scaledHeight);
+        }
+    } else {
+        // Rounded rectangle
+        const x = -scaledWidth / 2;
+        const y = -scaledHeight / 2;
+        const w = scaledWidth;
+        const h = scaledHeight;
+        const r = scaledBorderRadius;
+
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.arcTo(x + w, y, x + w, y + r, r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+        ctx.lineTo(x + r, y + h);
+        ctx.arcTo(x, y + h, x, y + h - r, r);
+        ctx.lineTo(x, y + r);
+        ctx.arcTo(x, y, x + r, y, r);
+        ctx.closePath();
+
+        if (fillColor) {
+            ctx.fillStyle = fillColor;
+            ctx.fill();
+        }
+
+        if (strokeColor && strokeWidth > 0) {
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = strokeWidth * renderScale;
+            ctx.stroke();
+        }
+    }
+
+    ctx.restore();
+}
+
 
 // MARK: drawTextBox
 // Draws a rectangle (background / border) with text on top

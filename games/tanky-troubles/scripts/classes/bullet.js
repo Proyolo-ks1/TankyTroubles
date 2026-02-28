@@ -42,7 +42,7 @@ class Bullet extends PhysicsObject {
         this.owner = owner;
         
         this.scale = scaleSpawn;
-        this.radius = 1 / 12;
+        this.radius = 1 / 12 * this.scale;
 
         this.active = true;
 
@@ -118,7 +118,7 @@ export class DefaultBullet extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "default";
         this.scale = scaleSpawn;
-        this.radius = 1 / 12;
+        this.radius = 1 / 12 * this.scale;
     }
 
     render(ctx, gameDeltaTime) {
@@ -134,7 +134,7 @@ export class ChaingunBullet extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "chaingun";
         this.scale = scaleSpawn;
-        this.radius = 1 / 25;
+        this.radius = 1 / 25 * this.scale;
     }
 
     render(ctx, gameDeltaTime) {
@@ -150,7 +150,7 @@ export class ShotgunBullet extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "shotgun";
         this.scale = scaleSpawn;
-        this.radius = 1 / 20;
+        this.radius = 1 / 20 * this.scale;
     }
 
     render(ctx, gameDeltaTime) {
@@ -166,7 +166,7 @@ export class Shrapnel extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "shrapnel";
         this.scale = scaleSpawn;
-        this.radius = 1 / 20;
+        this.radius = 1 / 20 * this.scale;
     }
 
     update(gameDeltaTime) {
@@ -190,7 +190,7 @@ export class ShrapnelBomb extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "shrapnel";
         this.scale = scaleSpawn;
-        this.radius = 1 / 8;
+        this.radius = 1 / 8 * this.scale;
     }
 
     update(gameDeltaTime) {
@@ -227,7 +227,8 @@ export class FireBullet extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "fire";
         this.scale = scaleSpawn;
-        this.radius = 1 / 12;
+        this.radius = 1 / 12 * this.scale;
+
         this.color = "#FFA500";
         this.alpha = 1.0;
         this.initialColor = { r: 255, g: 165, b: 0 };
@@ -277,7 +278,8 @@ export class HomingMissle extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "fire";
         this.scale = scaleSpawn;
-        this.radius = 1 / 4;
+        this.radius = 1 / 4 * this.scale;
+
         this.exhaustsPerSecond = 50
         this.timeSinceLastExhaust = 0;
         this.color = this.owner.color;
@@ -301,10 +303,10 @@ export class HomingMissle extends Bullet {
                 this,
                 this.pos,
                 this.angle + randomRange(-0.2, 0.2),
-                this.scale,
+                this.scale * randomRange(0.9, 1.1),
                 { x: 0, y: 0 },
                 0,
-                -0.5 + randomRange(-0.2, 0.2),
+                -1 + randomRange(-0.2, 0.2),
                 0,
                 undefined,
             );
@@ -324,7 +326,7 @@ export class OppenheimerBullet extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "fire";
         this.scale = scaleSpawn;
-        this.radius = 1 / 6;
+        this.radius = 1 / 6 * this.scale;
     }
 
     update(gameDeltaTime) {
@@ -368,7 +370,7 @@ export class OppenheimerNeutron extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "fire";
         this.scale = scaleSpawn;
-        this.radius = 1 / 8;
+        this.radius = 1 / 8 * this.scale;
     }
 
     update(gameDeltaTime) {

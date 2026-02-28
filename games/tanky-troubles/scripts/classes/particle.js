@@ -1,5 +1,5 @@
 import { getGlobal } from '../global-state.js';
-import { drawRect, drawCircle, drawText, drawRegPolygon, drawLine, drawVectorArrow} from '../utils/graphics-utils.js';
+import { drawRect, drawRectRotated, drawCircle, drawText, drawRegPolygon, drawLine, drawVectorArrow} from '../utils/graphics-utils.js';
 import { PhysicsObject } from './entity.js';
 import { spawnRelativeClass } from './spawner.js';
 import { randomSeeded, hexToRGB } from "../utils/math-utils.js";
@@ -42,7 +42,7 @@ class Particle extends PhysicsObject {
         this.owner = owner;
         
         this.scale = scaleSpawn;
-        this.radius = 1 / 12;
+        this.radius = 1 / 12 * this.scale;
 
         this.active = true;
 
@@ -115,12 +115,12 @@ class Particle extends PhysicsObject {
 }
 
 // MARK: TankDriveParticle
-export class TankDriveParticle extends Particle {
+export class TankExhaustParticle extends Particle {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "default";
         this.scale = scaleSpawn;
-        this.radius = 1 / 12;
+        this.radius = 1 / 12 * this.scale;
     }
 
     render(ctx, gameDeltaTime) {
@@ -131,7 +131,7 @@ export class TankDriveParticle extends Particle {
 }
 
 // MARK: TankTrackParticle
-export class TankTrackParticle extends Particle {
+export class TankTrackMarkParticle extends Particle {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "chaingun";
@@ -142,7 +142,7 @@ export class TankTrackParticle extends Particle {
     render(ctx, gameDeltaTime) {
         const offset = 1 / 12;
         if (this.active && getGlobal().showParticles) {
-            drawRect(ctx, this.pos, { w: this.diameter, h: this.diameter }, "#333");
+            drawRectRotated(ctx, this.pos, this.angle, { w: this.diameter, h: this.diameter }, "#33333333");
         }
     }
 }
@@ -153,7 +153,7 @@ export class RocketExhaustParticle extends Particle {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "RocketExhaustParticle";
         this.scale = scaleSpawn;
-        this.radius = 1 / 20;
+        this.radius = 1 / 20 * this.scale;
         this.alpha = 1.0;
         this.initialColor = hexToRGB(this.owner.color); //{ r: 255, g: 165, b: 0 };
         this.currentColor = { ...this.initialColor };

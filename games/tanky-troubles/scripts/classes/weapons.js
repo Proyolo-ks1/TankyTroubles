@@ -432,6 +432,39 @@ export class ShrepnalBombWeapon extends Weapon {
     }
 }
 
+// MARK: MissleLauncher
+export class MissleLauncher extends Weapon {
+    constructor(tank) {
+        super(tank);
+        this.barrelLength = this.tank.length * 0.7;
+    }
+
+    press() {
+        spawnRelativeClass(HomingMissle, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, {x: this.barrelLength, y: 0}, 0, undefined, 0, 10.000);
+    }
+
+    hold() {
+        // empty
+    }
+
+    release() {
+        // empty
+    }
+
+    renderTurret(ctx, realDeltaTime) {
+        // Barrel
+        const barrelLength = this.tank.length * 0.7;
+        const barrelWidth = this.tank.width * 4 / 15;
+        const x = 0;
+        const y = -barrelWidth / 2;
+        drawRect(ctx, { x: x, y: y }, { w: barrelLength, h: barrelWidth }, this.tank.color, "black", 0.02);
+
+        // Dome
+        const domeRadius = this.tank.width / 3;
+        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.tank.color, "black", 0.02);
+    }
+}
+
 // MARK: ExperimentalWeapon
 export class ExperimentalWeapon extends Weapon {
     constructor(tank) {
@@ -615,38 +648,5 @@ export class OppenheimerBOOOM extends Weapon {
         }
         drawCircle(ctx, {x: 0, y: 0}, domeRadius * 0.25, "#000");
         drawCircle(ctx, {x: 0, y: 0}, domeRadius * 0.15, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
-    }
-}
-
-// MARK: MissleLauncher
-export class MissleLauncher extends Weapon {
-    constructor(tank) {
-        super(tank);
-        this.barrelLength = this.tank.length * 0.7;
-    }
-
-    press() {
-        spawnRelativeClass(HomingMissle, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, {x: this.barrelLength, y: 0}, 0, undefined, 0, 10.000);
-    }
-
-    hold() {
-        // empty
-    }
-
-    release() {
-        // empty
-    }
-
-    renderTurret(ctx, realDeltaTime) {
-        // Barrel
-        const barrelLength = this.tank.length * 0.7;
-        const barrelWidth = this.tank.width * 4 / 15;
-        const x = 0;
-        const y = -barrelWidth / 2;
-        drawRect(ctx, { x: x, y: y }, { w: barrelLength, h: barrelWidth }, this.tank.color, "black", 0.02);
-
-        // Dome
-        const domeRadius = this.tank.width / 3;
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.tank.color, "black", 0.02);
     }
 }

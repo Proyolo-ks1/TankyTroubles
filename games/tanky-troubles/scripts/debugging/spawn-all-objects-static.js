@@ -3,7 +3,7 @@ import { spawnRelativeClass } from '../classes/spawner.js';
 import { Tank } from '../classes/tank.js';
 import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ShrepnalBombWeapon, ExperimentalWeapon, ChainShotgunBOOM, OppenheimerBOOOM, MissleLauncher } from '../classes/weapons.js';
 import { DefaultBullet, ChaingunBullet, ShotgunBullet, Shrapnel, ShrapnelBomb, FireBullet, HomingMissle, OppenheimerBullet, OppenheimerNeutron } from '../classes/bullet.js';
-import { TankDriveParticle, TankTrackParticle } from '../classes/particle.js';
+import { TankExhaustParticle, TankTrackMarkParticle } from '../classes/particle.js';
 import { DefaultPowerup, BoostPowerup } from '../classes/power-up.js';
 import { TextBoxEntity } from '../classes/util-entities.js';
 
@@ -93,8 +93,8 @@ export function spawnAllTestObjects() {
         {
             x: 2.5,
             classes: [
-                TankDriveParticle,
-                TankTrackParticle,
+                TankExhaustParticle,
+                TankTrackMarkParticle,
             ]
         },
         {
