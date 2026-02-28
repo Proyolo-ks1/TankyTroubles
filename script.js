@@ -15,8 +15,9 @@ const audioButton = document.getElementById('toggle-audio');
 const fullscreenIcon = document.getElementById('fullscreen-icon');
 const theaterModeIcon = document.getElementById('theater-icon');
 const audioIcon = document.getElementById('audio-icon');
+const shareBtn = document.getElementById("shareBtn");
 
- // Defaults
+// Defaults
 let currentViewingMode = 'normal';
 let theaterModeEnabled = true;
 let isMuted = false;
@@ -100,6 +101,31 @@ document.addEventListener('fullscreenchange', () => {
 
 // Initial icon update on page load
 updateButtonIcons();
+
+
+// Sharing Feature
+const urlToShare = "https://proyolo-ks1.github.io/TankyTroubles/";
+shareBtn.addEventListener("click", async () => {
+    if (navigator.share) {
+        // Mobile: open native share dialog
+        try {
+            await navigator.share({
+                title: "Check out TankyTroubles!",
+                url: urlToShare
+            });
+        } catch (err) {
+            console.error("Share failed:", err);
+        }
+    } else {
+        // Desktop fallback: copy to clipboard
+        try {
+            await navigator.clipboard.writeText(urlToShare);
+            alert("Link copied to clipboard!");
+        } catch (err) {
+            console.error("Copy failed:", err);
+        }
+    }
+});
 
 
 
