@@ -118,7 +118,7 @@ class Particle extends PhysicsObject {
 export class TankExhaustParticle extends Particle {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
-        this.type = "default";
+        this.type = "TankExhaustParticle";
         this.scale = scaleSpawn;
         this.radius = 1 / 12 * this.scale;
     }
@@ -134,7 +134,7 @@ export class TankExhaustParticle extends Particle {
 export class TankTrackMarkParticle extends Particle {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
-        this.type = "chaingun";
+        this.type = "TankTrackMarkParticle";
         this.scale = scaleSpawn;
         this.diameter = 1 / 25 * this.scale;
     }

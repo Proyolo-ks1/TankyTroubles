@@ -1,10 +1,10 @@
 import { GAME_STATE_KEYS, OVERLAY_STATE_KEYS, getGlobal, GLOBAL_COLOR_KEYS } from './global-state.js';
 import { loadMainMenu } from './gamestates/main-menu.js';
-import { initializeGame, ExecuteGameLoop } from './gamestates/running-game.js';
+import { initializeWorld, ExecuteGameLoop } from './gamestates/running-game.js';
 import { renderGameStatistics } from './overlay.js';
 import { drawDebugIni, drawDebug } from './debugging/canvas-testing-script.js';
 import { globalGameControlsStep } from './global-game-controls.js'
-// import { preloadImages, rescaleImages, getImage } from "./asset-handler.js";
+import { preloadImages, rescaleImages, getImage } from "./asset-handler.js";
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -89,13 +89,33 @@ const gameTime = getGlobal().gameTime
 
 
 
+//      |================|
+//      |      BOOT      |
+//      |================|
+
+
+
+async function boot() {
+    // time, spawning, score and stuff or something
+    await preloadImages();
+    initializeWorld();
+
+    //start Game Loop
+    requestAnimationFrame(gameLoop);
+}
+
+
+
+
+
+
 //      |=====================|
 //      |      GAME LOOP      |
 //      |=====================|
 
 
 
-let gameInitialized = false;
+let debugInitialized = false;
 
 function gameLoop(currentTime) {
     const ctx = gameApi.canvasCtx
@@ -105,7 +125,8 @@ function gameLoop(currentTime) {
 
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     
-    if (!lastTime) lastTime = currentTime;  // Initialize lastTime on the first loop
+    // underlying line could be deleted due to lastTime always exisiting since declared in ini above.
+    // if (!lastTime) lastTime = currentTime;  // Initialize lastTime on the first loop
     realDeltaTime = (currentTime - lastTime) / 1000;  // Time difference in seconds
     
     // Game State Loop
@@ -115,10 +136,6 @@ function gameLoop(currentTime) {
             break;
             
         case GAME_STATE_KEYS.RUNNING:
-            if (!gameInitialized) {
-                initializeGame();
-                gameInitialized = true;
-            }
             if (gameTime.paused) {
                 if (gameTime.stepOnce) {
                     gameDeltaTime = gameTime.maxDelta;
@@ -134,9 +151,9 @@ function gameLoop(currentTime) {
             break;
             
         case GAME_STATE_KEYS.WINDOW_DEBUGGING:
-            if (!gameInitialized) {
+            if (!debugInitialized ) {
                 drawDebugIni();
-                gameInitialized = true;
+                debugInitialized = true;
             }
             drawDebug();
             break;
@@ -175,4 +192,6 @@ function gameLoop(currentTime) {
     requestAnimationFrame(gameLoop);
 }
 
-gameLoop(performance.now());
+
+// Boot Game
+boot();

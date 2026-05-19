@@ -79,17 +79,39 @@ export function drawText(ctx, text, pos, textStyle) {
 
 // MARK: drawImg
 // Function to draw an image
-export function drawImg(ctx, pos, size, img, strokeColor = null, strokeWidth = 0.02, borderRadius = 0) {
-    const renderScale = getGlobal().renderScale
+export function drawImg(ctx, pos = { x: 0, y: 0 }, size = { w: 0, h: 0 }, img, opacity = 1) {
+    const renderScale = getGlobal().renderScale;
 
-    // Scale values
     const scaledX = pos.x * renderScale;
     const scaledY = pos.y * renderScale;
-    const scaledWidth = size.width * renderScale;
-    const scaledHeight = size.height * renderScale;
-    const scaledBorderRadius = borderRadius * renderScale;
+    const scaledW = size.w * renderScale;
+    const scaledH = size.h * renderScale;
 
-    // TODO?
+    ctx.globalAlpha = opacity;
+
+    ctx.drawImage(img, scaledX, scaledY, scaledW, scaledH);
+
+    ctx.globalAlpha = 1;
+}
+
+// MARK: drawImgRotated
+// Function to draw an rotated image
+export function drawImgRotated(ctx, pos, angle, size, img, opacity = 1) {
+    const renderScale = getGlobal().renderScale;
+
+    const w = size.w * renderScale;
+    const h = size.h * renderScale;
+
+    ctx.save();
+    ctx.translate(pos.x * renderScale, pos.y * renderScale);
+    ctx.rotate(-angle);
+
+    ctx.globalAlpha = opacity;
+
+    // centered draw
+    ctx.drawImage(img, -w / 2, -h / 2, w, h);
+    ctx.globalAlpha = 1;
+    ctx.restore();
 }
 
 // MARK: drawRect

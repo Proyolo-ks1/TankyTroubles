@@ -62,14 +62,14 @@ function spawnPowerUp() {
     console.log(`%cspawnPowerUp() (${spawns})`, "color: lime; font-weight: bold;");
 }
 
-// async function startGame() {
-//     await preloadImages(); // Load images before the game starts
+async function startGame() {
+    await preloadImages(); // Load images before the game starts
 //     rescaleImages(0.5);  // Example scale
 
 //     // Example usage:
 //     const missileImage = getImage("projectile", "missile");
 //     console.log(missileImage); // Should log the cached scaled image
-// }
+}
 
 // Function to clean up inactive bullets
 function cleanupInactiveBullets(bullets) {
@@ -219,12 +219,7 @@ window.globalSyncConsoleLogStr = "";
 // Extract globals references
 const entities = getGlobal().entities
 
-export function initializeGame() {
-
-    // startGame();
-    // time, spawning, score and stuff or something
-
-
+export function initializeWorld() {
 
     // Create 2 tanks with position, color, and controls
     let angleSpawn = Math.random() * Math.PI * 2;

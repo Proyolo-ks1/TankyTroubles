@@ -1,10 +1,10 @@
 import { getGlobal } from '../global-state.js';
 import { spawnRelativeClass } from '../classes/spawner.js';
 import { Tank } from '../classes/tank.js';
-import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ShrepnalBombWeapon, ExperimentalWeapon, ChainShotgunBOOM, OppenheimerBOOOM, MissleLauncher } from '../classes/weapons.js';
-import { DefaultBullet, ChaingunBullet, ShotgunBullet, Shrapnel, ShrapnelBomb, FireBullet, HomingMissle, OppenheimerBullet, OppenheimerNeutron } from '../classes/bullet.js';
-import { TankExhaustParticle, TankTrackMarkParticle } from '../classes/particle.js';
-import { DefaultPowerup, BoostPowerup } from '../classes/power-up.js';
+import * as Weapons from '../classes/weapons.js';
+import * as Bullets from '../classes/bullet.js';
+import * as Particles from '../classes/particle.js';
+import * as PowerUps from '../classes/power-up.js';
 import { TextBoxEntity } from '../classes/util-entities.js';
 
 
@@ -45,16 +45,16 @@ export function spawnAllTestObjects() {
     //             );
 
     const weapons = [
-        NoWeapon,
-        Chaingun,
-        Shotgun,
-        FlameThrower,
-        ChainShotgun,
-        ShrepnalBombWeapon,
-        ExperimentalWeapon,
-        ChainShotgunBOOM,
-        // OppenheimerBOOOM,
-        MissleLauncher
+        Weapons.NoWeapon,
+        Weapons.Chaingun,
+        Weapons.Shotgun,
+        Weapons.FlameThrower,
+        Weapons.ChainShotgun,
+        Weapons.ShrepnalBombWeapon,
+        Weapons.ExperimentalWeapon,
+        Weapons.ChainShotgunBOOM,
+        // Weapons.OppenheimerBOOOM,
+        Weapons.MissleLauncher,
     ];
 
     const baseX = 0.5;
@@ -79,29 +79,59 @@ export function spawnAllTestObjects() {
         {
             x: 1.5,
             classes: [
-                DefaultBullet,
-                ChaingunBullet,
-                ShotgunBullet,
-                Shrapnel,
-                ShrapnelBomb,
-                FireBullet,
-                HomingMissle,
-                OppenheimerBullet,
-                OppenheimerNeutron,
+                Bullets.DefaultBullet,
+                Bullets.ChaingunBullet,
+                Bullets.ShotgunBullet,
+                Bullets.Shrapnel,
+                Bullets.ShrapnelBomb,
+                Bullets.FireBullet,
+                Bullets.HomingMissle,
+                Bullets.OppenheimerBullet,
+                Bullets.OppenheimerNeutron,
             ]
         },
         {
             x: 2.5,
             classes: [
-                TankExhaustParticle,
-                TankTrackMarkParticle,
+                Particles.TankExhaustParticle,
+                Particles.TankTrackMarkParticle,
             ]
         },
         {
             x: 3.5,
             classes: [
-                DefaultPowerup,
-                BoostPowerup,
+                PowerUps.OffensiveUnknown,
+                PowerUps.BoobyTrapPowerup,
+                PowerUps.ChaingunPowerup,
+                PowerUps.CryoBombPowerup,
+                PowerUps.DoubleBarrelPowerup,
+                PowerUps.DrillPowerup,
+                PowerUps.DroneTankDetonatorPowerup,
+                PowerUps.DroneTankShooterPowerup,
+                PowerUps.LaserPowerup,
+                PowerUps.MissileHomingPowerup,
+                PowerUps.RailgunPowerup,
+                PowerUps.ShotgunPowerup,
+                PowerUps.ShrapnelBombPowerup,
+                PowerUps.SmokeBombPowerup,
+            ]
+        },
+        {
+            x: 4.5,
+            classes: [
+                PowerUps.DefensiveUnknown,
+                PowerUps.HealingPowerup,
+                PowerUps.ShieldHPPowerup,
+                PowerUps.ShieldTimePowerup,
+            ]
+        },
+        {
+            x: 5.5,
+            classes: [
+                PowerUps.BoostUnknown,
+                PowerUps.BoostBulletDamagePowerup,
+                PowerUps.BoostBulletSpeedPowerup,
+                PowerUps.BoostMovementSpeedPowerup,
             ]
         }
     ];

@@ -116,7 +116,7 @@ class Bullet extends PhysicsObject {
 export class DefaultBullet extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
-        this.type = "default";
+        this.type = "DefaultBullet";
         this.scale = scaleSpawn;
         this.radius = 1 / 12 * this.scale;
     }
@@ -132,7 +132,7 @@ export class DefaultBullet extends Bullet {
 export class ChaingunBullet extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
-        this.type = "chaingun";
+        this.type = "ChaingunBullet";
         this.scale = scaleSpawn;
         this.radius = 1 / 25 * this.scale;
     }
@@ -148,7 +148,7 @@ export class ChaingunBullet extends Bullet {
 export class ShotgunBullet extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 1.750) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
-        this.type = "shotgun";
+        this.type = "ShotgunBullet";
         this.scale = scaleSpawn;
         this.radius = 1 / 20 * this.scale;
     }
@@ -164,7 +164,7 @@ export class ShotgunBullet extends Bullet {
 export class Shrapnel extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = (Math.random() - 0.5) * 0.2, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
-        this.type = "shrapnel";
+        this.type = "Shrapnel";
         this.scale = scaleSpawn;
         this.radius = 1 / 20 * this.scale;
     }
@@ -188,7 +188,7 @@ export class Shrapnel extends Bullet {
 export class ShrapnelBomb extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 1.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
-        this.type = "shrapnel";
+        this.type = "ShrapnelBomb";
         this.scale = scaleSpawn;
         this.radius = 1 / 8 * this.scale;
     }
@@ -225,7 +225,7 @@ export class ShrapnelBomb extends Bullet {
 export class FireBullet extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
-        this.type = "fire";
+        this.type = "FireBullet";
         this.scale = scaleSpawn;
         this.radius = 1 / 12 * this.scale;
 
@@ -276,7 +276,7 @@ export class FireBullet extends Bullet {
 export class HomingMissle extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0.5, angleVel = 0, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
-        this.type = "fire";
+        this.type = "HomingMissle";
         this.scale = scaleSpawn;
         this.radius = 1 / 4 * this.scale;
 
@@ -324,7 +324,7 @@ export class HomingMissle extends Bullet {
 export class OppenheimerBullet extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 1.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
-        this.type = "fire";
+        this.type = "OppenheimerBullet";
         this.scale = scaleSpawn;
         this.radius = 1 / 6 * this.scale;
     }
@@ -368,7 +368,7 @@ export class OppenheimerBullet extends Bullet {
 export class OppenheimerNeutron extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 1.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
-        this.type = "fire";
+        this.type = "OppenheimerNeutron";
         this.scale = scaleSpawn;
         this.radius = 1 / 8 * this.scale;
     }
