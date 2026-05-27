@@ -114,6 +114,9 @@ async function boot() {
 //      |=====================|
 
 
+//JUSTFORFUN
+const bufferCanvas = document.createElement("canvas");
+const bufferCtx = bufferCanvas.getContext("2d");
 
 let debugInitialized = false;
 
@@ -121,9 +124,13 @@ function gameLoop(currentTime) {
     const ctx = gameApi.canvasCtx
     const canvasWidth = gameApi.canvasWidth
     const canvasHeight = gameApi.canvasHeight
+    if (bufferCanvas.width !== gameApi.canvasWidth || bufferCanvas.height !== gameApi.canvasHeight) {
+        bufferCanvas.width = gameApi.canvasWidth;
+        bufferCanvas.height = gameApi.canvasHeight;
+    }
     getGlobal().canvasScale = canvasWidth;
 
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    // ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     
     // underlying line could be deleted due to lastTime always exisiting since declared in ini above.
     // if (!lastTime) lastTime = currentTime;  // Initialize lastTime on the first loop
@@ -146,8 +153,14 @@ function gameLoop(currentTime) {
             } else {
                 gameDeltaTime = realDeltaTime * gameTime.gameSpeed;
             }
-            ExecuteGameLoop(ctx, gameDeltaTime);
-
+            // ExecuteGameLoop(ctx, gameDeltaTime);
+            
+            //JUSTFORFUN - "put bufferctx onto ctx with 50% transparency"
+            ExecuteGameLoop(bufferCtx, gameDeltaTime);
+            ctx.globalAlpha = 0.06;
+            ctx.drawImage(bufferCanvas, 0, 0);
+            ctx.globalAlpha = 1;
+            
             break;
             
         case GAME_STATE_KEYS.WINDOW_DEBUGGING:
