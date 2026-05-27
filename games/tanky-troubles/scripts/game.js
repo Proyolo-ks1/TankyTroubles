@@ -157,7 +157,7 @@ function gameLoop(currentTime) {
             
             //JUSTFORFUN - "put bufferctx onto ctx with 50% transparency"
             ExecuteGameLoop(bufferCtx, gameDeltaTime);
-            ctx.globalAlpha = 0.06;
+            ctx.globalAlpha = 0.08;
             ctx.drawImage(bufferCanvas, 0, 0);
             ctx.globalAlpha = 1;
             
