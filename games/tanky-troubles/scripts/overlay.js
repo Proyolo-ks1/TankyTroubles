@@ -1,5 +1,6 @@
 import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from './utils/graphics-utils.js';
 import { GAME_STATE_KEYS, OVERLAY_STATE_KEYS, getGlobal } from './global-state.js';
+import { drawGraphBarsTYPEringBuffer } from './utils/graphics-structs.js';
 
 
 
@@ -25,18 +26,98 @@ function createOverlayTextDrawer(ctx, basePos, style, spacing) {
     };
 }
 
-
 let lastRenderStatisticsTime = performance.now();
 let overlayFps = 0;
 let overlayDeltaTime = 0;
 let statisticUpdatesPerSecond = 10
 
 export function renderGameStatistics(ctx, currentTime, realDeltaTime) {
-    
     const renderScale = getGlobal().renderScale
     const dbg = getGlobal().statsRingBuffers;
-    const DebugLeftPannel = {posX: 0 / renderScale, posY: 0 / renderScale, width: 250 / renderScale, padding: 5 / renderScale} // px
 
+    let textStyle = {
+        align: "left",
+        baseline: "top",
+        fontSize: 16 / renderScale,
+        font: "Consolas",
+        textColor: "#fff",
+        outlineColor: "#000",
+        outlineWidth: 2 / renderScale,
+    };
+
+    renderOverlayLeftPanel(ctx, renderScale, currentTime, realDeltaTime, dbg, textStyle);
+    renderOverlayTime(ctx, renderScale, textStyle);
+}
+
+
+
+// LEFT PANEL
+function renderOverlayLeftPanel(ctx, renderScale, currentTime, realDeltaTime, dbg, textStyle) {
+    const DebugLeftPanel = {
+        position: {x: 0, y: 0,},
+        size: { w: 250 / renderScale, h: 0 },  // px
+        padding: 5 / renderScale,  // px
+        cursor: {x: 0, y: 0, },
+    };
+
+    renderOverlayGraphs(ctx, renderScale, DebugLeftPanel, dbg, textStyle);
+    renderOverlayVariables(ctx, renderScale, DebugLeftPanel, currentTime, realDeltaTime, textStyle);
+}
+
+
+
+// GRAPHS
+function renderOverlayGraphs(ctx, renderScale, DebugLeftPanel, dbg, textStyle) {
+    // Panel padding
+    DebugLeftPanel.cursor.x += DebugLeftPanel.padding;
+    DebugLeftPanel.cursor.y += DebugLeftPanel.padding;
+    const availableWidth = DebugLeftPanel.size.w - 2 * DebugLeftPanel.padding;
+
+    const graphHeight = 150 / renderScale; // px
+    const amountOfGraphs = 3;
+
+    // Graphs Container
+    let graphsContainer = {
+        pos: { ...DebugLeftPanel.cursor },
+        size: { w: availableWidth, h: 0 },
+        cursor: { ...DebugLeftPanel.cursor },
+        gap: 5 / renderScale,
+    };
+    graphsContainer.size.h = amountOfGraphs * graphHeight + (amountOfGraphs - 1) * graphsContainer.gap;
+    drawRect(ctx, graphsContainer.pos, graphsContainer.size, "rgba(0,0,0,0.5)", null, 1 / renderScale, 5 / renderScale);
+
+    let defaultGraph = { pos: { x: 0, y: 0}, size: { w: availableWidth, h: graphHeight } };
+
+    // Draw Bar Graphs
+    drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 30 }, dbg.calculationDurations, dbg.index, dbg.count, "#0f0", "calcTime");
+    graphsContainer.cursor.y += defaultGraph.size.h + graphsContainer.gap;
+    drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 30 }, dbg.renderingDurations, dbg.index, dbg.count, "#0ff", "renderTime");
+    graphsContainer.cursor.y += defaultGraph.size.h + graphsContainer.gap;
+    drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 150 }, dbg.fps, dbg.index, dbg.count, "#fa0", "fps");
+    graphsContainer.cursor.y += defaultGraph.size.h;
+    DebugLeftPanel.size.h = graphsContainer.cursor.y;
+
+    DebugLeftPanel.cursor.y += DebugLeftPanel.size.h + DebugLeftPanel.padding;
+
+    return
+}
+
+
+
+// GAME VARIABLES
+function renderOverlayVariables(ctx, renderScale, DebugLeftPanel, currentTime, realDeltaTime, textStyle) {
+    // Background (unit: pixel)
+    let pos = { x: DebugLeftPanel.cursor.x, y: DebugLeftPanel.cursor.y };
+    const padding = 5 / renderScale;
+    const textSpacing = 2 / renderScale;
+    const fontSize = 16 / renderScale;  // unsure, something broke this
+    const linesOfText = 6;
+    const backgroundWidth = DebugLeftPanel.size.w + 2 * padding;
+    const backgroundHeight = linesOfText * fontSize + (linesOfText - 1) * textSpacing + 2 * padding;
+    const size = { w: backgroundWidth, h: backgroundHeight };
+    const borderRadius = padding;
+
+    // Values
     // Calculate FPS with smoothing
     const smoothing = 0.3; // more is smoother
     const fps = (overlayFps * smoothing) + (1 / realDeltaTime * (1 - smoothing));
@@ -47,103 +128,6 @@ export function renderGameStatistics(ctx, currentTime, realDeltaTime) {
         overlayDeltaTime = realDeltaTime;
         lastRenderStatisticsTime = currentTime;
     }
-
-    const graphBgPosX = DebugLeftPannel.posX + DebugLeftPannel.padding;
-    const graphBgPosY = DebugLeftPannel.posY + DebugLeftPannel.padding;
-    const graphBgWidth = DebugLeftPannel.width;
-
-    // Graph area
-    const graphPadding = 10 / renderScale; // px
-    const graphX = graphBgPosX + graphPadding;
-    const graphY = graphBgPosY + graphPadding;
-    const graphWidth = graphBgWidth - 2 * graphPadding;
-    const graphHeight = 150 / renderScale; // px
-    
-    const amountOfGraphs = Object.keys(dbg).length - 2;
-    const graphBgHeight = amountOfGraphs * graphHeight + amountOfGraphs * DebugLeftPannel.padding + DebugLeftPannel.padding;
-
-    // Background rectangle
-    const bgRect = {
-        pos: { x: graphBgPosX, y: graphBgPosY },
-        size: { w: graphBgWidth, h: graphBgHeight },
-        fillColor: "rgba(0,0,0,0.5)",
-        strokeColor: null,
-        strokeWidth: 1 / renderScale,
-        borderRadius: 5 / renderScale,
-    };
-    drawRect(ctx, bgRect.pos, bgRect.size, bgRect.fillColor, bgRect.strokeColor, bgRect.strokeWidth, bgRect.borderRadius);
-
-
-    // Per graph...
-    for (let i = 0; i < amountOfGraphs; i++) {
-        //for each graph
-    }
-
-
-
-    // Graph background
-
-    // Draw graph grid
-    const gridSize = 0;  // MARK: TODO: gridSize
-    drawRect(ctx, {x: graphX, y: graphY}, {w: graphWidth, h: graphHeight}, "#9999", "#444", 2 / renderScale);
-    drawRect(ctx, {x: graphX, y: graphY + graphHeight + graphPadding}, {w: graphWidth, h: graphHeight}, "#9999", "#444", 2 / renderScale);
-
-    // Draw bars
-    const barWidth = graphWidth / dbg.calculateTime.length;
-
-    for (let i = 0; i < dbg.count; i++) {
-        const idx = (dbg.index + i) % dbg.calculateTime.length;
-
-        const calcMs = dbg.calculateTime[idx];
-        const renderMs = dbg.renderTime[idx];
-
-        const maxMs = 30; // Max milliseconds
-
-        const calcHeight = Math.min(calcMs / maxMs, 1) * graphHeight + 2 / renderScale;
-        const renderHeight = Math.min(renderMs / maxMs, 1) * graphHeight + 2 / renderScale;
-
-        const calcBarRect = {
-            pos: { x: graphX + i * barWidth, y: graphY + graphHeight - calcHeight },
-            size: { w: barWidth, h: calcHeight },
-            fillColor: "#0f0",
-            strokeColor: null,
-            strokeWidth: 1 / renderScale,
-            borderRadius: 0,
-        };
-
-        const renderBarRect = {
-            pos: { x: graphX + i * barWidth, y: graphY + graphPadding + graphHeight + graphPadding + graphHeight - renderHeight },
-            size: { w: barWidth, h: renderHeight },
-            fillColor: "#0ff",
-            strokeColor: null,
-            strokeWidth: 1 / renderScale,
-            borderRadius: 0,
-        };
-
-        drawRect(ctx, calcBarRect.pos, calcBarRect.size, calcBarRect.fillColor, calcBarRect.strokeColor, calcBarRect.strokeWidth, calcBarRect.borderRadius);
-        drawRect(ctx, renderBarRect.pos, renderBarRect.size, renderBarRect.fillColor, renderBarRect.strokeColor, renderBarRect.strokeWidth, renderBarRect.borderRadius);
-    }
-
-    // Background (unit: pixel)
-    let pos = { x: graphX, y: graphY + 2 * graphHeight + 3 * graphPadding + 5 / renderScale };
-    let textStyle = {
-        align: "left",
-        baseline: "top",
-        fontSize: 16 / renderScale,
-        font: "Consolas",
-        textColor: "#fff",
-        outlineColor: "#000",
-        outlineWidth: 2 / renderScale,
-    };
-    const padding = 5 / renderScale;
-    const textSpacing = 2 / renderScale;
-    const fontSize = 16 / renderScale; // unsure, something broke this
-    const linesOfText = 6;
-    const backgroundWidth = DebugLeftPannel.width + 2 * padding;
-    const backgroundHeight = linesOfText * fontSize + (linesOfText - 1) * textSpacing + 2 * padding;
-    const size = { w: backgroundWidth, h: backgroundHeight };
-    const borderRadius = padding;
-
 
     // Overlay text
     drawRect(ctx, pos, size, "rgba(0, 0, 0, 0.5)", null, null, borderRadius);
@@ -168,12 +152,12 @@ export function renderGameStatistics(ctx, currentTime, realDeltaTime) {
     // Button text (showing current state of debugMode)
     const debugText = getGlobal().debugMode ? "Debug: ON" : "Debug: OFF";
     drawText(ctx, debugText, { x: buttonPos.x + buttonWidth / 2, y: buttonPos.y + buttonHeight / 2 }, { ...textStyle, align: "center", baseline: "middle" });
+}
 
 
 
-
-
-    // GAME TIME
+// GAME TIME
+function renderOverlayTime(ctx, renderScale, textStyle) {
     const timePanelWidth = 150 / renderScale;
     const timePanelHeight = 75 / renderScale;
     const timePanelPosX = getGlobal().canvasScale / 2 / renderScale - timePanelWidth / 2;

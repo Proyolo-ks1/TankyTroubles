@@ -274,7 +274,7 @@ export class FireBullet extends Bullet {
 
 // MARK: HomingMissle
 export class HomingMissle extends Bullet {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0.5, angleVel = 0, lifeSpan = 5.000) {
+    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1, angleVel = 0, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "HomingMissle";
         this.scale = scaleSpawn;
@@ -287,8 +287,32 @@ export class HomingMissle extends Bullet {
 
     update(gameDeltaTime) {
         super.update(gameDeltaTime);
-        this.vel.x *= 1 + 0.7 * gameDeltaTime;
-        this.vel.y *= 1 + 0.7 * gameDeltaTime;
+
+        const speedCap = 5;
+        const accel = 5; // how much impact does direction have on 
+        const thrust = 2;
+
+        // --- target velocity from heading ---
+        const targetVel = {
+            x: Math.cos(this.angle) * thrust,
+            y: -Math.sin(this.angle) * thrust
+        };
+
+        // --- steer velocity toward target (smooth drift) ---
+        this.vel.x += (targetVel.x - this.vel.x) * accel * gameDeltaTime;
+        this.vel.y += (targetVel.y - this.vel.y) * accel * gameDeltaTime;
+
+        // --- speed cap ---
+        const speed = Math.hypot(this.vel.x, this.vel.y);
+        if (speed > speedCap) {
+            const scale = speedCap / speed;
+            this.vel.x *= scale;
+            this.vel.y *= scale;
+        }
+
+        // optional rotation
+        this.angle += this.age * gameDeltaTime;
+
 
         // --- spawn x times per second ---
         this.timeSinceLastExhaust += gameDeltaTime;
@@ -299,6 +323,7 @@ export class HomingMissle extends Bullet {
 
             // position will have to be a bit behin the rockets direction and speed away from the rockets direciton. (TODO)
             spawnClassRelatively(
+                // TODO: might implement prediction here based on current speed incase there is multiple particles spawns per update() because of low fps.
                 RocketExhaustParticle,
                 this,
                 this.pos,

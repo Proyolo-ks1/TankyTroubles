@@ -53,7 +53,7 @@ class PowerUp extends PhysicsObject {
 
     update(gameDeltaTime) {
         super.update(gameDeltaTime);
-        this.angle += 0.01;
+        this.angle += 1 * gameDeltaTime;
         // Nothing
     }
 

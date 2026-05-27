@@ -46,8 +46,8 @@ export const HITBOX_TYPES = Object.freeze({
 
 /**
  * @typedef {Object} StatsRingBuffersType
- * @property {Float32Array} calculateTime
- * @property {Float32Array} renderTime
+ * @property {Float32Array} calculationDurations
+ * @property {Float32Array} renderingDurations
  * @property {Float32Array} fps
  * @property {number} index
  * @property {number} count
@@ -94,8 +94,8 @@ const GlobalVariables = {
         particles: [],
     },
     statsRingBuffers: {
-        calculateTime: new Float32Array(DEBUG_HISTORY_SIZE),
-        renderTime: new Float32Array(DEBUG_HISTORY_SIZE),
+        calculationDurations: new Float32Array(DEBUG_HISTORY_SIZE),
+        renderingDurations: new Float32Array(DEBUG_HISTORY_SIZE),
         fps: new Float32Array(DEBUG_HISTORY_SIZE),
         index: 0, // current write position
         count: 0, // how many valid samples we have
@@ -127,8 +127,8 @@ export function getGlobal() {
 export function recordDebugFrame(calcTime, renderTime, fps) {
     const dbg = getGlobal().statsRingBuffers;
 
-    dbg.calculateTime[dbg.index] = calcTime;
-    dbg.renderTime[dbg.index] = renderTime;
+    dbg.calculationDurations[dbg.index] = calcTime;
+    dbg.renderingDurations[dbg.index] = renderTime;
     dbg.fps[dbg.index] = fps;
 
     dbg.index = (dbg.index + 1) % DEBUG_HISTORY_SIZE;

@@ -263,6 +263,11 @@ export function drawTextBox(ctx, text, pos, size, options = {}) {
         align: "left",
         ...textStyle,
     });
+
+    if (getGlobal().debugMode) {
+        const renderScale = getGlobal().renderScale
+        drawRect(ctx, pos, size, null, "#8000ff", 1 / renderScale, 0);
+    }
 }
 
 // MARK: drawCircle

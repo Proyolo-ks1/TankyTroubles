@@ -346,7 +346,7 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
         }
 
         // After everything is updated and rendered:
-        recordDebugFrame(totalTimeForCalculating, totalTimeForRendering, 1000 / gameDeltaTime);
+        recordDebugFrame(totalTimeForCalculating, totalTimeForRendering, 1000 / gameDeltaTime / 1000);
 
         // Debugging
         // drawWindowDebug(ctx, canvasWidth, canvasHeight, realDeltaTime);

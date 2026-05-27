@@ -13,6 +13,9 @@ import { drawCircle, drawVertexLine, drawVertexPolygon} from './graphics-utils.j
 
 
 // MARK: drawExplosion
+// TODO
+
+// MARK: drawSmiley
 export function drawSmiley(ctx, pos, smileSize) {
     const renderScale = getGlobal().renderScale;
 
