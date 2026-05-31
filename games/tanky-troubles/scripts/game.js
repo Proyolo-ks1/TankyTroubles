@@ -21,36 +21,57 @@ const gameApi = document.getElementById("game-container").runningGameApi;
 
 
 // Streaming to /debugging.html through localStorage
-let lastDebugGlobalsJSON = "";
+let lastDebugText = "";
 
 function printDebugGlobals() {
-    const g = getGlobal();
-    const e = getGlobal().entities;
-    const totalEntities = e.tanks.length + e.bullets.length + e.particles.length;
+    const globals = getGlobal();
+    const entities = getGlobal().entities;
+    const totalEntities = entities.tanks.length + entities.bullets.length + entities.particles.length;
     const debugGlobals = {
-        ...g,
-        entities: totalEntities,
+        ...globals, // dont forget, some lastFrameCanvas will be added dynamically to globals somehwere.
+        entities: totalEntities, // this actually just replaces the entities node from globals
         statsRingBuffers: {
-            buffers: "calculateTime, renderTime, fps",
-            index: g.statsRingBuffers.index,
-            count: g.statsRingBuffers.count,
+            buffers: "calculateTime, renderTime, fps - shown further down",
+            index: globals.statsRingBuffers.index,
+            count: globals.statsRingBuffers.count,
         },
-        tanks: g.entities.tanks.length,
-        bullets: g.entities.bullets.length,
-        particles: g.entities.particles.length,
-        gameApi 
     };
-
     const newJSON = JSON.stringify(debugGlobals, null, 2);
 
-    if (newJSON !== lastDebugGlobalsJSON) {
+    const statsRingBufferValues = JSON.stringify({
+        fps: Array.from(globals.statsRingBuffers.fps),
+        calculationDurations: Array.from(globals.statsRingBuffers.calculationDurations),
+        renderingDurations: Array.from(globals.statsRingBuffers.renderingDurations),
+    }, null, 2)
+
+    const calc = Array.from(globals.statsRingBuffers.calculationDurations);
+    const render = Array.from(globals.statsRingBuffers.renderingDurations);
+    const fps = Array.from(globals.statsRingBuffers.fps);
+
+    const newDebugText = `
+<pre>
+${newJSON}
+
+<span style="color:orange">tanks:</span> ${globals.entities.tanks.length}
+<span style="color:cyan">bullets:</span> ${globals.entities.bullets.length}
+<span style="color:lime">particles:</span> ${globals.entities.particles.length}
+
+<span style="color:orange">fps:</span> ${JSON.stringify(fps)}
+<span style="color:cyan">calculationDurations:</span> ${JSON.stringify(calc)}
+<span style="color:lime">renderingDurations:</span> ${JSON.stringify(render)}
+${statsRingBufferValues}
+
+</pre>
+`;
+
+    if (newDebugText !== lastDebugText) {
         const container = document.querySelector("#game-description > :first-child");
         if (container) {
             container.innerHTML =
-                `<pre style="text-align:left; font-size:16px; overflow-x:auto;">${newJSON}</pre>`;
+                `<pre style="text-align:left; font-size:16px; overflow-x:auto;">${newDebugText}</pre>`;
         }
-        localStorage.setItem('debugGlobals', newJSON);
-        lastDebugGlobalsJSON = newJSON;
+        localStorage.setItem('debugText', newDebugText);
+        lastDebugText = newDebugText;
     }
 }
 
@@ -80,8 +101,8 @@ let lastDebugPrint = 0;
 const DEBUG_INTERVAL = 10; // ms
 
 // Just normal stuff i guess?
-let realDeltaTime = 0;
-let gameDeltaTime = 0;
+let realDeltaTime = 0; //ms
+let gameDeltaTime = 0; //ms
 const gameTime = getGlobal().gameTime
 
 

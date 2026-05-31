@@ -187,7 +187,7 @@ export class Chaingun extends Weapon {
             const max = 200;
             const gray = Math.round(min + (barrelPositionY + 1) * 0.5 * (max - min));
             const barrelColor = `rgb(${gray}, ${gray}, ${gray})`;
-            drawRect(ctx, barrelPos, { w: subBarrelWidth, h: subBarrelHeight }, barrelColor, "black", 0.01); // thinner outline for barrels
+            drawRect(ctx, barrelPos, { w: subBarrelWidth, h: subBarrelHeight }, barrelColor, "red", 0.01); // thinner outline for barrels
         }
     }
 }

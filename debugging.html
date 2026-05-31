@@ -1,17 +1,28 @@
-<pre id="debug-output"></pre>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TT Debugging</title>
+    <link rel="stylesheet" href="style.css" />
 
-<script>
-  function refreshDebug() {
-    const data = localStorage.getItem("debugGlobals");
-    if (data) {
-      document.getElementById("debug-output").textContent = JSON.stringify(
-        JSON.parse(data),
-        null,
-        2
-      );
-    }
-  }
+    <!-- Favicon Links -->
+    <link rel="icon" type="image/x-icon" href="../assets/logos/TankyTroubles-Logo-2048x.ico" />
+  </head>
+  <body>
+    <div><a id="debugpage-button" class="side-bar-button" href="/">Click here to go back to 'Main'</a></div>
+    <pre id="debug-output"></pre>
 
-  // Refresh every x ms
-  setInterval(refreshDebug, 250);
-</script>
+    <script>
+      function refreshDebug() {
+        const debugText = localStorage.getItem("debugText");
+        if (debugText) {
+          document.getElementById("debug-output").innerHTML = debugText;
+        }
+      }
+
+      // Refresh every x ms
+      setInterval(refreshDebug, 125); // 8 hz - updates per sec
+    </script>
+  </body>
+</html>
