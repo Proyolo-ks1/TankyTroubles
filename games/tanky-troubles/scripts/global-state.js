@@ -84,7 +84,7 @@ const GlobalVariables = {
     showStatistics: true,
     showParticles: true,
     canvasScale: 1280,  // dynamically scales with canvas width
-    zoomLevel: 1/8,
+    zoomLevel: 1/3,
     renderScale: 128,
     gameState: GAME_STATE_KEYS.MAIN_MENU,
     overlayState: OVERLAY_STATE_KEYS.NONE,

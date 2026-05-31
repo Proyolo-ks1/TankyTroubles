@@ -179,15 +179,33 @@ export class Chaingun extends Weapon {
             const flipped = this.barrelRotation < 30 ? 0 : 1;
             const flippedAngle = 30 - Math.abs(30 - barrelAngle);
             const barrelPositionX = Math.cos((flippedAngle + barrelAngles[i]) * Math.PI / 180) * (flipped === 0 ? 1 : -1);
-            const barrelPositionY = Math.sin(-(flippedAngle + barrelAngles[i]) * Math.PI / 180);
+            const barrelPositionY = Math.sin((flippedAngle + barrelAngles[i]) * Math.PI / 180);
             const barrelY = barrelPositionX * (barrelWidthDefault - subBarrelHeight) * 0.5 - subBarrelHeight * 0.5;
             const barrelPos = { x: turretSize.w / 2, y: barrelY };
             
             const min = 0;
             const max = 200;
             const gray = Math.round(min + (barrelPositionY + 1) * 0.5 * (max - min));
-            const barrelColor = `rgb(${gray}, ${gray}, ${gray})`;
-            drawRect(ctx, barrelPos, { w: subBarrelWidth, h: subBarrelHeight }, barrelColor, "red", 0.01); // thinner outline for barrels
+            let barrelColor = `rgb(${gray}, ${gray}, ${gray})`;
+
+            // paint sketch demo
+            const showPaintSketchDemo = false;
+            if (showPaintSketchDemo && this.tank.shortName === 't1') {
+                console.log(`barrelPositionX: ${barrelPositionX.toFixed(2)}, barrelPositionY: ${barrelPositionY.toFixed(2)}`);
+                if (i == 0) {
+                    barrelColor = `#22B14C`;
+                }
+                if (i == 1) {
+                    barrelColor = `#FFF200`;
+                }
+                if (i == 2) {
+                    barrelColor = `#FF7F27`;
+                }
+                if (i == 3) {
+                    barrelColor = `#ED1C24`;
+                }
+            }
+            drawRect(ctx, barrelPos, { w: subBarrelWidth, h: subBarrelHeight }, barrelColor, "black", 0.005); // thinner outline for barrels
         }
     }
 }
