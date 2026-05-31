@@ -71,17 +71,10 @@ async function startGame() {
 //     console.log(missileImage); // Should log the cached scaled image
 }
 
-// Function to clean up inactive bullets
-function cleanupInactiveBullets(bullets) {
-    for (let i = bullets.length - 1; i >= 0; i--) {
-        if (!bullets[i].active) bullets.splice(i, 1);
-    }
-}
-
-// Function to clean up inactive bullets
-function cleanupInactiveParticles(particles) {
-    for (let i = particles.length - 1; i >= 0; i--) {
-        if (!particles[i].active) particles.splice(i, 1);
+// Clean up inactive objects of an array
+function cleanupInactiveEntries(objectArray) {
+    for (let i = objectArray.length - 1; i >= 0; i--) {
+        if (!objectArray[i].active) objectArray.splice(i, 1);
     }
 }
 
@@ -258,7 +251,7 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
         let totalTimeForCalculating = 0;
         let totalTimeForRendering = 0;
 
-        // Update and render tanks and bullets
+        // Update and render tanks, bullets, other entities
         const debugActive = getGlobal().debugMode
         
         const bullets = entities.bullets;
@@ -315,29 +308,30 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
             }
         });
 
-        // Might have to implement these at some point...
-        // const utilityEntities = entities.particles;
-        // particles.forEach(particle => {
-        //     let t0 = performance.now();
-        //     particle.update(gameDeltaTime);
-        //     totalTimeForCalculating += performance.now() - t0;
+        // All others for now
+        const utilityEntities = entities.utilities;
+        utilityEntities.forEach(utility => {
+            let t0 = performance.now();
+            utility.update(gameDeltaTime);
+            totalTimeForCalculating += performance.now() - t0;
 
-        //     t0 = performance.now();
-        //     particle.render(ctx, gameDeltaTime);
-        //     totalTimeForRendering += performance.now() - t0;
+            t0 = performance.now();
+            utility.render(ctx, gameDeltaTime);
+            totalTimeForRendering += performance.now() - t0;
 
-        //     if (debugActive) {
-        //         t0 = performance.now();
-        //         particle.debugrender(ctx, gameDeltaTime);
-        //         totalTimeForRendering += performance.now() - t0;
-        //     }
-        // });
+            if (debugActive) {
+                t0 = performance.now();
+                utility.debugrender(ctx, gameDeltaTime);
+                totalTimeForRendering += performance.now() - t0;
+            }
+        });
 
 
         
         // Cleanup inactive entities (every frame single for now)
-        cleanupInactiveBullets(bullets);
-        cleanupInactiveBullets(particles);
+        cleanupInactiveEntries(bullets);
+        cleanupInactiveEntries(particles);
+        cleanupInactiveEntries(utilityEntities);
 
         // updateGame(currentTime);
 

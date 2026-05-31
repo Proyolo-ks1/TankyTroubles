@@ -21,12 +21,33 @@ const gameApi = document.getElementById("game-container").runningGameApi;
 
 
 // Streaming to /debugging.html through localStorage
+
+
+function printArrayDebug(label, value, hue) {
+    return `<span style="color:hsl(${hue}, 80%, 60%)">${label}:</span> ${value}`;
+}
+
+function generateDebugSubObjectCounts(obj) {
+    const keys = Object.keys(obj);
+    const step = 360 / keys.length;
+
+    return keys.map((key, i) => {
+        const hue = i * step;
+        const value = obj[key];
+
+        // if array → show length, otherwise raw value
+        const displayValue = Array.isArray(value) ? value.length : value;
+
+        return printArrayDebug(key, displayValue, hue);
+    }).join("\n");
+}
+
 let lastDebugText = "";
 
 function printDebugGlobals() {
     const globals = getGlobal();
     const entities = getGlobal().entities;
-    const totalEntities = entities.tanks.length + entities.bullets.length + entities.particles.length;
+    const totalEntities = Object.values(entities).reduce((sum, arr) => sum + arr.length, 0);
     const debugGlobals = {
         ...globals, // dont forget, some lastFrameCanvas will be added dynamically to globals somehwere.
         entities: totalEntities, // this actually just replaces the entities node from globals
@@ -48,13 +69,13 @@ function printDebugGlobals() {
     const render = Array.from(globals.statsRingBuffers.renderingDurations);
     const fps = Array.from(globals.statsRingBuffers.fps);
 
+    const entityLines = generateDebugSubObjectCounts(globals.entities);
+
     const newDebugText = `
 <pre>
 ${newJSON}
 
-<span style="color:orange">tanks:</span> ${globals.entities.tanks.length}
-<span style="color:cyan">bullets:</span> ${globals.entities.bullets.length}
-<span style="color:lime">particles:</span> ${globals.entities.particles.length}
+${entityLines}
 
 <span style="color:orange">fps:</span> ${JSON.stringify(fps)}
 <span style="color:cyan">calculationDurations:</span> ${JSON.stringify(calc)}

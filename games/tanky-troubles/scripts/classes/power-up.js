@@ -46,7 +46,7 @@ class PowerUp extends PhysicsObject {
 
         this.active = true;
 
-        getGlobal().entities.bullets.unshift(this);
+        getGlobal().entities.utilities.unshift(this);
     }
 
     

@@ -42,6 +42,7 @@ export const HITBOX_TYPES = Object.freeze({
  * @property {Tank[]} tanks
  * @property {Bullet[]} bullets
  * @property {Particle[]} particles
+ * @property {Utility[]} utilities
  */
 
 /**
@@ -92,6 +93,7 @@ const GlobalVariables = {
         tanks: [],
         bullets: [],
         particles: [],
+        utilities: [],
     },
     statsRingBuffers: {
         calculationDurations: new Float32Array(DEBUG_HISTORY_SIZE),
