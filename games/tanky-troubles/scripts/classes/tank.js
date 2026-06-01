@@ -173,7 +173,7 @@ export class Tank extends PhysicsObject {
 
         const renderScale = getGlobal().renderScale
 
-        ctx.translate(this.pos.x * renderScale, this.pos.y * renderScale);
+        ctx.translate(this.pos.x, this.pos.y);
         ctx.rotate(-this.angle);
 
         // Body
@@ -225,7 +225,7 @@ export class Tank extends PhysicsObject {
             fontWeight: "bold",
             textColor: this.color,
             outlineColor: "#000000",
-            outlineWidth: 2 / renderScale
+            outlineWidth: 2 / renderScale, //px
         };
         drawText(ctx, text, textPos, textStyle);
     }
@@ -263,7 +263,7 @@ export class Tank extends PhysicsObject {
             font: "Consolas",
             textColor: "#000000",
             outlineColor: "#ffffff",
-            outlineWidth: 2 / renderScale,
+            outlineWidth: 2 / renderScale, //px
         };
 
         drawText(ctx, text, textPos, textStyle);

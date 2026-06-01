@@ -104,7 +104,7 @@ class PowerUp extends PhysicsObject {
                 font: "Consolas",
                 textColor: "#000000",
                 outlineColor: "#ffffff",
-                outlineWidth: 2 / renderScale,
+                outlineWidth: / renderScale, //px
             };
 
             drawText(ctx, text, textPos, textStyle);

@@ -61,7 +61,7 @@ class Particle extends PhysicsObject {
         // Nothing
         
         // TEMP DEBUGGING
-        // drawCircle(ctx, this.pos, 1 / renderScale / 2, "#ffffff", "#ffffff");
+        // drawCircle(ctx, this.pos, 1 / 2, "#ffffff", "#ffffff");
     }
     
     render(ctx, gameDeltaTime) {
@@ -103,7 +103,7 @@ class Particle extends PhysicsObject {
                 font: "Consolas",
                 textColor: "#000000",
                 outlineColor: "#ffffff",
-                outlineWidth: 2 / renderScale,
+                outlineWidth: 2 / renderScale, //px
 
                 debugBox: false, // no debugrender on the debugging text :D
             };
@@ -114,9 +114,9 @@ class Particle extends PhysicsObject {
                 life > 0.5 ? "#ffcc00" :
                             "#00ff00";
 
-            const barSize = { w: 40 / renderScale, h: fontSize }
+            const barSize = { w: 40, h: fontSize }
             const barPos = { x: labelPos.x - 0.5 * barSize.w, y: labelPos.y - barSize.h } // Center Bottom like the text.
-            drawRect(ctx, barPos, barSize, "#000000aa", "#555555", 1 / renderScale);
+            drawRect(ctx, barPos, barSize, "#000000aa", "#555555", 1);
             drawRect(ctx, barPos, { w: barSize.w * life, h: barSize.h }, fillColor, null, 0);
             drawText(ctx, this.shortName, labelPos, textStyle);
 

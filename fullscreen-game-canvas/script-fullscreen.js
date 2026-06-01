@@ -15,8 +15,9 @@ const audioButton = document.getElementById('toggle-audio');
 const fullscreenIcon = document.getElementById('fullscreen-icon');
 const theaterModeIcon = document.getElementById('theater-icon');
 const audioIcon = document.getElementById('audio-icon');
+const shareBtn = document.getElementById("shareBtn");
 
- // Defaults
+// Defaults
 let currentViewingMode = 'normal';
 let theaterModeEnabled = true;
 let isMuted = false;
@@ -102,6 +103,33 @@ document.addEventListener('fullscreenchange', () => {
 updateButtonIcons();
 
 
+// Sharing Feature
+if (shareBtn) {
+    const urlToShare = "https://proyolo-ks1.github.io/TankyTroubles/";
+    shareBtn.addEventListener("click", async () => {
+        if (navigator.share) {
+            // Mobile: open native share dialog
+            try {
+                await navigator.share({
+                    title: "Check out TankyTroubles!",
+                    url: urlToShare
+                });
+            } catch (err) {
+                console.error("Share failed:", err);
+            }
+        } else {
+            // Desktop fallback: copy to clipboard
+            try {
+                await navigator.clipboard.writeText(urlToShare);
+                alert("Link copied to clipboard!");
+            } catch (err) {
+                console.error("Copy failed:", err);
+            }
+        }
+    });
+}
+
+
 
 //      |=======================|
 //      |      GAME CANVAS      |
@@ -121,12 +149,26 @@ const gameApi = gameContainer.runningGameApi = {
     isGameFocused: false,
     isGamePaused: false,
     externalDebugging: false,
+
     canvasCtx: ctx,
     canvasWidth: canvas.clientWidth,
     canvasHeight: canvas.clientHeight,
+
     globalKeys: {},
     globalScroll: {
         deltaY: 0,
+    },
+
+    mouse: {
+        pos: {
+            x: 0,
+            y: 0,
+        },
+        worldX: 0,
+        worldY: 0,
+        left: false,
+        right: false,
+        middle: false,
     },
 };
 
@@ -189,12 +231,42 @@ window.addEventListener("keyup", (e) => {
     gameApi.globalKeys[e.key] = false;
 });
 
+// globalMouse
+window.addEventListener("mousemove", (e) => {
+    if (!gameApi.isGameFocused) return;
+
+    const rect = canvas.getBoundingClientRect();
+
+    gameApi.mouse.x = e.clientX - rect.left;
+    gameApi.mouse.y = e.clientY - rect.top;
+});
+
+window.addEventListener("mousedown", (e) => {
+    if (!gameApi.isGameFocused) return;
+
+    if (e.button === 0) gameApi.mouse.left = true;
+    if (e.button === 1) gameApi.mouse.middle = true;
+    if (e.button === 2) gameApi.mouse.right = true;
+});
+
+window.addEventListener("mouseup", (e) => {
+    if (!gameApi.isGameFocused) return;
+
+    if (e.button === 0) gameApi.mouse.left = false;
+    if (e.button === 1) gameApi.mouse.middle = false;
+    if (e.button === 2) gameApi.mouse.right = false;
+});
+
 // globalScroll
 window.addEventListener("wheel", (e) => {
     if (!gameApi.isGameFocused) return;
-
-    if (e.key !== "F5" && e.key !== "F12") {
-        e.preventDefault();
-    }
+    
+    e.preventDefault();
     gameApi.globalScroll.deltaY += e.deltaY;
 }, { passive: false });
+
+// window.addEventListener("contextmenu", (e) => {
+//     if (gameApi.isGameFocused) {
+//         e.preventDefault();
+//     }
+// });

@@ -83,7 +83,7 @@ export class TextBoxEntity extends UtilityEntity {
                     font: "Arial",
                     textColor: "#0f0",
                     outlineColor: "#000",
-                    outlineWidth: 2 / renderScale, // px,
+                    outlineWidth: 2 / renderScale, // px
                 },
             }
         );

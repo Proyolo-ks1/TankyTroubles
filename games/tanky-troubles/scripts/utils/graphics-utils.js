@@ -33,9 +33,9 @@ export function drawText(ctx, text, pos, textStyle = {}) {
     } = textStyle;
 
     // Scale the position and font size according to canvas scale
-    const scaledX = pos.x * renderScale;
-    const scaledY = pos.y * renderScale;
-    const scaledFontSize = fontSize * renderScale;
+    const scaledX = pos.x;
+    const scaledY = pos.y;
+    const scaledFontSize = fontSize;
 
     // Set font and alignment
     ctx.font = `${fontWeight} ${scaledFontSize.toFixed(0)}px ${font}`;
@@ -46,7 +46,7 @@ export function drawText(ctx, text, pos, textStyle = {}) {
     // Draw outline if provided
     if (outlineColor) {
         ctx.strokeStyle = outlineColor;
-        ctx.lineWidth = outlineWidth * renderScale;
+        ctx.lineWidth = outlineWidth;
         ctx.strokeText(text, scaledX, scaledY);
     }
 
@@ -85,10 +85,10 @@ export function drawText(ctx, text, pos, textStyle = {}) {
 export function drawImg(ctx, pos = { x: 0, y: 0 }, size = { w: 0, h: 0 }, img, opacity = 1) {
     const renderScale = getGlobal().renderScale;
 
-    const scaledX = pos.x * renderScale;
-    const scaledY = pos.y * renderScale;
-    const scaledW = size.w * renderScale;
-    const scaledH = size.h * renderScale;
+    const scaledX = pos.x;
+    const scaledY = pos.y;
+    const scaledW = size.w;
+    const scaledH = size.h;
 
     ctx.globalAlpha = opacity;
 
@@ -102,11 +102,11 @@ export function drawImg(ctx, pos = { x: 0, y: 0 }, size = { w: 0, h: 0 }, img, o
 export function drawImgRotated(ctx, pos, angle, size, img, opacity = 1) {
     const renderScale = getGlobal().renderScale;
 
-    const w = size.w * renderScale;
-    const h = size.h * renderScale;
+    const w = size.w;
+    const h = size.h;
 
     ctx.save();
-    ctx.translate(pos.x * renderScale, pos.y * renderScale);
+    ctx.translate(pos.x, pos.y);
     ctx.rotate(-angle);
 
     ctx.globalAlpha = opacity;
@@ -123,11 +123,11 @@ export function drawRect(ctx, pos = {x: null, y: null}, size = {w: null, h: null
     const renderScale = getGlobal().renderScale
 
     // Scale values
-    const scaledX = pos.x * renderScale;
-    const scaledY = pos.y * renderScale;
-    const scaledWidth = size.w * renderScale;
-    const scaledHeight = size.h * renderScale;
-    const scaledBorderRadius = borderRadius * renderScale;
+    const scaledX = pos.x;
+    const scaledY = pos.y;
+    const scaledWidth = size.w;
+    const scaledHeight = size.h;
+    const scaledBorderRadius = borderRadius;
 
     // If borderRadius is 0, use a simple fillRect and strokeRect for efficiency
     if (scaledBorderRadius === 0) {
@@ -138,7 +138,7 @@ export function drawRect(ctx, pos = {x: null, y: null}, size = {w: null, h: null
 
         if (strokeColor && strokeWidth > 0) {
             ctx.strokeStyle = strokeColor;
-            ctx.lineWidth = strokeWidth * renderScale;
+            ctx.lineWidth = strokeWidth;
             ctx.strokeRect(scaledX, scaledY, scaledWidth, scaledHeight);
         }
     } else {
@@ -162,7 +162,7 @@ export function drawRect(ctx, pos = {x: null, y: null}, size = {w: null, h: null
 
         if (strokeColor && strokeWidth) {
             ctx.strokeStyle = strokeColor;
-            ctx.lineWidth = strokeWidth * renderScale;
+            ctx.lineWidth = strokeWidth;
             ctx.stroke();
         }
     }
@@ -172,12 +172,12 @@ export function drawRect(ctx, pos = {x: null, y: null}, size = {w: null, h: null
 // Draw a rotated rectangle with optional rounded corners, center-based coordinates
 export function drawRectRotated(ctx, posCenter = {x: 0, y: 0}, angle = 0, size = {w: 0, h: 0}, fillColor = null, strokeColor = null, strokeWidth = 0, borderRadius = 0) {
     const renderScale = getGlobal().renderScale;
-    const scaledWidth = size.w * renderScale;
-    const scaledHeight = size.h * renderScale;
-    const scaledBorderRadius = borderRadius * renderScale;
+    const scaledWidth = size.w;
+    const scaledHeight = size.h;
+    const scaledBorderRadius = borderRadius;
 
     ctx.save();
-    ctx.translate(posCenter.x * renderScale, posCenter.y * renderScale);
+    ctx.translate(posCenter.x, posCenter.y);
     ctx.rotate(-angle);
 
     if (scaledBorderRadius === 0) {
@@ -188,7 +188,7 @@ export function drawRectRotated(ctx, posCenter = {x: 0, y: 0}, angle = 0, size =
         }
         if (strokeColor && strokeWidth > 0) {
             ctx.strokeStyle = strokeColor;
-            ctx.lineWidth = strokeWidth * renderScale;
+            ctx.lineWidth = strokeWidth;
             ctx.strokeRect(-scaledWidth/2, -scaledHeight/2, scaledWidth, scaledHeight);
         }
     } else {
@@ -218,7 +218,7 @@ export function drawRectRotated(ctx, posCenter = {x: 0, y: 0}, angle = 0, size =
 
         if (strokeColor && strokeWidth > 0) {
             ctx.strokeStyle = strokeColor;
-            ctx.lineWidth = strokeWidth * renderScale;
+            ctx.lineWidth = strokeWidth;
             ctx.stroke();
         }
     }
@@ -278,9 +278,9 @@ export function drawTextBox(ctx, text, pos, size, options = {}) {
 export function drawCircle(ctx, posCenter, radius, fillColor = null, strokeColor = null, strokeWidth = 0.02) {
     const renderScale = getGlobal().renderScale;
 
-    const scaledX = posCenter.x * renderScale;
-    const scaledY = posCenter.y * renderScale;
-    const scaledRadius = radius * renderScale;
+    const scaledX = posCenter.x;
+    const scaledY = posCenter.y;
+    const scaledRadius = radius;
 
     ctx.beginPath();
     ctx.arc(scaledX, scaledY, scaledRadius, 0, Math.PI * 2);
@@ -294,7 +294,7 @@ export function drawCircle(ctx, posCenter, radius, fillColor = null, strokeColor
     // Stroke only if requested
     if (strokeColor) {
         ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = strokeWidth * renderScale;
+        ctx.lineWidth = strokeWidth;
         ctx.stroke();
     }
 }
@@ -306,9 +306,9 @@ export function drawRegPolygon(ctx, posCenter, radius, n, direction = 0, fillCol
     const angleStep = (Math.PI * 2) / n;
 
     // Scale the center position and radius early
-    const scaledX = posCenter.x * renderScale;
-    const scaledY = posCenter.y * renderScale;
-    const scaledRadius = radius * renderScale;
+    const scaledX = posCenter.x;
+    const scaledY = posCenter.y;
+    const scaledRadius = radius;
 
     // Adjust the rotation offset based on the desired direction
     const baseRotation = direction; // Add direction to the base rotation
@@ -340,7 +340,7 @@ export function drawRegPolygon(ctx, posCenter, radius, n, direction = 0, fillCol
 
     if (strokeColor) {
         ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = strokeWidth * renderScale; // Apply scaling to stroke width
+        ctx.lineWidth = strokeWidth; // Apply scaling to stroke width
         ctx.stroke();
     }
 }
@@ -351,16 +351,16 @@ export function drawLine(ctx, startPos, endPos, strokeColor = "#000000", strokeW
     const renderScale = getGlobal().renderScale
     
     // Apply canvas scaling
-    const scaledStartX = startPos.x * renderScale;
-    const scaledStartY = startPos.y * renderScale;
-    const scaledEndX = endPos.x * renderScale;
-    const scaledEndY = endPos.y * renderScale;
+    const scaledStartX = startPos.x;
+    const scaledStartY = startPos.y;
+    const scaledEndX = endPos.x;
+    const scaledEndY = endPos.y;
 
     ctx.beginPath();
     ctx.moveTo(scaledStartX, scaledStartY);
     ctx.lineTo(scaledEndX, scaledEndY);
     ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = strokeWidth * renderScale; // Apply scaling to stroke width
+    ctx.lineWidth = strokeWidth; // Apply scaling to stroke width
     ctx.stroke();
 }
 
@@ -387,7 +387,7 @@ export function drawVertexLine(ctx, pos, angle, vertices, strokeColor = "#000", 
     }
 
     ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = strokeWidth * renderScale;
+    ctx.lineWidth = strokeWidth;
     ctx.stroke();
 }
 
@@ -425,7 +425,7 @@ export function drawVertexPolygon(ctx, pos, angle, vertices, fillColor, strokeCo
     // Stroke color
     if (strokeColor) {
         ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = strokeWidth * renderScale;
+        ctx.lineWidth = strokeWidth;
         ctx.stroke();
     }
 }
@@ -444,10 +444,10 @@ export function drawVectorArrow(ctx, startPos, vector, strokeColor = "#000000", 
     const arrowHeadLength = Math.sqrt(vector.x ** 2 + vector.y ** 2) / 8;
 
     ctx.beginPath();
-    ctx.moveTo(startPos.x * renderScale, startPos.y * renderScale);
-    ctx.lineTo(endPos.x * renderScale, endPos.y * renderScale);
+    ctx.moveTo(startPos.x, startPos.y);
+    ctx.lineTo(endPos.x, endPos.y);
     ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = strokeWidth * renderScale;
+    ctx.lineWidth = strokeWidth;
     ctx.stroke();
 
     // Calculate angle of the line
@@ -464,10 +464,10 @@ export function drawVectorArrow(ctx, startPos, vector, strokeColor = "#000000", 
     };
 
     ctx.beginPath();
-    ctx.moveTo(endPos.x * renderScale, endPos.y * renderScale);
-    ctx.lineTo(arrowHead1.x * renderScale, arrowHead1.y * renderScale);
-    ctx.moveTo(endPos.x * renderScale, endPos.y * renderScale);
-    ctx.lineTo(arrowHead2.x * renderScale, arrowHead2.y * renderScale);
+    ctx.moveTo(endPos.x, endPos.y);
+    ctx.lineTo(arrowHead1.x, arrowHead1.y);
+    ctx.moveTo(endPos.x, endPos.y);
+    ctx.lineTo(arrowHead2.x, arrowHead2.y);
     ctx.stroke();
 }
 
@@ -485,8 +485,8 @@ function transformVertex(vertex, pos, angle, renderScale) {
     const rotatedY = vertex.x * Math.sin(angle) + vertex.y * Math.cos(angle);
 
     // Apply the position offset and scale
-    const finalX = (rotatedX + pos.x) * renderScale;
-    const finalY = (rotatedY + pos.y) * renderScale;
+    const finalX = (rotatedX + pos.x);
+    const finalY = (rotatedY + pos.y);
 
     return { x: finalX, y: finalY };
 }

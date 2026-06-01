@@ -42,7 +42,7 @@ export function renderGameStatistics(ctx, currentTime, realDeltaTime) {
         font: "Consolas",
         textColor: "#fff",
         outlineColor: "#000",
-        outlineWidth: 2 / renderScale,
+        outlineWidth: 2 / renderScale, //px
     };
 
     renderOverlayLeftPanel(ctx, renderScale, currentTime, realDeltaTime, dbg, textStyle);

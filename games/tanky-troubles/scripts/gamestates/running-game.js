@@ -5,6 +5,7 @@ import { generateMaze} from '../generate-maze.js';
 import { Tank } from '../classes/tank.js';
 import { loadMainMenu } from '../gamestates/main-menu.js';
 import { spawnAllTestObjects } from '../debugging/spawn-all-objects-static.js';
+import { updateCamera } from '../classes/camera.js';
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -275,6 +276,7 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
     if (!gameApi.isGamePaused) {
 
         // Camera Translations
+        updateCamera();
         const g = getGlobal();
         ctx.save();
         // WORLD SPACE (affected by camera)

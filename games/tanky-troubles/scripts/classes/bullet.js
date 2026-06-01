@@ -61,7 +61,7 @@ class Bullet extends PhysicsObject {
         // Nothing
         
         // TEMP DEBUGGING
-        // drawCircle(ctx, this.pos, 1 / renderScale / 2, "#ffffff", "#ffffff");
+        // drawCircle(ctx, this.pos, 1 / 2, "#ffffff", "#ffffff");
     }
     
     render(ctx, gameDeltaTime) {
@@ -100,13 +100,13 @@ class Bullet extends PhysicsObject {
                 font: "Consolas",
                 textColor: "#000000",
                 outlineColor: "#ffffff",
-                outlineWidth: 2 / renderScale,
+                outlineWidth: 2 / renderScale, //px
             };
 
             drawText(ctx, text, textPos, textStyle);
 
             if (this.active) {
-                drawCircle(ctx, this.pos, 1 / renderScale / 2, "#ffffff", "#ffffff");
+                drawCircle(ctx, this.pos, 1 / 2, "#ffffff", "#ffffff");
             }
         }
     }

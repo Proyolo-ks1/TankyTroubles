@@ -66,7 +66,7 @@ export function drawGraphBarsTYPEringBuffer(ctx, graphPos, graphSize, range, bar
                 font: "Arial",
                 textColor: graphColor,
                 outlineColor: "#000",
-                outlineWidth: 2 / renderScale, // px,
+                outlineWidth: 2 / renderScale, // px
             },
         },
     )

@@ -69,19 +69,19 @@ const keyHoldActions = {
         console.log(`DB: Increased Cam.zoomLevel by 1%: ${Math.round(getGlobal().camera.zoomLevel*1000) / 10}%`);
     },
     'g': (realDeltaTime) => {
-        getGlobal().camera.position.x -= 1;
+        getGlobal().camera.position.x -= 1 * realDeltaTime;
         console.log(`DB: Decreased Cam.x by 2: ${getGlobal().camera.position.x.toFixed(2)}`);
     },
     'j': (realDeltaTime) => {
-        getGlobal().camera.position.x += 1;
+        getGlobal().camera.position.x += 1 * realDeltaTime;
         console.log(`DB: Increased Cam.x by 2: ${getGlobal().camera.position.x.toFixed(2)}`);
     },
     'y': (realDeltaTime) => {
-        getGlobal().camera.position.y -= 1;
+        getGlobal().camera.position.y -= 1 * realDeltaTime;
         console.log(`DB: Decreased Cam.y by 2: ${getGlobal().camera.position.y.toFixed(2)}`);
     },
     'h': (realDeltaTime) => {
-        getGlobal().camera.position.y += 1;
+        getGlobal().camera.position.y += 1 * realDeltaTime;
         console.log(`DB: Increased Cam.y by 2: ${getGlobal().camera.position.y.toFixed(2)}`);
     },
     // Camera Control
