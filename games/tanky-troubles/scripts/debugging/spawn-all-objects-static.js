@@ -68,7 +68,7 @@ export function spawnAllTestObjects() {
             undefined,
             undefined,
             undefined,
-            { up: "i", down: "k", left: "j", right: "l", shoot: ";" },
+            { up: "o", down: "l", left: "k", right: ";", shoot: "[" },
             WeaponClass.name
         );
         tank.weapon = new WeaponClass(tank);

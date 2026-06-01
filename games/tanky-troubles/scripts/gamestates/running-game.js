@@ -78,6 +78,31 @@ function cleanupInactiveEntries(objectArray) {
     }
 }
 
+function processEntities(array, ctx, gameDeltaTime, debugActive, timers) {
+    array.forEach(entity => {
+        let t0 = performance.now();
+
+        entity.update(gameDeltaTime);
+        timers.calc += performance.now() - t0;
+
+        t0 = performance.now();
+        entity.render(ctx, gameDeltaTime);
+        timers.render += performance.now() - t0;
+
+        if (debugActive) {
+            t0 = performance.now();
+            entity.debugrender(ctx, gameDeltaTime);
+            timers.render += performance.now() - t0;
+        }
+        if (windEnabled) {
+            updateWindEffect(entity, gameDeltaTime); // should not move tanks etc, lets see
+        }
+
+        // Cleanup inactive entities (every frame single for now)
+        cleanupInactiveEntries(array);
+    });
+}
+
 function updateAndRenderWind(ctx, realDeltaTime) {
     const maxSpeed = 1;       // max wind speed in any direction (tiles per second)
     const dampingFactor = 0.1;  // how strong the wind drifts back to zero
@@ -104,8 +129,10 @@ function updateAndRenderWind(ctx, realDeltaTime) {
     windVel.x = Math.max(-maxSpeed, Math.min(maxSpeed, windVel.x));
     windVel.y = Math.max(-maxSpeed, Math.min(maxSpeed, windVel.y));
 
-    // Draw the wind vector arrow at position (50, 50)
-    drawVectorArrow(ctx, { x: 5, y: 1 }, { x: windVel.x * 5, y: windVel.y * 5 }, "#ffcc23", 0.05);
+    // Draw the Wind indicator vector arrow at position (50, 50)
+    const windIndicatorPos = { x: 5, y: 1 };
+    drawCircle(ctx, windIndicatorPos, 1, null, "#000", 0.01);
+    drawVectorArrow(ctx, windIndicatorPos, { x: windVel.x * 1, y: windVel.y * 1 }, "#ffcc23", 0.05);
 
     // debugging
     // drawVectorArrow(ctx, { x: 5, y: 1 }, { x: windAcc.x * 5, y: windAcc.y * 5 }, "#b39a48", 0.05);
@@ -113,22 +140,23 @@ function updateAndRenderWind(ctx, realDeltaTime) {
     // console.log(`wind velocity vector: (${windVel.x},${windVel.y})`);
 }
 
-function updateWindEffect(bullet, realDeltaTime) {
+function updateWindEffect(entity, realDeltaTime) {
     const windForceFactor = 1; // strength of wind force (can be tuned)
-    const mass = bullet.mass || 1; // default to 1 if no mass set
+    const mass = entity.mass || 1; // default to 1 if no mass set
 
-    const dx = windVel.x - bullet.vel.x;
-    const dy = windVel.y - bullet.vel.y;
+    const dx = windVel.x - entity.vel.x;
+    const dy = windVel.y - entity.vel.y;
 
     // acceleration = force / mass
     const accelX = (dx * windForceFactor) / mass;
     const accelY = (dy * windForceFactor) / mass;
 
-    bullet.vel.x += accelX * realDeltaTime;
-    bullet.vel.y += accelY * realDeltaTime;
+    entity.vel.x += accelX * realDeltaTime;
+    entity.vel.y += accelY * realDeltaTime;
 
-    bullet.pos.x += bullet.vel.x * realDeltaTime;
-    bullet.pos.y += bullet.vel.y * realDeltaTime;
+    entity.pos.x += entity.vel.x * realDeltaTime;
+    entity.pos.y += entity.vel.y * realDeltaTime;
+    console.log(`entity: (${entity.shortName}, mass: ${entity.mass})`);
 }
 
 // Draw grid
@@ -175,7 +203,7 @@ export function drawWindowDebug(ctx, canvasWidth, canvasHeight, realDeltaTime) {
 
 // updateGlobalVariables I guess
 function updateGlobalVariables() {
-    getGlobal().renderScale = getGlobal().canvasScale * getGlobal().zoomLevel
+    getGlobal().renderScale = getGlobal().canvasScale * getGlobal().camera.zoomLevel
 }
 
 
@@ -196,6 +224,8 @@ let windVel = {x: 0, y: 0};
 let windAcc = {x: 0, y: 0};
 let windJerk = {x: 0, y: 0};
 let windEnabled = false;
+
+const iniDebugging = true;
 
 // Support Variables
 let lastPowerUpSpawnTime = 0;
@@ -224,7 +254,6 @@ export function initializeWorld() {
     new Tank(posSpawn2, angleSpawn, undefined, undefined, undefined, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
 
     // Debugging
-    const iniDebugging = true;
     if (iniDebugging) {
         spawnAllTestObjects();
     }
@@ -245,93 +274,32 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
     window.globalSyncConsoleLogStr = "Global Logging:\n"
     if (!gameApi.isGamePaused) {
 
+        // Camera Translations
+        const g = getGlobal();
+        ctx.save();
+        // WORLD SPACE (affected by camera)
+        ctx.scale(g.renderScale, g.renderScale);
+        ctx.translate(
+            gameApi.canvasWidth / (2 * g.renderScale) - g.camera.position.x,
+            gameApi.canvasHeight / (2 * g.renderScale) - g.camera.position.y
+        );
+
         renderBackground(ctx);
         updateGlobalVariables();
 
-        let totalTimeForCalculating = 0;
-        let totalTimeForRendering = 0;
-
         // Update and render tanks, bullets, other entities
         const debugActive = getGlobal().debugMode
-        
-        const bullets = entities.bullets;
-        bullets.forEach(bullet => {
-            let t0 = performance.now()
-            bullet.update(gameDeltaTime);
-            totalTimeForCalculating += performance.now() - t0
 
-            t0 = performance.now()
-            bullet.render(ctx, gameDeltaTime);
-            totalTimeForRendering += performance.now() - t0
-
-            if (debugActive) {
-                t0 = performance.now()
-                bullet.debugrender(ctx, gameDeltaTime);
-                totalTimeForRendering += performance.now() - t0
-            }
-            if (windEnabled) {
-                updateWindEffect(bullet, gameDeltaTime);
-            }
-        });
-
-        const tanks = entities.tanks;
-        tanks.forEach(tank => {
-            let t0 = performance.now();
-            tank.update(gameDeltaTime);
-            totalTimeForCalculating += performance.now() - t0;
-
-            t0 = performance.now();
-            tank.render(ctx, gameDeltaTime);
-            totalTimeForRendering += performance.now() - t0;
-
-            if (debugActive) {
-                t0 = performance.now();
-                tank.debugrender(ctx, gameDeltaTime);
-                totalTimeForRendering += performance.now() - t0;
-            }
-        });
-
-        const particles = entities.particles;
-        particles.forEach(particle => {
-            let t0 = performance.now();
-            particle.update(gameDeltaTime);
-            totalTimeForCalculating += performance.now() - t0;
-
-            t0 = performance.now();
-            particle.render(ctx, gameDeltaTime);
-            totalTimeForRendering += performance.now() - t0;
-
-            if (debugActive) {
-                t0 = performance.now();
-                particle.debugrender(ctx, gameDeltaTime);
-                totalTimeForRendering += performance.now() - t0;
-            }
-        });
-
-        // All others for now
-        const utilityEntities = entities.utilities;
-        utilityEntities.forEach(utility => {
-            let t0 = performance.now();
-            utility.update(gameDeltaTime);
-            totalTimeForCalculating += performance.now() - t0;
-
-            t0 = performance.now();
-            utility.render(ctx, gameDeltaTime);
-            totalTimeForRendering += performance.now() - t0;
-
-            if (debugActive) {
-                t0 = performance.now();
-                utility.debugrender(ctx, gameDeltaTime);
-                totalTimeForRendering += performance.now() - t0;
-            }
-        });
-
-
-        
-        // Cleanup inactive entities (every frame single for now)
-        cleanupInactiveEntries(bullets);
-        cleanupInactiveEntries(particles);
-        cleanupInactiveEntries(utilityEntities);
+        const systems = [
+            entities.bullets,
+            entities.tanks,
+            entities.particles,
+            entities.utilities
+        ];
+        const timers = { calc: 0, render: 0 };
+        systems.forEach(list =>
+            processEntities(list, ctx, gameDeltaTime, debugActive, timers)
+        );
 
         // updateGame(currentTime);
 
@@ -340,13 +308,16 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
         }
 
         // After everything is updated and rendered:
-        recordDebugFrame(totalTimeForCalculating, totalTimeForRendering, 1000 / gameDeltaTime * getGlobal().gameTime.gameSpeed / 1000);
+        recordDebugFrame(timers.calc, timers.render, 1000 / gameDeltaTime * getGlobal().gameTime.gameSpeed / 1000);
 
-        // Debugging
-        // drawWindowDebug(ctx, canvasWidth, canvasHeight, realDeltaTime);
+        // Debugging ?
+        // drawWindowDebug(ctx, canvasWidth, canvasHeight, realDeltaTime); // ?
 
         lastFrameCtx.clearRect(0, 0, gameApi.canvasWidth, gameApi.canvasHeight);
         lastFrameCtx.drawImage(ctx.canvas, 0, 0);
+
+        // restore to screen space
+        ctx.restore();
 
     } else {
         // Game is paused → just draw the previous frame

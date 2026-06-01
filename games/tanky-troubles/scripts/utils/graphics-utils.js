@@ -14,10 +14,10 @@ import { randomColorHSLSeeded } from './math-utils.js';
 
 // MARK: drawText
 // Function to draw text with optional outline, applying canvas scaling
-export function drawText(ctx, text, pos, textStyle) {
+export function drawText(ctx, text, pos, textStyle = {}) {
     const renderScale = getGlobal().renderScale;
 
-    // Destructure style object with defaults
+    // Destructure style object with default values
     const {
         align = "left",
         baseline = "top",
@@ -27,6 +27,9 @@ export function drawText(ctx, text, pos, textStyle) {
         textColor = "#fff",
         outlineColor = null,
         outlineWidth = 0.02,
+
+        // Debugging text
+        debugBox = true
     } = textStyle;
 
     // Scale the position and font size according to canvas scale
@@ -48,7 +51,7 @@ export function drawText(ctx, text, pos, textStyle) {
     }
 
     // Debugging - Textbox
-    if (getGlobal().debugMode) {
+    if (getGlobal().debugMode && debugBox) {
         const metrics = ctx.measureText(text);
 
         const textWidth = metrics.width;
@@ -272,8 +275,8 @@ export function drawTextBox(ctx, text, pos, size, options = {}) {
 
 // MARK: drawCircle
 // Function to draw a circle with optional outline, applying canvas scaling
-export function drawCircle(ctx, posCenter, radius, fillColor, strokeColor = null, strokeWidth = 0.02) {
-    const renderScale = getGlobal().renderScale
+export function drawCircle(ctx, posCenter, radius, fillColor = null, strokeColor = null, strokeWidth = 0.02) {
+    const renderScale = getGlobal().renderScale;
 
     const scaledX = posCenter.x * renderScale;
     const scaledY = posCenter.y * renderScale;
@@ -281,12 +284,17 @@ export function drawCircle(ctx, posCenter, radius, fillColor, strokeColor = null
 
     ctx.beginPath();
     ctx.arc(scaledX, scaledY, scaledRadius, 0, Math.PI * 2);
-    ctx.fillStyle = fillColor;
-    ctx.fill();
 
+    // Fill only if requested
+    if (fillColor) {
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+    }
+
+    // Stroke only if requested
     if (strokeColor) {
         ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = strokeWidth * renderScale; // Scale stroke width too
+        ctx.lineWidth = strokeWidth * renderScale;
         ctx.stroke();
     }
 }
@@ -429,8 +437,8 @@ export function drawVectorArrow(ctx, startPos, vector, strokeColor = "#000000", 
 
     
     const endPos = {
-        x: startPos.x + vector.x / 4, 
-        y: startPos.y + vector.y / 4
+        x: startPos.x + vector.x, 
+        y: startPos.y + vector.y,
     };
     const arrowAngle = Math.PI / 6
     const arrowHeadLength = Math.sqrt(vector.x ** 2 + vector.y ** 2) / 8;

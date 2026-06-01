@@ -11,7 +11,8 @@ const gameApi = document.getElementById("game-container").runningGameApi;
 
 
 
-const numberKeyPressActions = {
+const keyPressActions = {
+    // Number Keys
     '1': () => {
         getGlobal().debugMode = !getGlobal().debugMode;
         console.log(`DB: toggled debugMode: ${getGlobal().debugMode}`);
@@ -24,20 +25,7 @@ const numberKeyPressActions = {
         getGlobal().showParticles = !getGlobal().showParticles;
         console.log(`DB: toggled showParticles: ${getGlobal().showParticles}`);
     },
-};
-
-const numberKeyHoldActions = {
-    '5': (realDeltaTime) => {
-        getGlobal().zoomLevel *= Math.pow(0.5, realDeltaTime);
-        console.log(`DB: Decreased zoomLevel by 1%: ${Math.round(getGlobal().zoomLevel*1000) / 10}%`);
-    },
-    '6': (realDeltaTime) => {
-        getGlobal().zoomLevel *= Math.pow(2, realDeltaTime);
-        console.log(`DB: Increased zoomLevel by 1%: ${Math.round(getGlobal().zoomLevel*1000) / 10}%`);
-    },
-};
-
-const timeKeyPressActions = {
+    // Game Time
     ' ': () => {
         const gt = getGlobal().gameTime;
         gt.paused = !gt.paused;
@@ -71,30 +59,51 @@ const timeKeyPressActions = {
     },
 };
 
+const keyHoldActions = {
+    'u': (realDeltaTime) => {
+        getGlobal().camera.zoomLevel *= Math.pow(0.5, realDeltaTime);
+        console.log(`DB: Decreased Cam.zoomLevel by 1%: ${Math.round(getGlobal().camera.zoomLevel*1000) / 10}%`);
+    },
+    't': (realDeltaTime) => {
+        getGlobal().camera.zoomLevel *= Math.pow(2, realDeltaTime);
+        console.log(`DB: Increased Cam.zoomLevel by 1%: ${Math.round(getGlobal().camera.zoomLevel*1000) / 10}%`);
+    },
+    'g': (realDeltaTime) => {
+        getGlobal().camera.position.x -= 1;
+        console.log(`DB: Decreased Cam.x by 2: ${getGlobal().camera.position.x.toFixed(2)}`);
+    },
+    'j': (realDeltaTime) => {
+        getGlobal().camera.position.x += 1;
+        console.log(`DB: Increased Cam.x by 2: ${getGlobal().camera.position.x.toFixed(2)}`);
+    },
+    'y': (realDeltaTime) => {
+        getGlobal().camera.position.y -= 1;
+        console.log(`DB: Decreased Cam.y by 2: ${getGlobal().camera.position.y.toFixed(2)}`);
+    },
+    'h': (realDeltaTime) => {
+        getGlobal().camera.position.y += 1;
+        console.log(`DB: Increased Cam.y by 2: ${getGlobal().camera.position.y.toFixed(2)}`);
+    },
+    // Camera Control
+    
+};
+
 const keyPressedLastFrame = {};
 let previousScrollY = 0;
 let smoothedScroll = 0;
 const SMOOTHING = 0.9; // more is smoother
 export function globalGameControlsStep(realDeltaTime) {
-    for (const key in numberKeyPressActions) {
+    for (const key in keyPressActions) {
         const isDown = gameApi.globalKeys[key];
         if (isDown && !keyPressedLastFrame[key]) {
-            numberKeyPressActions[key]();
+            keyPressActions[key]();
         }
         keyPressedLastFrame[key] = isDown;
     }
 
-    for (const key in timeKeyPressActions) {
-        const isDown = gameApi.globalKeys[key];
-        if (isDown && !keyPressedLastFrame[key]) {
-            timeKeyPressActions[key]();
-        }
-        keyPressedLastFrame[key] = isDown;
-    }
-
-    for (const key in numberKeyHoldActions) {
+    for (const key in keyHoldActions) {
         if (gameApi.globalKeys[key]) {
-            numberKeyHoldActions[key](realDeltaTime);
+            keyHoldActions[key](realDeltaTime);
         }
     }
 
@@ -104,7 +113,7 @@ export function globalGameControlsStep(realDeltaTime) {
     previousScrollY = scrollY;
     smoothedScroll = smoothedScroll * SMOOTHING + scrollDelta * (1 - SMOOTHING);
     if (smoothedScroll < -0.02 || smoothedScroll > 0.02) {
-        getGlobal().zoomLevel *= Math.pow(2, smoothedScroll * SCROLL_SENSITIVITY);
+        getGlobal().camera.zoomLevel *= Math.pow(2, smoothedScroll * SCROLL_SENSITIVITY);
     } else{
         smoothedScroll = 0
     }

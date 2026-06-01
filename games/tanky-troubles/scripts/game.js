@@ -113,6 +113,7 @@ getGlobal().overlayState = OVERLAY_STATE_KEYS.NONE;
 getGlobal().debugMode = false;
 getGlobal().showStatistics = false;
 getGlobal().showParticles = true;
+getGlobal().camera.zoomlevel = 1/8;
 
 // Statistics
 let lastTime = performance.now();

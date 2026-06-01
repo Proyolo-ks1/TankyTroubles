@@ -38,6 +38,12 @@ export const HITBOX_TYPES = Object.freeze({
 // Objects Definitions
 
 /**
+ * @typedef {Object} Vector2d
+ * @property {number} x
+ * @property {number} y
+ */
+
+/**
  * @typedef {Object} EntityType
  * @property {Tank[]} tanks
  * @property {Bullet[]} bullets
@@ -63,6 +69,14 @@ export const HITBOX_TYPES = Object.freeze({
  */
 
 /**
+ * @typedef {Object} CameraType
+ * @property {Vector2d} position
+ * @property {number} zoomLevel
+ * @property {number} smoothness
+ * @property {any|null} target
+ */
+
+/**
  * @typedef {Object} GlobalVariablesType
  * @property {boolean} debugMode
  * @property {boolean} showStatistics
@@ -73,6 +87,7 @@ export const HITBOX_TYPES = Object.freeze({
  * @property {string} gameState
  * @property {string} overlayState
  * @property {EntityType} entities
+ * @property {CameraType} camera
  * @property {StatsRingBuffersType} statsRingBuffers
  * @property {GameTime} gameTime
  */
@@ -85,8 +100,7 @@ const GlobalVariables = {
     showStatistics: true,
     showParticles: true,
     canvasScale: 1280,  // dynamically scales with canvas width
-    zoomLevel: 1/3,
-    renderScale: 128,
+    renderScale: 128,  // is always calculated in updateGlobalVariables() every ExecuteGameLoop()
     gameState: GAME_STATE_KEYS.MAIN_MENU,
     overlayState: OVERLAY_STATE_KEYS.NONE,
     entities: {
@@ -94,6 +108,15 @@ const GlobalVariables = {
         bullets: [],
         particles: [],
         utilities: [],
+    },
+    camera: {
+        position: {
+            x: 0,
+            y: 0,
+        },
+        zoomLevel: 1/8,
+        smoothness: 0.1, // camera lerp
+        target: null, // e.g. follow player
     },
     statsRingBuffers: {
         calculationDurations: new Float32Array(DEBUG_HISTORY_SIZE),
@@ -103,7 +126,7 @@ const GlobalVariables = {
         count: 0, // how many valid samples we have
     },
     gameTime: {
-        gameSpeed: 1.0,      // 1.0 = normal, 0.5 = half speed, 0 = paused
+        gameSpeed: 1.0,    // 1.0 = normal, 0.5 = half speed, 0 = paused
         paused: false,
         stepOnce: false,   // single-frame advance
         maxDelta: 1 / 60,  // safety clamp

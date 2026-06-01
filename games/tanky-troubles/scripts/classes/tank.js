@@ -1,6 +1,6 @@
 import { getGlobal } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../utils/graphics-utils.js';
-import { NoWeapon, Chaingun, Shotgun, FlameThrower, ChainShotgun, ShrepnalBombWeapon, ExperimentalWeapon, ChainShotgunBOOM, OppenheimerBOOOM, MissleLauncher } from './weapons.js';
+import * as Weapons from './weapons.js';
 import { posMod, randomSeeded} from '../utils/math-utils.js';
 import { PhysicsObject } from './entity.js';
 import { OppenheimerBullet } from './bullet.js';
@@ -62,7 +62,7 @@ export class Tank extends PhysicsObject {
         this.color = color;
         this.controls = controls;
 
-        this.weapon = new Chaingun(this); // Default weapon
+        this.weapon = new Weapons.FlameThrower(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
 
@@ -93,7 +93,7 @@ export class Tank extends PhysicsObject {
         this.weapon = new PowerUpClass(this);
     }
 
-    update(realDeltaTime) {
+    update(gameDeltaTime) {
 
         // Detect shooting press & release
         const isShooting = globalKeys[this.controls.shoot];
@@ -108,7 +108,7 @@ export class Tank extends PhysicsObject {
 
         // Handle shoot hold
         if (globalKeys[this.controls.shoot]) {
-            this.shootHold(realDeltaTime);
+            this.shootHold(gameDeltaTime);
         }
     
         // Rotation - Turning
@@ -116,14 +116,14 @@ export class Tank extends PhysicsObject {
         if (!(globalKeys[this.controls.left] && globalKeys[this.controls.right])) {
             const linearVelocityAtRadius = trackCenterRadius * this.turningSpeed;
             if (globalKeys[this.controls.left]) {
-                this.angle += this.turningSpeed * realDeltaTime;
-                this.trackRotation.left -= linearVelocityAtRadius * realDeltaTime;
-                this.trackRotation.right += linearVelocityAtRadius * realDeltaTime;
+                this.angle += this.turningSpeed * gameDeltaTime;
+                this.trackRotation.left -= linearVelocityAtRadius * gameDeltaTime;
+                this.trackRotation.right += linearVelocityAtRadius * gameDeltaTime;
             }
             if (globalKeys[this.controls.right]) {
-                this.angle -= this.turningSpeed * realDeltaTime;
-                this.trackRotation.left += linearVelocityAtRadius * realDeltaTime;
-                this.trackRotation.right -= linearVelocityAtRadius * realDeltaTime;
+                this.angle -= this.turningSpeed * gameDeltaTime;
+                this.trackRotation.left += linearVelocityAtRadius * gameDeltaTime;
+                this.trackRotation.right -= linearVelocityAtRadius * gameDeltaTime;
             }
             this.angle = (this.angle + 2 * Math.PI) % (2 * Math.PI);
         }
@@ -143,18 +143,18 @@ export class Tank extends PhysicsObject {
         }
 
         // Update position using velocity
-        this.pos.x += this.vel.x * realDeltaTime;
-        this.pos.y += this.vel.y * realDeltaTime;
+        this.pos.x += this.vel.x * gameDeltaTime;
+        this.pos.y += this.vel.y * gameDeltaTime;
 
         // Update track rotation
         const forwardSpeed = Math.cos(this.angle) * this.vel.x + Math.sin(-this.angle) * this.vel.y;
-        this.trackRotation.left += forwardSpeed * realDeltaTime;
+        this.trackRotation.left += forwardSpeed * gameDeltaTime;
         if (Math.abs(this.trackRotationSinceMark.left - this.trackRotation.left) > 0.05) {
             const offset = {x: -this.width / 2, y: -trackCenterRadius}
             spawnClassRelatively(TankTrackMarkParticle, this, this.pos, this.angle, this.scale, offset, 0, 0, 0, 5.000);
             this.trackRotationSinceMark.left = this.trackRotation.left;
         }
-        this.trackRotation.right += forwardSpeed * realDeltaTime;
+        this.trackRotation.right += forwardSpeed * gameDeltaTime;
         if (Math.abs(this.trackRotationSinceMark.right - this.trackRotation.right) > 0.05) {
             const offset = {x: -this.width / 2, y: trackCenterRadius}
             spawnClassRelatively(TankTrackMarkParticle, this, this.pos, this.angle, this.scale, offset, 0, 0, 0, 5.000);
@@ -163,6 +163,9 @@ export class Tank extends PhysicsObject {
         // if (this.name === "tank0") {
         //     window.globalSyncConsoleLogStr += `Tank0\nforwardSpeed: ${forwardSpeed.toFixed(3)} tl/s\ntrack L: ${this.trackRotation.left.toFixed(3)}\ttrack R: ${this.trackRotation.right.toFixed(3)}`;
         // }
+
+        this.updateAge(gameDeltaTime);
+        this.updateHitbox();
     }
 
     render(ctx, realDeltaTime) {

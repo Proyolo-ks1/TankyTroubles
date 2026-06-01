@@ -6,7 +6,7 @@ import { randomSeeded, hexToRGB } from "../utils/math-utils.js";
 
 
 // References
-const tileSize = getGlobal().zoomLevel;
+const tileSize = getGlobal().camera.zoomLevel;
 
 
 
@@ -79,33 +79,46 @@ class Particle extends PhysicsObject {
             drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 0.02);
             
             // Heading Line
-            const headingLength = 1;
-            let headingX = this.pos.x + Math.cos(this.angle) * headingLength;
-            let headingY = this.pos.y + Math.sin(-this.angle) * headingLength;
+            const headingLength = 0.1;
+            const headingX = this.pos.x + Math.cos(this.angle) * headingLength;
+            const headingY = this.pos.y + Math.sin(-this.angle) * headingLength;
+            const headingPos = { x: headingX, y: headingY }
             
             // Draw the heading line
-            drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#FF0000", 0.02); // Red color for the heading line
+            drawLine(ctx, this.pos, headingPos, "#FF0000", 0.01); // Red color for the heading line
             
             // Draw the random indicator
             const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
-            headingX = this.pos.x + Math.cos(randomAngle) * 1.2 * headingLength;
-            headingY = this.pos.y + Math.sin(-randomAngle) * 1.2 * headingLength;
-            drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#4c00ff", 0.02); // Red color for the heading line
+            const labelX = this.pos.x + Math.cos(randomAngle) * 1.2 * headingLength;
+            const labelY = this.pos.y + Math.sin(-randomAngle) * 1.2 * headingLength;
+            const labelPos = { x: labelX, y: labelY }
+            drawLine(ctx, this.pos, labelPos, "#4c00ff", 0.01); // Red color for the heading line
 
-            // name
-            const text = `${this.shortName}(${this.age.toFixed(2)}/${this.lifeSpan.toFixed(2)})`;
-            const textPos = { x: headingX, y: headingY };
+            // Text Info
+            const fontSize = 12 / renderScale; //px
             const textStyle = {
                 align: "center",
                 baseline: "bottom",
-                fontSize: 16 / renderScale, //px
+                fontSize: fontSize,
                 font: "Consolas",
                 textColor: "#000000",
                 outlineColor: "#ffffff",
                 outlineWidth: 2 / renderScale,
+
+                debugBox: false, // no debugrender on the debugging text :D
             };
 
-            drawText(ctx, text, textPos, textStyle);
+            const life = Math.min(1, Math.max(0, this.age / this.lifeSpan));
+            const fillColor =
+                life > 0.75 ? "#ff0000" :
+                life > 0.5 ? "#ffcc00" :
+                            "#00ff00";
+
+            const barSize = { w: 40 / renderScale, h: fontSize }
+            const barPos = { x: labelPos.x - 0.5 * barSize.w, y: labelPos.y - barSize.h } // Center Bottom like the text.
+            drawRect(ctx, barPos, barSize, "#000000aa", "#555555", 1 / renderScale);
+            drawRect(ctx, barPos, { w: barSize.w * life, h: barSize.h }, fillColor, null, 0);
+            drawText(ctx, this.shortName, labelPos, textStyle);
 
             if (this.active) {
                 drawCircle(ctx, this.pos, 1 / renderScale / 2, "#ffffff", "#ffffff");

@@ -11,7 +11,7 @@
 
 
 
-export function spawnRelativeClass(Class, owner, pos, angle, scale, relPos = {x: 0, y: 0}, relAngle = 0, speed = undefined, angleVel, lifeSpan = undefined) {
+export function spawnRelativeClass(Class = undefined, owner = undefined, pos = {x: 0, y: 0}, angle = 0, scale = 1, relPos = {x: 0, y: 0}, relAngle = 0, speed = 1, angleVel = 0, lifeSpan = undefined) {
     // Calculate absolute position based on relative position
     const absPos = { 
         x: pos.x + Math.cos(angle) * relPos.x - Math.sin(-angle) * relPos.y, 
@@ -22,8 +22,7 @@ export function spawnRelativeClass(Class, owner, pos, angle, scale, relPos = {x:
     // Instantiate the class with the calculated values
     const instance = new Class(owner, absPos, absAngle, scale, speed, angleVel, lifeSpan);
     // Log the whole spawn data
-    // console.log(`%c${Class.name} spawned by ${owner.name} at (${absPos.x.toFixed(0)}, ${absPos.y.toFixed(0)}), rotation: ${(absAngle * 180 / Math.PI).toFixed(0)}°, speed: ${speed || 'N/A'}px/s, lifespan: ${lifeSpan ? lifeSpan + "ms" : "default"}`, "color: #00FF00;");
-
+    // console.log(`%c${Class.name} spawned by ${owner.name} at (${absPos.x.toFixed(0)}, ${absPos.y.toFixed(0)}), rotation: ${(absAngle * 180 / Math.PI).toFixed(0)}°, speed: ${speed || 'N/A'}px/s, lifespan: ${lifeSpan ? lifeSpan.toFixed(1) + "s" : "default"}`, "color: #00FF00;");
 
     return instance;
 }

@@ -171,7 +171,7 @@ export class Shrapnel extends Bullet {
 
     update(gameDeltaTime) {
         super.update(gameDeltaTime);
-        this.angle += this.angleVel;
+        this.angle += this.angleVel * gameDeltaTime;
         // this.angleVel *= 1 - 0.9 * gameDeltaTime;
         this.vel.x *= 1 - 0.5 * gameDeltaTime;
         this.vel.y *= 1 - 0.5 * gameDeltaTime;
@@ -195,7 +195,6 @@ export class ShrapnelBomb extends Bullet {
 
     update(gameDeltaTime) {
         super.update(gameDeltaTime);
-        // this.angle += 0.05
     }
 
     destroy() {
@@ -210,7 +209,7 @@ export class ShrapnelBomb extends Bullet {
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
             const bulletSpeed = 1 + Math.random() * 0.5;
             const lifeSpan = 3.000 - Math.random() * (3.000 / 2);
-            spawnClassRelatively(Shrapnel, this, this.pos, this.angle, {x: 0, y: 0}, randomBulletAngleOffset, bulletSpeed, 1, undefined, lifeSpan);
+            spawnClassRelatively(Shrapnel, this, this.pos, this.angle, this.scale, {x: 0, y: 0}, randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
         }
     }
 
@@ -347,7 +346,7 @@ export class HomingMissle extends Bullet {
 
 // MARK: OppenheimerBullet
 export class OppenheimerBullet extends Bullet {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 1.000) {
+    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 2) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "OppenheimerBullet";
         this.scale = scaleSpawn;
@@ -365,14 +364,15 @@ export class OppenheimerBullet extends Bullet {
         let bulletSpeed = 1;
         
         // Left at -45 degrees
-        spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, { x: 0, y: 0 }, -Math.PI / 4, bulletSpeed, 0, this.lifeSpan);
+        spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, { x: 0, y: 0 }, -Math.PI / 2, bulletSpeed, 0, undefined);
 
         // Right at +45 degrees
-        spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, { x: 0, y: 0 }, Math.PI / 4, bulletSpeed, 0, this.lifeSpan);
+        spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, { x: 0, y: 0 }, Math.PI / 2, bulletSpeed, 0, undefined);
 }
 
     render(ctx, realDeltaTime) {
         if (this.active) {
+            drawRocket(ctx, this.pos, this.angle, this.scale, this.color)
             const radius = this.radius / 3;
             drawCircle(ctx, this.pos, radius, "#000");
             drawCircle(ctx, this.pos, radius * 0.8, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
@@ -389,9 +389,9 @@ export class OppenheimerBullet extends Bullet {
     }
 }
 
-// MARK: OppenheimerBullet
+// MARK: OppenheimerNeutron
 export class OppenheimerNeutron extends Bullet {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 1.000) {
+    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 0.5) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "OppenheimerNeutron";
         this.scale = scaleSpawn;
@@ -407,12 +407,13 @@ export class OppenheimerNeutron extends Bullet {
     destroy() {
         super.destroy();
         let bulletSpeed = 1;
+        const relAngle = randomBulletAngleOffset + 0.2 * Math.sin(-this.tank.age / 50);
         
         // Left at -45 degrees
-        spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, { x: 0, y: 0 }, -Math.PI / 4, bulletSpeed, 0, this.lifeSpan);
+        spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, { x: 0, y: 0 }, -Math.PI / 4, bulletSpeed, 0, undefined);
 
         // Right at +45 degrees
-        spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, { x: 0, y: 0 }, Math.PI / 4, bulletSpeed, 0, this.lifeSpan);
+        spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, { x: 0, y: 0 }, Math.PI / 4, bulletSpeed, 0, undefined);
 }
 
     render(ctx, gameDeltaTime) {
