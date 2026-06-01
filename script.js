@@ -237,8 +237,8 @@ window.addEventListener("mousemove", (e) => {
 
     const rect = canvas.getBoundingClientRect();
 
-    gameApi.mouse.x = e.clientX - rect.left;
-    gameApi.mouse.y = e.clientY - rect.top;
+    gameApi.mouse.pos.x = e.clientX - rect.left;
+    gameApi.mouse.pos.y = e.clientY - rect.top;
 });
 
 window.addEventListener("mousedown", (e) => {
@@ -265,8 +265,8 @@ window.addEventListener("wheel", (e) => {
     gameApi.globalScroll.deltaY += e.deltaY;
 }, { passive: false });
 
-// window.addEventListener("contextmenu", (e) => {
-//     if (gameApi.isGameFocused) {
-//         e.preventDefault();
-//     }
-// });
+window.addEventListener("contextmenu", (e) => {
+    if (gameApi.isGameFocused) {
+        e.preventDefault();
+    }
+});

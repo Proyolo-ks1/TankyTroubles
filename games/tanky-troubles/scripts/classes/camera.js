@@ -19,6 +19,6 @@ const gameApi = document.getElementById("game-container").runningGameApi;
 
     const target = null;
     if (gameApi.mouse) {
-        console.log(`gameApi.mouse.pos.x: ${gameApi.mouse.pos.x}`);
+        console.log(`gameApi.mouse.pos: ${gameApi.mouse.pos.x},${gameApi.mouse.pos.y}`);
     }
 }
