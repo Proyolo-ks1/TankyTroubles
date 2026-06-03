@@ -88,11 +88,11 @@ function renderOverlayGraphs(ctx, DebugLeftPanel, dbg, textStyle) {
     let defaultGraph = { pos: { x: 0, y: 0}, size: { w: availableWidth, h: graphHeight } };
 
     // Draw Bar Graphs
-    drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 30 }, dbg.calculationDurations, dbg.index, dbg.count, "#0f0", "calcTime");
+    drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 30 }, dbg.calculationDurations, dbg.index, dbg.count, "#0f0", "calcTime", "ms");
     graphsContainer.cursor.y += defaultGraph.size.h + graphsContainer.gap;
-    drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 30 }, dbg.renderingDurations, dbg.index, dbg.count, "#0ff", "renderTime");
+    drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 30 }, dbg.renderingDurations, dbg.index, dbg.count, "#0ff", "renderTime", "ms");
     graphsContainer.cursor.y += defaultGraph.size.h + graphsContainer.gap;
-    drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 150 }, dbg.fps, dbg.index, dbg.count, "#fa0", "fps");
+    drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 150 }, dbg.fps, dbg.index, dbg.count, "#fa0", "frames", "fps");
     graphsContainer.cursor.y += defaultGraph.size.h;
     DebugLeftPanel.size.h = graphsContainer.cursor.y;
 

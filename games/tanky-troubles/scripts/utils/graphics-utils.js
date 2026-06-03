@@ -1,5 +1,5 @@
 import { getGlobal } from '../global-state.js';
-import { randomColorHSLSeeded } from './math-utils.js';
+import { randomColorHSLSeeded } from './color-utils.js';
 
 
 

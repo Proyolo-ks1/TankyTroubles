@@ -2,7 +2,8 @@ import { getGlobal } from '../global-state.js';
 import { drawRect, drawRectRotated, drawCircle, drawText, drawRegPolygon, drawLine, drawVectorArrow} from '../utils/graphics-utils.js';
 import { PhysicsObject } from './entity.js';
 import { spawnRelativeClass } from './spawner.js';
-import { randomSeeded, hexToRGB } from "../utils/math-utils.js";
+import { randomSeeded } from "../utils/math-utils.js";
+import { hexToRGB } from "../utils/color-utils.js";
 
 
 

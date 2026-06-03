@@ -1,5 +1,6 @@
 import { getGlobal } from '../global-state.js';
-import { drawRect, drawCircle, drawVertexLine, drawVertexPolygon, drawTextBox} from './graphics-utils.js'
+import { drawRect, drawCircle, drawVertexLine, drawVertexPolygon, drawTextBox, drawLine } from './graphics-utils.js'
+import { darkenHex } from './color-utils.js'
 
 
 
@@ -13,7 +14,7 @@ import { drawRect, drawCircle, drawVertexLine, drawVertexPolygon, drawTextBox} f
 
 
 // MARK: drawGraph
-export function drawGraphBarsTYPEringBuffer(ctx, graphPos, graphSize, range, barValues, ringBufferIndex, ringBufferCount, graphColor, graphTitle) {
+export function drawGraphBarsTYPEringBuffer(ctx, graphPos, graphSize, range, barValues, ringBufferIndex, ringBufferCount, graphColor, graphTitle, unit) {
 
     // Draw graph grid
     const gridSize = 0;  // MARK: TODO: Grid
@@ -45,14 +46,34 @@ export function drawGraphBarsTYPEringBuffer(ctx, graphPos, graphSize, range, bar
 
         drawRect(ctx, barRect.pos, barRect.size, barRect.fillColor, barRect.strokeColor, barRect.strokeWidth, barRect.borderRadius);
     }
+
+    // Lines
+    const points = [];
+
+    for (let i = 0; i < ringBufferCount; i++) {
+        const idx = (ringBufferIndex + i) % barValues.length;
+        const value = getSmoothedValue(barValues, idx, 5);
+
+        const normalized = (value - range.min) / (range.max - range.min);
+        const clamped = Math.max(0, Math.min(normalized, 1));
+
+        const x = graphPos.x + i * barWidth;
+        const y = graphPos.y + graphSize.h - (clamped * graphSize.h);
+
+        points.push({ x, y });
+    }
+    for (let i = 0; i < points.length - 1; i++) {
+        drawLine(ctx, points[i], points[i + 1], darkenHex(graphColor, 30), 3);
+    }
     
     const textHeight = 16;
-    const currentValue = barValues[ringBufferIndex];
+    const latestIndex = (barValues.length + ringBufferIndex - 1) % barValues.length;
+    const currentValue = getSmoothedValue(barValues, latestIndex, 10);
     drawTextBox(
         ctx,
-        `${graphTitle}: ${Math.round(currentValue)}`,
+        `${graphTitle}: ${Math.round(currentValue)} ${unit}`,
         graphPos,
-        { w: graphSize.w / 2, h: (textHeight + 2)},
+        { w: graphSize.w * 3/4, h: (textHeight + 2)},
         {
             backgroundColor: "#222",
             borderColor: "#000000",
@@ -68,4 +89,17 @@ export function drawGraphBarsTYPEringBuffer(ctx, graphPos, graphSize, range, bar
             },
         },
     )
+}
+
+function getSmoothedValue(values, idx, window = 3) {
+    let sum = 0;
+    let count = 0;
+
+    for (let i = 0; i < window; i++) {
+        const j = (values.length + idx - i) % values.length;
+        sum += values[j];
+        count++;
+    }
+
+    return sum / count;
 }
