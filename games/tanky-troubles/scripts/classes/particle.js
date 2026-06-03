@@ -5,10 +5,6 @@ import { spawnRelativeClass } from './spawner.js';
 import { randomSeeded, hexToRGB } from "../utils/math-utils.js";
 
 
-// References
-const tileSize = getGlobal().camera.zoomLevel;
-
-
 
 
 //      |====================|
@@ -114,10 +110,10 @@ class Particle extends PhysicsObject {
                 life > 0.5 ? "#ffcc00" :
                             "#00ff00";
 
-            const barSize = { w: 40, h: fontSize }
+            const barSize = { w: 50 / renderScale, h: fontSize }
             const barPos = { x: labelPos.x - 0.5 * barSize.w, y: labelPos.y - barSize.h } // Center Bottom like the text.
-            drawRect(ctx, barPos, barSize, "#000000aa", "#555555", 1);
-            drawRect(ctx, barPos, { w: barSize.w * life, h: barSize.h }, fillColor, null, 0);
+            drawRect(ctx, barPos, barSize, "#000000aa", "#555555", 2/ renderScale); // background
+            drawRect(ctx, barPos, { w: barSize.w * life, h: barSize.h }, fillColor, null, 0); // background
             drawText(ctx, this.shortName, labelPos, textStyle);
 
             if (this.active) {
@@ -128,7 +124,7 @@ class Particle extends PhysicsObject {
 }
 
 // MARK: TankDriveParticle
-export class TankExhaustParticle extends Particle {
+class TankExhaustParticle extends Particle {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "TankExhaustParticle";
@@ -144,7 +140,7 @@ export class TankExhaustParticle extends Particle {
 }
 
 // MARK: TankTrackParticle
-export class TankTrackMarkParticle extends Particle {
+class TankTrackMarkParticle extends Particle {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "TankTrackMarkParticle";
@@ -153,7 +149,6 @@ export class TankTrackMarkParticle extends Particle {
     }
 
     render(ctx, gameDeltaTime) {
-        const offset = 1 / 12;
         if (this.active && getGlobal().showParticles) {
             drawRectRotated(ctx, this.pos, this.angle, { w: this.diameter, h: this.diameter }, "#33333333");
         }
@@ -161,7 +156,7 @@ export class TankTrackMarkParticle extends Particle {
 }
 
 // MARK: RocketExhaustParticle
-export class RocketExhaustParticle extends Particle {
+class RocketExhaustParticle extends Particle {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "RocketExhaustParticle";
@@ -208,3 +203,11 @@ export class RocketExhaustParticle extends Particle {
         }
     }
 }
+
+// MARK: Export: PARTICLES 
+
+export const PARTICLES = {
+    tankExhaust: TankExhaustParticle,
+    tankTrackMark: TankTrackMarkParticle,
+    rocketExhaust: RocketExhaustParticle,
+};

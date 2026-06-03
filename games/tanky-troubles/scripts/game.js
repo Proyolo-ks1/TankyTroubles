@@ -5,6 +5,7 @@ import { renderGameStatistics } from './overlay.js';
 import { drawDebugIni, drawDebug } from './debugging/canvas-testing-script.js';
 import { globalGameControlsStep } from './global-game-controls.js'
 import { preloadImages, rescaleImages, getImage } from "./asset-handler.js";
+import { camera } from './classes/camera.js';
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -111,9 +112,9 @@ ${statsRingBufferValues}
 getGlobal().gameState = GAME_STATE_KEYS.RUNNING;
 getGlobal().overlayState = OVERLAY_STATE_KEYS.NONE;
 getGlobal().debugMode = false;
-getGlobal().showStatistics = false;
+getGlobal().showStatistics = true;
 getGlobal().showParticles = true;
-getGlobal().camera.zoomlevel = 1/8;
+camera.zoomLevel = 1/16;
 
 // Statistics
 let lastTime = performance.now();

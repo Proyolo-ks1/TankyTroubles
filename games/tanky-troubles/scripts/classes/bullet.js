@@ -1,10 +1,10 @@
 import { getGlobal, GLOBAL_COLOR_KEYS } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawRegPolygon, drawLine, drawVectorArrow } from '../utils/graphics-utils.js';
 import { spawnRelativeClass as spawnClassRelatively } from './spawner.js';
-import { PhysicsObject } from './entity.js';
 import { randomSeeded, randomRange } from "../utils/math-utils.js";
 import { drawRocket } from '../utils/graphics-shapes.js';
-import { RocketExhaustParticle } from './particle.js';
+import { PhysicsObject } from './entity.js';
+import { PARTICLES } from './particle.js';
 
 
 
@@ -106,14 +106,14 @@ class Bullet extends PhysicsObject {
             drawText(ctx, text, textPos, textStyle);
 
             if (this.active) {
-                drawCircle(ctx, this.pos, 1 / 2, "#ffffff", "#ffffff");
+                drawCircle(ctx, this.pos, 1 / 2 / renderScale, "#ffffff", "#ffffff");
             }
         }
     }
 }
 
 // MARK: DefaultBullet
-export class DefaultBullet extends Bullet {
+class DefaultBullet extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "DefaultBullet";
@@ -129,7 +129,7 @@ export class DefaultBullet extends Bullet {
 }
 
 // MARK: ChaingunBullet
-export class ChaingunBullet extends Bullet {
+class ChaingunBullet extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ChaingunBullet";
@@ -145,7 +145,7 @@ export class ChaingunBullet extends Bullet {
 }
 
 // MARK: ShotgunBullet
-export class ShotgunBullet extends Bullet {
+class ShotgunBullet extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 1.750) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ShotgunBullet";
@@ -161,7 +161,7 @@ export class ShotgunBullet extends Bullet {
 }
 
 // MARK: Shrapnel
-export class Shrapnel extends Bullet {
+class Shrapnel extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = (Math.random() - 0.5) * 0.2, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "Shrapnel";
@@ -185,7 +185,7 @@ export class Shrapnel extends Bullet {
 }
 
 // MARK: ShrapnelBomb
-export class ShrapnelBomb extends Bullet {
+class ShrapnelBomb extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 1.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ShrapnelBomb";
@@ -221,7 +221,7 @@ export class ShrapnelBomb extends Bullet {
 }
 
 // MARK: FireBullet
-export class FireBullet extends Bullet {
+class FireBullet extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "FireBullet";
@@ -272,7 +272,7 @@ export class FireBullet extends Bullet {
 }
 
 // MARK: HomingMissle
-export class HomingMissle extends Bullet {
+class homingMissile extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1, angleVel = 0, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "HomingMissle";
@@ -310,7 +310,8 @@ export class HomingMissle extends Bullet {
         }
 
         // optional rotation
-        this.angle += this.age * gameDeltaTime;
+        // this.angle += this.age * gameDeltaTime;
+        // maybe some random rotation like air drag etc, more natural
 
 
         // --- spawn x times per second ---
@@ -323,7 +324,7 @@ export class HomingMissle extends Bullet {
             // position will have to be a bit behin the rockets direction and speed away from the rockets direciton. (TODO)
             spawnClassRelatively(
                 // TODO: might implement prediction here based on current speed incase there is multiple particles spawns per update() because of low fps.
-                RocketExhaustParticle,
+                PARTICLES.rocketExhaust,
                 this,
                 this.pos,
                 this.angle + randomRange(-0.2, 0.2),
@@ -345,7 +346,7 @@ export class HomingMissle extends Bullet {
 }
 
 // MARK: OppenheimerBullet
-export class OppenheimerBullet extends Bullet {
+class OppenheimerBullet extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 2) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "OppenheimerBullet";
@@ -390,7 +391,7 @@ export class OppenheimerBullet extends Bullet {
 }
 
 // MARK: OppenheimerNeutron
-export class OppenheimerNeutron extends Bullet {
+class OppenheimerNeutron extends Bullet {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 0.5) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "OppenheimerNeutron";
@@ -433,3 +434,55 @@ export class OppenheimerNeutron extends Bullet {
         }
     }
 }
+
+// MARK: ShrapnelBomb
+class RocketBomb extends Bullet {
+    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 1.000) {
+        super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
+        this.type = "RocketBomb";
+        this.scale = scaleSpawn;
+        this.radius = 1 / 8 * this.scale;
+    }
+
+    update(gameDeltaTime) {
+        super.update(gameDeltaTime);
+    }
+
+    destroy() {
+        super.destroy();
+        const numShrepnal = 30;
+        const spreadAngle = 360; // Spread angle in degrees
+        const spreadAngleRadians = spreadAngle * (Math.PI / 180);
+
+        for (let i = 0; i < numShrepnal; i++) {
+
+            // Randomize the angle offset for each bullet
+            const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
+            const bulletSpeed = 3 + Math.random() * 0.5;
+            const lifeSpan = 3 - Math.random() * (1.500);
+            const angleVel = Math.random() * (3);
+            spawnClassRelatively(homingMissile, this.owner, this.pos, this.angle, this.scale / 2, {x: 0, y: 0}, randomBulletAngleOffset, bulletSpeed, angleVel, lifeSpan);
+        }
+    }
+
+    render(ctx, gameDeltaTime) {
+        if (this.active) {
+            drawRegPolygon(ctx, this.pos, this.radius / 2, 5, this.angle, "#000", "#000"); // Pentagon
+        }
+    }
+}
+
+// MARK: Export: BULLETS 
+
+export const BULLETS = {
+    default: DefaultBullet,
+    chaingun: ChaingunBullet,
+    shotgun: ShotgunBullet,
+    shrapnel: Shrapnel,
+    shrapnelBomb: ShrapnelBomb,
+    fire: FireBullet,
+    homingMissile: homingMissile,
+    oppenheimerBullet: OppenheimerBullet,
+    oppenheimerNeutron: OppenheimerNeutron,
+    rocketBomb: RocketBomb,
+};

@@ -1,11 +1,11 @@
 import { getGlobal } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../utils/graphics-utils.js';
-import * as Weapons from './weapons.js';
 import { posMod, randomSeeded} from '../utils/math-utils.js';
-import { PhysicsObject } from './entity.js';
-import { OppenheimerBullet } from './bullet.js';
 import { drawSmiley} from '../utils/graphics-shapes.js';
-import { TankExhaustParticle, TankTrackMarkParticle } from './particle.js';
+import { PhysicsObject } from './entity.js';
+import { BULLETS } from './bullet.js';
+import { PARTICLES } from './particle.js';
+import { WEAPONS } from './weapons.js';
 import { spawnRelativeClass as spawnClassRelatively } from './spawner.js';
 
 // RunningGameApi
@@ -62,7 +62,7 @@ export class Tank extends PhysicsObject {
         this.color = color;
         this.controls = controls;
 
-        this.weapon = new Weapons.FlameThrower(this); // Default weapon
+        this.weapon = new WEAPONS.rocketBomb(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
 
@@ -151,13 +151,13 @@ export class Tank extends PhysicsObject {
         this.trackRotation.left += forwardSpeed * gameDeltaTime;
         if (Math.abs(this.trackRotationSinceMark.left - this.trackRotation.left) > 0.05) {
             const offset = {x: -this.width / 2, y: -trackCenterRadius}
-            spawnClassRelatively(TankTrackMarkParticle, this, this.pos, this.angle, this.scale, offset, 0, 0, 0, 5.000);
+            spawnClassRelatively(PARTICLES.tankTrackMark, this, this.pos, this.angle, this.scale, offset, 0, 0, 0, 5.000);
             this.trackRotationSinceMark.left = this.trackRotation.left;
         }
         this.trackRotation.right += forwardSpeed * gameDeltaTime;
         if (Math.abs(this.trackRotationSinceMark.right - this.trackRotation.right) > 0.05) {
             const offset = {x: -this.width / 2, y: trackCenterRadius}
-            spawnClassRelatively(TankTrackMarkParticle, this, this.pos, this.angle, this.scale, offset, 0, 0, 0, 5.000);
+            spawnClassRelatively(PARTICLES.tankTrackMark, this, this.pos, this.angle, this.scale, offset, 0, 0, 0, 5.000);
             this.trackRotationSinceMark.right = this.trackRotation.right;
         }
         // if (this.name === "tank0") {
@@ -220,7 +220,7 @@ export class Tank extends PhysicsObject {
         const textStyle = {
             align: "center",
             baseline: "bottom",
-            fontSize: 32 / renderScale, //px
+            fontSize: 16 / renderScale, //px
             font: "Consolas",
             fontWeight: "bold",
             textColor: this.color,

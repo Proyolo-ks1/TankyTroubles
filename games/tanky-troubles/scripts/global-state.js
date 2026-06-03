@@ -61,19 +61,11 @@ export const HITBOX_TYPES = Object.freeze({
  */
 
 /**
- * @typedef {Object} GameTime
+ * @typedef {Object} GameTimeType
  * @property {number} gameSpeed
  * @property {boolean} paused
  * @property {boolean} stepOnce
  * @property {number} maxDelta
- */
-
-/**
- * @typedef {Object} CameraType
- * @property {Vector2d} position
- * @property {number} zoomLevel
- * @property {number} smoothness
- * @property {any|null} target
  */
 
 /**
@@ -87,9 +79,8 @@ export const HITBOX_TYPES = Object.freeze({
  * @property {string} gameState
  * @property {string} overlayState
  * @property {EntityType} entities
- * @property {CameraType} camera
  * @property {StatsRingBuffersType} statsRingBuffers
- * @property {GameTime} gameTime
+ * @property {GameTimeType} gameTime
  */
 
 const DEBUG_HISTORY_SIZE = 100;
@@ -108,15 +99,6 @@ const GlobalVariables = {
         bullets: [],
         particles: [],
         utilities: [],
-    },
-    camera: {
-        position: {
-            x: 0,
-            y: 0,
-        },
-        zoomLevel: 1/8,
-        smoothness: 0.1, // camera lerp
-        target: null, // e.g. follow player
     },
     statsRingBuffers: {
         calculationDurations: new Float32Array(DEBUG_HISTORY_SIZE),

@@ -104,7 +104,7 @@ class PowerUp extends PhysicsObject {
                 font: "Consolas",
                 textColor: "#000000",
                 outlineColor: "#ffffff",
-                outlineWidth: / renderScale, //px
+                outlineWidth: 2 / renderScale, //px
             };
 
             drawText(ctx, text, textPos, textStyle);
@@ -117,7 +117,7 @@ class PowerUp extends PhysicsObject {
 }
 
 // MARK: DefaultPowerup
-export class DefaultPowerup extends PowerUp {
+class DefaultPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "DefaultPowerup";
@@ -135,7 +135,7 @@ export class DefaultPowerup extends PowerUp {
 // MARK: Powerups - Offensive
 
 // OffensiveUnknown
-export class OffensiveUnknown extends PowerUp {
+class OffensiveUnknown extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "OffensiveUnknown";
@@ -144,7 +144,7 @@ export class OffensiveUnknown extends PowerUp {
 }
 
 // BoobyTrapPowerup
-export class BoobyTrapPowerup extends PowerUp {
+class BoobyTrapPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "BoobyTrapPowerup";
@@ -153,7 +153,7 @@ export class BoobyTrapPowerup extends PowerUp {
 }
 
 // ChaingunPowerup
-export class ChaingunPowerup extends PowerUp {
+class ChaingunPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ChaingunPowerup";
@@ -162,7 +162,7 @@ export class ChaingunPowerup extends PowerUp {
 }
 
 // CryoBombPowerup
-export class CryoBombPowerup extends PowerUp {
+class CryoBombPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "CryoBombPowerup";
@@ -171,7 +171,7 @@ export class CryoBombPowerup extends PowerUp {
 }
 
 // DoubleBarrelPowerup
-export class DoubleBarrelPowerup extends PowerUp {
+class DoubleBarrelPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "DoubleBarrelPowerup";
@@ -180,7 +180,7 @@ export class DoubleBarrelPowerup extends PowerUp {
 }
 
 // DrillPowerup
-export class DrillPowerup extends PowerUp {
+class DrillPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "DrillPowerup";
@@ -189,7 +189,7 @@ export class DrillPowerup extends PowerUp {
 }
 
 // DroneTankDetonatorPowerup
-export class DroneTankDetonatorPowerup extends PowerUp {
+class DroneTankDetonatorPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "DroneTankDetonatorPowerup";
@@ -198,7 +198,7 @@ export class DroneTankDetonatorPowerup extends PowerUp {
 }
 
 // DroneTankShooterPowerup
-export class DroneTankShooterPowerup extends PowerUp {
+class DroneTankShooterPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "DroneTankShooterPowerup";
@@ -207,7 +207,7 @@ export class DroneTankShooterPowerup extends PowerUp {
 }
 
 // LaserPowerup
-export class LaserPowerup extends PowerUp {
+class LaserPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "LaserPowerup";
@@ -216,7 +216,7 @@ export class LaserPowerup extends PowerUp {
 }
 
 // MissileHomingPowerup
-export class MissileHomingPowerup extends PowerUp {
+class MissileHomingPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "MissileHomingPowerup";
@@ -225,7 +225,7 @@ export class MissileHomingPowerup extends PowerUp {
 }
 
 // RailgunPowerup
-export class RailgunPowerup extends PowerUp {
+class RailgunPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "RailgunPowerup";
@@ -234,7 +234,7 @@ export class RailgunPowerup extends PowerUp {
 }
 
 // ShotgunPowerup
-export class ShotgunPowerup extends PowerUp {
+class ShotgunPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ShotgunPowerup";
@@ -243,7 +243,7 @@ export class ShotgunPowerup extends PowerUp {
 }
 
 // ShrapnelBombPowerup
-export class ShrapnelBombPowerup extends PowerUp {
+class ShrapnelBombPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ShrapnelBombPowerup";
@@ -252,7 +252,7 @@ export class ShrapnelBombPowerup extends PowerUp {
 }
 
 // SmokeBombPowerup
-export class SmokeBombPowerup extends PowerUp {
+class SmokeBombPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "SmokeBombPowerup";
@@ -260,12 +260,29 @@ export class SmokeBombPowerup extends PowerUp {
     }
 }
 
+export const OFFENSIVE_POWERUPS = {
+    unknown: OffensiveUnknown,
+    boobyTrap: BoobyTrapPowerup,
+    chaingun: ChaingunPowerup,
+    cryoBomb: CryoBombPowerup,
+    doubleBarrel: DoubleBarrelPowerup,
+    drill: DrillPowerup,
+    droneDetonator: DroneTankDetonatorPowerup,
+    droneShooter: DroneTankShooterPowerup,
+    laser: LaserPowerup,
+    missileHoming: MissileHomingPowerup,
+    railgun: RailgunPowerup,
+    shotgun: ShotgunPowerup,
+    shrapnelBomb: ShrapnelBombPowerup,
+    smokeBomb: SmokeBombPowerup,
+};
+
 
 
 // MARK: Powerups - Defensive
 
 // DefensiveUnknown
-export class DefensiveUnknown extends PowerUp {
+class DefensiveUnknown extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "DefensiveUnknown";
@@ -274,7 +291,7 @@ export class DefensiveUnknown extends PowerUp {
 }
 
 // HealingPowerup
-export class HealingPowerup extends PowerUp {
+class HealingPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "HealingPowerup";
@@ -283,7 +300,7 @@ export class HealingPowerup extends PowerUp {
 }
 
 // ShieldHPPowerup
-export class ShieldHPPowerup extends PowerUp {
+class ShieldHPPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ShieldHPPowerup";
@@ -292,7 +309,7 @@ export class ShieldHPPowerup extends PowerUp {
 }
 
 // ShieldTimePowerup
-export class ShieldTimePowerup extends PowerUp {
+class ShieldTimePowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ShieldTimePowerup";
@@ -300,12 +317,19 @@ export class ShieldTimePowerup extends PowerUp {
     }
 }
 
+export const DEFENSIVE_POWERUPS = {
+    unknown: DefensiveUnknown,
+    healing: HealingPowerup,
+    shieldHp: ShieldHPPowerup,
+    shieldTime: ShieldTimePowerup,
+};
+
 
 
 // MARK: Powerups - Boosts
 
 // BoostUnknown
-export class BoostUnknown extends PowerUp {
+class BoostUnknown extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "BoostUnknown";
@@ -314,7 +338,7 @@ export class BoostUnknown extends PowerUp {
 }
 
 // BoostBulletDamagePowerup
-export class BoostBulletDamagePowerup extends PowerUp {
+class BoostBulletDamagePowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "BoostBulletDamagePowerup";
@@ -323,7 +347,7 @@ export class BoostBulletDamagePowerup extends PowerUp {
 }
 
 // BoostBulletSpeedPowerup
-export class BoostBulletSpeedPowerup extends PowerUp {
+class BoostBulletSpeedPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "BoostBulletSpeedPowerup";
@@ -332,10 +356,17 @@ export class BoostBulletSpeedPowerup extends PowerUp {
 }
 
 // BoostMovementSpeedPowerup
-export class BoostMovementSpeedPowerup extends PowerUp {
+class BoostMovementSpeedPowerup extends PowerUp {
     constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "BoostMovementSpeedPowerup";
         this.img = getImage("powerup", "boost-movement-speed");
     }
 }
+
+export const BOOST_POWERUPS = {
+    unknown: BoostUnknown,
+    bulletDamage: BoostBulletDamagePowerup,
+    bulletSpeed: BoostBulletSpeedPowerup,
+    movementSpeed: BoostMovementSpeedPowerup,
+};

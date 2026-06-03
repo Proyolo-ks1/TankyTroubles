@@ -1,10 +1,10 @@
 import { getGlobal } from '../global-state.js';
 import { spawnRelativeClass } from '../classes/spawner.js';
 import { Tank } from '../classes/tank.js';
-import * as Weapons from '../classes/weapons.js';
-import * as Bullets from '../classes/bullet.js';
-import * as Particles from '../classes/particle.js';
-import * as PowerUps from '../classes/power-up.js';
+import { WEAPONS } from '../classes/weapons.js';
+import { BULLETS } from '../classes/bullet.js';
+import { PARTICLES } from '../classes/particle.js';
+import { OFFENSIVE_POWERUPS, DEFENSIVE_POWERUPS, BOOST_POWERUPS } from '../classes/power-up.js';
 import { TextBoxEntity } from '../classes/util-entities.js';
 
 
@@ -30,37 +30,10 @@ export function spawnAllTestObjects() {
             "PinkDummyOwner",
         );
 
-    // Spawn at (0.1,0.1)
-    // spawnRelativeClass(
-    //                 HomingMissle,
-    //                 dummyOwner,
-    //                 { x: 0.1, y: 0.1 },
-    //                 0,
-    //                 1,
-    //                 { x: 0, y: 0 },
-    //                 0,
-    //                 0,
-    //                 undefined,
-    //                 -1,
-    //             );
-
-    const weapons = [
-        Weapons.NoWeapon,
-        Weapons.Chaingun,
-        Weapons.Shotgun,
-        Weapons.FlameThrower,
-        Weapons.ChainShotgun,
-        Weapons.ShrepnalBombWeapon,
-        Weapons.ExperimentalWeapon,
-        Weapons.ChainShotgunBOOM,
-        // Weapons.OppenheimerBOOOM,
-        Weapons.MissleLauncher,
-    ];
-
     const baseX = 0.5;
     const baseY = 0.5;
 
-    weapons.forEach((WeaponClass, i) => {
+    Object.values(WEAPONS).forEach((WeaponClass, i) => {
         const tank = new Tank(
             { x: baseX, y: baseY + i },
             undefined,
@@ -76,68 +49,15 @@ export function spawnAllTestObjects() {
     });
 
     const categories = [
-        {
-            x: 1.5,
-            classes: [
-                Bullets.DefaultBullet,
-                Bullets.ChaingunBullet,
-                Bullets.ShotgunBullet,
-                Bullets.Shrapnel,
-                Bullets.ShrapnelBomb,
-                Bullets.FireBullet,
-                Bullets.HomingMissle,
-                Bullets.OppenheimerBullet,
-                Bullets.OppenheimerNeutron,
-            ]
-        },
-        {
-            x: 2.5,
-            classes: [
-                Particles.TankExhaustParticle,
-                Particles.TankTrackMarkParticle,
-            ]
-        },
-        {
-            x: 3.5,
-            classes: [
-                PowerUps.OffensiveUnknown,
-                PowerUps.BoobyTrapPowerup,
-                PowerUps.ChaingunPowerup,
-                PowerUps.CryoBombPowerup,
-                PowerUps.DoubleBarrelPowerup,
-                PowerUps.DrillPowerup,
-                PowerUps.DroneTankDetonatorPowerup,
-                PowerUps.DroneTankShooterPowerup,
-                PowerUps.LaserPowerup,
-                PowerUps.MissileHomingPowerup,
-                PowerUps.RailgunPowerup,
-                PowerUps.ShotgunPowerup,
-                PowerUps.ShrapnelBombPowerup,
-                PowerUps.SmokeBombPowerup,
-            ]
-        },
-        {
-            x: 4.5,
-            classes: [
-                PowerUps.DefensiveUnknown,
-                PowerUps.HealingPowerup,
-                PowerUps.ShieldHPPowerup,
-                PowerUps.ShieldTimePowerup,
-            ]
-        },
-        {
-            x: 5.5,
-            classes: [
-                PowerUps.BoostUnknown,
-                PowerUps.BoostBulletDamagePowerup,
-                PowerUps.BoostBulletSpeedPowerup,
-                PowerUps.BoostMovementSpeedPowerup,
-            ]
-        }
+        // { x: 1.5, items: BULLETS },
+        { x: 2.5, items: PARTICLES },
+        { x: 3.5, items: OFFENSIVE_POWERUPS },
+        { x: 4.5, items: DEFENSIVE_POWERUPS },
+        { x: 5.5, items: BOOST_POWERUPS },
     ];
 
     for (const category of categories) {
-        category.classes.forEach((ClassRef, k) => {
+        Object.entries(category.items).forEach(([name, ClassRef], k) => {
             try {
                 spawnRelativeClass(
                     ClassRef,
@@ -152,7 +72,7 @@ export function spawnAllTestObjects() {
                     -1,
                 );
             } catch (err) {
-                console.warn(`Failed to spawn ${ClassRef.name}:`, err);
+                console.warn(`Failed to spawn ${name}:`, err);
             }
         });
     }

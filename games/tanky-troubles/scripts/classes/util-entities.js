@@ -1,10 +1,10 @@
 import { getGlobal } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawRegPolygon, drawLine, drawVectorArrow, drawTextBox } from '../utils/graphics-utils.js';
 import { spawnRelativeClass as spawnClassRelatively } from './spawner.js';
-import { PhysicsObject, StaticEntity } from './entity.js';
 import { randomSeeded, randomRange } from "../utils/math-utils.js";
 import { drawRocket } from '../utils/graphics-shapes.js';
-import { RocketExhaustParticle } from './particle.js';
+import { StaticEntity } from './entity.js';
+import { PARTICLES } from './particle.js';
 
 
 
@@ -38,7 +38,7 @@ export class UtilityEntity extends StaticEntity {
         
         this.scale = scaleSpawn;
 
-        getGlobal().entities.bullets.unshift(this);
+        getGlobal().entities.utilities.unshift(this);
     }
     
     render(ctx, gameDeltaTime) {

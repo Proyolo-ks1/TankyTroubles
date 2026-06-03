@@ -83,7 +83,7 @@ export function drawRocket(ctx, pos, angle, scale, color) {
 
     ctx.save();
 
-    ctx.translate(pos.x * renderScale, pos.y * renderScale);
+    ctx.translate(pos.x, pos.y);
     ctx.rotate(-angle);
     ctx.scale(scale, scale);
 

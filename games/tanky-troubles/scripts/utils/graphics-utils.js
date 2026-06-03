@@ -72,7 +72,7 @@ export function drawText(ctx, text, pos, textStyle = {}) {
         // seed,
         // saturation
         // lightness
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1 / renderScale;
         ctx.strokeRect(boxX, boxY, textWidth, textHeight);
     }
 

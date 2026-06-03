@@ -5,7 +5,7 @@ import { generateMaze} from '../generate-maze.js';
 import { Tank } from '../classes/tank.js';
 import { loadMainMenu } from '../gamestates/main-menu.js';
 import { spawnAllTestObjects } from '../debugging/spawn-all-objects-static.js';
-import { updateCamera } from '../classes/camera.js';
+import { camera } from '../classes/camera.js';
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -98,10 +98,10 @@ function processEntities(array, ctx, gameDeltaTime, debugActive, timers) {
         if (windEnabled) {
             updateWindEffect(entity, gameDeltaTime); // should not move tanks etc, lets see
         }
-
-        // Cleanup inactive entities (every frame single for now)
-        cleanupInactiveEntries(array);
     });
+
+    // Cleanup inactive entities (every frame single for now)
+    cleanupInactiveEntries(array);
 }
 
 function updateAndRenderWind(ctx, realDeltaTime) {
@@ -204,7 +204,7 @@ export function drawWindowDebug(ctx, canvasWidth, canvasHeight, realDeltaTime) {
 
 // updateGlobalVariables I guess
 function updateGlobalVariables() {
-    getGlobal().renderScale = getGlobal().canvasScale * getGlobal().camera.zoomLevel
+    getGlobal().renderScale = getGlobal().canvasScale * camera.zoomLevel
 }
 
 
@@ -248,15 +248,19 @@ export function initializeWorld() {
     // Create 2 tanks with position, color, and controls
     let angleSpawn = Math.random() * Math.PI * 2;
     const posSpawn1 = { x: 1, y: 1 }
-    new Tank(posSpawn1, angleSpawn, undefined, undefined, undefined, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
+    const tank0 = new Tank(posSpawn1, angleSpawn, undefined, undefined, undefined, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
 
     angleSpawn = Math.random() * Math.PI * 2;
     const posSpawn2 = { x: 2, y: 1 }
-    new Tank(posSpawn2, angleSpawn, undefined, undefined, undefined, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
+    const tank1 = new Tank(posSpawn2, angleSpawn, undefined, undefined, undefined, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
 
     // Debugging
     if (iniDebugging) {
         spawnAllTestObjects();
+
+    // Cam
+    camera.setTargets([tank0, tank1]);
+    // camera.setTargets(getGlobal().entities.tanks);
     }
 }
 
@@ -276,14 +280,14 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
     if (!gameApi.isGamePaused) {
 
         // Camera Translations
-        updateCamera();
+        camera.update();
         const g = getGlobal();
         ctx.save();
         // WORLD SPACE (affected by camera)
         ctx.scale(g.renderScale, g.renderScale);
         ctx.translate(
-            gameApi.canvasWidth / (2 * g.renderScale) - g.camera.position.x,
-            gameApi.canvasHeight / (2 * g.renderScale) - g.camera.position.y
+            gameApi.canvasWidth / (2 * g.renderScale) - camera.pos.x,
+            gameApi.canvasHeight / (2 * g.renderScale) - camera.pos.y
         );
 
         renderBackground(ctx);

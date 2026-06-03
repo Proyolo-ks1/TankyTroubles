@@ -14,14 +14,12 @@ import { drawRect, drawCircle, drawVertexLine, drawVertexPolygon, drawTextBox} f
 
 // MARK: drawGraph
 export function drawGraphBarsTYPEringBuffer(ctx, graphPos, graphSize, range, barValues, ringBufferIndex, ringBufferCount, graphColor, graphTitle) {
-    const renderScale = getGlobal().renderScale;
 
     // Draw graph grid
     const gridSize = 0;  // MARK: TODO: Grid
 
     // Draw graph outline
-    drawRect(ctx, graphPos, graphSize, "#9999", "#444", 2 / renderScale);
-    // drawRect(ctx, graphPos, graphSize, "#51ff002c", "#ff0000", 2 / renderScale);
+    drawRect(ctx, graphPos, graphSize, "#9999", "#444", 2);
 
     // Draw bars
     const barWidth = graphSize.w / barValues.length;
@@ -33,7 +31,7 @@ export function drawGraphBarsTYPEringBuffer(ctx, graphPos, graphSize, range, bar
         const normalized = (value - range.min) / (range.max - range.min);
         const clamped = Math.max(0, Math.min(normalized, 1));
 
-        const minHeight = 2 / renderScale;
+        const minHeight = 2 ;
         const barHeight = Math.max(clamped * graphSize.h, minHeight);
 
         const barRect = {
@@ -41,7 +39,7 @@ export function drawGraphBarsTYPEringBuffer(ctx, graphPos, graphSize, range, bar
             size: { w: barWidth, h: barHeight },
             fillColor: graphColor,
             strokeColor: null,
-            strokeWidth: 1 / renderScale,
+            strokeWidth: 1,
             borderRadius: 0,
         };
 
@@ -54,19 +52,19 @@ export function drawGraphBarsTYPEringBuffer(ctx, graphPos, graphSize, range, bar
         ctx,
         `${graphTitle}: ${Math.round(currentValue)}`,
         graphPos,
-        { w: graphSize.w / 2, h: (textHeight + 2) / renderScale},
+        { w: graphSize.w / 2, h: (textHeight + 2)},
         {
             backgroundColor: "#222",
             borderColor: "#000000",
-            borderWidth: 1 / renderScale,
-            borderRadius: 2 / renderScale,
-            padding: { x: 1 / renderScale, y: 1 / renderScale },
+            borderWidth: 1 ,
+            borderRadius: 2 ,
+            padding: { x: 1 , y: 1  },
             textStyle: {
-                fontSize: 16 / renderScale, // px
+                fontSize: 16 , // px
                 font: "Arial",
                 textColor: graphColor,
                 outlineColor: "#000",
-                outlineWidth: 2 / renderScale, // px
+                outlineWidth: 2 , // px
             },
         },
     )

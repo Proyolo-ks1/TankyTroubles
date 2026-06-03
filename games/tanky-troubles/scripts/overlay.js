@@ -32,48 +32,47 @@ let overlayDeltaTime = 0;
 let statisticUpdatesPerSecond = 10
 
 export function renderGameStatistics(ctx, currentTime, realDeltaTime) {
-    const renderScale = getGlobal().renderScale
     const dbg = getGlobal().statsRingBuffers;
 
     let textStyle = {
         align: "left",
         baseline: "top",
-        fontSize: 16 / renderScale,
+        fontSize: 16 ,
         font: "Consolas",
         textColor: "#fff",
         outlineColor: "#000",
-        outlineWidth: 2 / renderScale, //px
+        outlineWidth: 2 , //px
     };
 
-    renderOverlayLeftPanel(ctx, renderScale, currentTime, realDeltaTime, dbg, textStyle);
-    renderOverlayTime(ctx, renderScale, textStyle);
+    renderOverlayLeftPanel(ctx, currentTime, realDeltaTime, dbg, textStyle);
+    renderOverlayTime(ctx, textStyle);
 }
 
 
 
 // LEFT PANEL
-function renderOverlayLeftPanel(ctx, renderScale, currentTime, realDeltaTime, dbg, textStyle) {
+function renderOverlayLeftPanel(ctx, currentTime, realDeltaTime, dbg, textStyle) {
     const DebugLeftPanel = {
         position: {x: 0, y: 0,},
-        size: { w: 250 / renderScale, h: 0 },  // px
-        padding: 5 / renderScale,  // px
+        size: { w: 250, h: 250 }, // px
+        padding: 5, // px
         cursor: {x: 0, y: 0, },
     };
 
-    renderOverlayGraphs(ctx, renderScale, DebugLeftPanel, dbg, textStyle);
-    renderOverlayVariables(ctx, renderScale, DebugLeftPanel, currentTime, realDeltaTime, textStyle);
+    renderOverlayGraphs(ctx, DebugLeftPanel, dbg, textStyle);
+    renderOverlayVariables(ctx, DebugLeftPanel, currentTime, realDeltaTime, textStyle);
 }
 
 
 
 // GRAPHS
-function renderOverlayGraphs(ctx, renderScale, DebugLeftPanel, dbg, textStyle) {
+function renderOverlayGraphs(ctx, DebugLeftPanel, dbg, textStyle) {
     // Panel padding
     DebugLeftPanel.cursor.x += DebugLeftPanel.padding;
     DebugLeftPanel.cursor.y += DebugLeftPanel.padding;
     const availableWidth = DebugLeftPanel.size.w - 2 * DebugLeftPanel.padding;
 
-    const graphHeight = 150 / renderScale; // px
+    const graphHeight = 150; // px
     const amountOfGraphs = 3;
 
     // Graphs Container
@@ -81,10 +80,10 @@ function renderOverlayGraphs(ctx, renderScale, DebugLeftPanel, dbg, textStyle) {
         pos: { ...DebugLeftPanel.cursor },
         size: { w: availableWidth, h: 0 },
         cursor: { ...DebugLeftPanel.cursor },
-        gap: 5 / renderScale,
+        gap: 5,
     };
     graphsContainer.size.h = amountOfGraphs * graphHeight + (amountOfGraphs - 1) * graphsContainer.gap;
-    drawRect(ctx, graphsContainer.pos, graphsContainer.size, "rgba(0,0,0,0.5)", null, 1 / renderScale, 5 / renderScale);
+    drawRect(ctx, graphsContainer.pos, graphsContainer.size, "rgba(0,0,0,0.5)", null, 1 , 5 );
 
     let defaultGraph = { pos: { x: 0, y: 0}, size: { w: availableWidth, h: graphHeight } };
 
@@ -105,12 +104,12 @@ function renderOverlayGraphs(ctx, renderScale, DebugLeftPanel, dbg, textStyle) {
 
 
 // GAME VARIABLES
-function renderOverlayVariables(ctx, renderScale, DebugLeftPanel, currentTime, realDeltaTime, textStyle) {
+function renderOverlayVariables(ctx, DebugLeftPanel, currentTime, realDeltaTime, textStyle) {
     // Background (unit: pixel)
     let pos = { x: DebugLeftPanel.cursor.x, y: DebugLeftPanel.cursor.y };
-    const padding = 5 / renderScale;
-    const textSpacing = 2 / renderScale;
-    const fontSize = 16 / renderScale;  // unsure, something broke this
+    const padding = 5 ;
+    const textSpacing = 2 ;
+    const fontSize = 16 ;  // unsure, something broke this
     const linesOfText = 6;
     const backgroundWidth = DebugLeftPanel.size.w + 2 * padding;
     const backgroundHeight = linesOfText * fontSize + (linesOfText - 1) * textSpacing + 2 * padding;
@@ -136,18 +135,18 @@ function renderOverlayVariables(ctx, renderScale, DebugLeftPanel, currentTime, r
 
     drawNextLine(`FPS:       ${Math.round(overlayFps)}`);
     drawNextLine(`ΔTime:     ${Math.round(overlayDeltaTime * 1000)} ms`);
-    drawNextLine(`TileScale: ${renderScale.toFixed(2)} px/tile`);
+    drawNextLine(`TileScale: ${getGlobal().renderScale.toFixed(2)} px/tile`);
     drawNextLine(`Tanks:     ${getGlobal().entities.tanks.length}`);
     drawNextLine(`Bullets:   ${getGlobal().entities.bullets.length}`);
     drawNextLine(`Speed:     ${getGlobal().gameTime.gameSpeed}x`);
 
     // Toggle Button for debugMode
-    const buttonWidth = 150 / renderScale;
-    const buttonHeight = 30 / renderScale;
+    const buttonWidth = 150 ;
+    const buttonHeight = 30 ;
     const buttonPos = { x: pos.x, y: pos.y + 6 * fontSize + 6 * textSpacing + padding };  // Position button below the overlay
 
     // Draw the button
-    drawRect(ctx, buttonPos, { w: buttonWidth, h: buttonHeight }, "rgba(0, 0, 0, 0.7)", "white", 2 / renderScale, 5 / renderScale);
+    drawRect(ctx, buttonPos, { w: buttonWidth, h: buttonHeight }, "rgba(0, 0, 0, 0.7)", "white", 2 , 5 );
 
     // Button text (showing current state of debugMode)
     const debugText = getGlobal().debugMode ? "Debug: ON" : "Debug: OFF";
@@ -157,19 +156,19 @@ function renderOverlayVariables(ctx, renderScale, DebugLeftPanel, currentTime, r
 
 
 // GAME TIME
-function renderOverlayTime(ctx, renderScale, textStyle) {
-    const timePanelWidth = 150 / renderScale;
-    const timePanelHeight = 75 / renderScale;
-    const timePanelPosX = getGlobal().canvasScale / 2 / renderScale - timePanelWidth / 2;
-    const timePanelPosY = 5 / renderScale;
+function renderOverlayTime(ctx, textStyle) {
+    const timePanelWidth = 150 ;
+    const timePanelHeight = 75 ;
+    const timePanelPosX = getGlobal().canvasScale / 2  - timePanelWidth / 2;
+    const timePanelPosY = 5 ;
 
     // Background
-    drawRect(ctx, { x: timePanelPosX, y: timePanelPosY }, { w: timePanelWidth, h: timePanelHeight }, "rgba(0, 0, 0, 0.7)", "rgba(61, 61, 61, 0.7)", 2 / renderScale, 5 / renderScale);
+    drawRect(ctx, { x: timePanelPosX, y: timePanelPosY }, { w: timePanelWidth, h: timePanelHeight }, "rgba(0, 0, 0, 0.7)", "rgba(61, 61, 61, 0.7)", 2 , 5 );
 
 
 
     // -- Play / Pause --
-    const pausePad = 5 / renderScale; // px
+    const pausePad = 5 ; // px
     const pauseX = timePanelPosX + pausePad;
     const pauseY = timePanelPosY + pausePad;
     const pauseSize = textStyle.fontSize;
@@ -203,8 +202,8 @@ function renderOverlayTime(ctx, renderScale, textStyle) {
 
     // Slider line
     const sliderY = pauseY + pauseSize + pausePad + textStyle.fontSize * 1.2;
-    const sliderHeight = 8 / renderScale;
-    drawRect(ctx, { x: sliderX, y: sliderY }, { w: sliderWidth, h: sliderHeight }, "#fff", "#777", 1 / renderScale, sliderHeight / 2);
+    const sliderHeight = 8 ;
+    drawRect(ctx, { x: sliderX, y: sliderY }, { w: sliderWidth, h: sliderHeight }, "#fff", "#777", 1 , sliderHeight / 2);
 
     // Slider Dividers
     const steps = 10;
@@ -213,7 +212,7 @@ function renderOverlayTime(ctx, renderScale, textStyle) {
     const stepSize = sliderIndicatorAxisWidth / steps;
     for (let i = 0; i <= steps; i++) {
         const dividerPosX = sliderX + circleRadius + stepSize * i;
-        drawLine(ctx, { x: dividerPosX, y: sliderY + sliderHeight * 0.2 }, { x: dividerPosX, y: sliderY + sliderHeight - sliderHeight * 0.2 }, "#333", 1 / renderScale)
+        drawLine(ctx, { x: dividerPosX, y: sliderY + sliderHeight * 0.2 }, { x: dividerPosX, y: sliderY + sliderHeight - sliderHeight * 0.2 }, "#333", 1 )
     }
 
     // Slider Indicator (Logarithmic)
@@ -222,10 +221,10 @@ function renderOverlayTime(ctx, renderScale, textStyle) {
     const gsLog = Math.log2(gt.gameSpeed);
     const t = (gsLog - gsLogMin) / (gsLogMax - gsLogMin); // 0..1
     const circlePosX = sliderX + circleRadius + t * sliderIndicatorAxisWidth;
-    drawCircle(ctx, { x: circlePosX, y: sliderY + circleRadius }, circleRadius, "#ff0", "#000", 2 / renderScale);
+    drawCircle(ctx, { x: circlePosX, y: sliderY + circleRadius }, circleRadius, "#ff0", "#000", 2 );
 
     // Text for current speed
-    const sliderValuePosX = timePanelPosX + timePanelWidth / 2 - ctx.measureText("0.00x").width / 2 / renderScale;
+    const sliderValuePosX = timePanelPosX + timePanelWidth / 2 - ctx.measureText("0.00x").width / 2 ;
     const sliderValuePosY = sliderY + sliderHeight + pausePad;
     drawText(ctx, `${gt.gameSpeed.toFixed(2)}x`, { x: sliderValuePosX, y: sliderValuePosY }, { ...textStyle, align: "left" });
 }

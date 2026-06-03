@@ -1,4 +1,5 @@
 import { getGlobal } from "./global-state.js";
+import { camera } from './classes/camera.js';
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -61,28 +62,28 @@ const keyPressActions = {
 
 const keyHoldActions = {
     'u': (realDeltaTime) => {
-        getGlobal().camera.zoomLevel *= Math.pow(0.5, realDeltaTime);
-        console.log(`DB: Decreased Cam.zoomLevel by 1%: ${Math.round(getGlobal().camera.zoomLevel*1000) / 10}%`);
+        camera.zoomLevel *= Math.pow(0.5, realDeltaTime);
+        console.log(`DB: Decreased Cam.zoomLevel by 1%: ${Math.round(camera.zoomLevel*1000) / 10}%`);
     },
     't': (realDeltaTime) => {
-        getGlobal().camera.zoomLevel *= Math.pow(2, realDeltaTime);
-        console.log(`DB: Increased Cam.zoomLevel by 1%: ${Math.round(getGlobal().camera.zoomLevel*1000) / 10}%`);
+        camera.zoomLevel *= Math.pow(2, realDeltaTime);
+        console.log(`DB: Increased Cam.zoomLevel by 1%: ${Math.round(camera.zoomLevel*1000) / 10}%`);
     },
     'g': (realDeltaTime) => {
-        getGlobal().camera.position.x -= 1 * realDeltaTime;
-        console.log(`DB: Decreased Cam.x by 2: ${getGlobal().camera.position.x.toFixed(2)}`);
+        camera.pos.x -= 1 * realDeltaTime;
+        console.log(`DB: Decreased Cam.x by 2: ${camera.pos.x.toFixed(2)}`);
     },
     'j': (realDeltaTime) => {
-        getGlobal().camera.position.x += 1 * realDeltaTime;
-        console.log(`DB: Increased Cam.x by 2: ${getGlobal().camera.position.x.toFixed(2)}`);
+        camera.pos.x += 1 * realDeltaTime;
+        console.log(`DB: Increased Cam.x by 2: ${camera.pos.x.toFixed(2)}`);
     },
     'y': (realDeltaTime) => {
-        getGlobal().camera.position.y -= 1 * realDeltaTime;
-        console.log(`DB: Decreased Cam.y by 2: ${getGlobal().camera.position.y.toFixed(2)}`);
+        camera.pos.y -= 1 * realDeltaTime;
+        console.log(`DB: Decreased Cam.y by 2: ${camera.pos.y.toFixed(2)}`);
     },
     'h': (realDeltaTime) => {
-        getGlobal().camera.position.y += 1 * realDeltaTime;
-        console.log(`DB: Increased Cam.y by 2: ${getGlobal().camera.position.y.toFixed(2)}`);
+        camera.pos.y += 1 * realDeltaTime;
+        console.log(`DB: Increased Cam.y by 2: ${camera.pos.y.toFixed(2)}`);
     },
     // Camera Control
     
@@ -113,7 +114,7 @@ export function globalGameControlsStep(realDeltaTime) {
     previousScrollY = scrollY;
     smoothedScroll = smoothedScroll * SMOOTHING + scrollDelta * (1 - SMOOTHING);
     if (smoothedScroll < -0.02 || smoothedScroll > 0.02) {
-        getGlobal().camera.zoomLevel *= Math.pow(2, smoothedScroll * SCROLL_SENSITIVITY);
+        camera.zoomLevel *= Math.pow(2, smoothedScroll * SCROLL_SENSITIVITY);
     } else{
         smoothedScroll = 0
     }
