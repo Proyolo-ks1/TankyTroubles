@@ -112,7 +112,7 @@ ${statsRingBufferValues}
 getGlobal().gameState = GAME_STATE_KEYS.RUNNING;
 getGlobal().overlayState = OVERLAY_STATE_KEYS.NONE;
 getGlobal().debugMode = false;
-getGlobal().showStatistics = true;
+getGlobal().showStatistics = false;
 getGlobal().showParticles = true;
 camera.zoomLevel = 1/16;
 

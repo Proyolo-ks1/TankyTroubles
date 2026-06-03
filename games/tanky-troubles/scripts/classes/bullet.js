@@ -458,9 +458,9 @@ class RocketBomb extends Bullet {
 
             // Randomize the angle offset for each bullet
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
-            const bulletSpeed = 3 + Math.random() * 0.5;
-            const lifeSpan = 3 - Math.random() * (1.500);
-            const angleVel = Math.random() * (3);
+            const bulletSpeed = 3 + Math.random() * 1.5;
+            const lifeSpan = 3 - Math.random() * (1.5);
+            const angleVel = (Math.random() - 0.5) * (10);
             spawnClassRelatively(homingMissile, this.owner, this.pos, this.angle, this.scale / 2, {x: 0, y: 0}, randomBulletAngleOffset, bulletSpeed, angleVel, lifeSpan);
         }
     }
