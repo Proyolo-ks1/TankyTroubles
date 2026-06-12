@@ -1,11 +1,12 @@
 import { getGlobal } from '../global-state.js';
-import { spawnRelativeClass } from '../classes/spawner.js';
+import { spawnClassRelatively } from '../classes/spawner.js';
 import { Tank } from '../classes/tank.js';
 import { WEAPONS } from '../classes/weapons.js';
 import { BULLETS } from '../classes/bullet.js';
 import { PARTICLES } from '../classes/particle.js';
 import { OFFENSIVE_POWERUPS, DEFENSIVE_POWERUPS, BOOST_POWERUPS } from '../classes/power-up.js';
 import { TextBoxEntity } from '../classes/util-entities.js';
+import { Vec2 } from "../utils/math-utils.js";
 
 
 
@@ -20,7 +21,7 @@ import { TextBoxEntity } from '../classes/util-entities.js';
 export function spawnAllTestObjects() {
 
     const dummyOwner = new Tank(
-            { x: 7.5, y: 0.5 },
+            new Vec2(7.5, 0.5),
             3.14 / 4,
             undefined,
             undefined,
@@ -35,7 +36,7 @@ export function spawnAllTestObjects() {
 
     Object.values(WEAPONS).forEach((WeaponClass, i) => {
         const tank = new Tank(
-            { x: baseX, y: baseY + i },
+            new Vec2(baseX, baseY + i),
             undefined,
             undefined,
             undefined,
@@ -58,22 +59,22 @@ export function spawnAllTestObjects() {
 
     for (const category of categories) {
         Object.entries(category.items).forEach(([name, ClassRef], k) => {
-            try {
-                spawnRelativeClass(
+                spawnClassRelatively(
                     ClassRef,
                     dummyOwner,
-                    { x: category.x, y: baseY + k },
+                    new Vec2(category.x, baseY + k),
                     0,
                     1,
-                    { x: 0, y: 0 },
+                    new Vec2(),
                     0,
                     0,
                     undefined,
                     -1,
                 );
-            } catch (err) {
-                console.warn(`Failed to spawn ${name}:`, err);
-            }
+            // try {
+            // } catch (err) {
+            //     console.warn(`Failed to spawn ${name}:`, err);
+            // }
         });
     }
 }

@@ -1,6 +1,7 @@
 import { getGlobal, ENTITY_TYPES } from '../global-state.js';
 import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '../utils/graphics-utils.js';
-import { spawnRelativeClass } from './spawner.js';
+import { spawnClassRelatively } from './spawner.js';
+import { Vec2 } from "../utils/math-utils.js";
 
 
 
@@ -35,14 +36,14 @@ class Entity {
     }
 
     render(ctx, gameDeltaTime) {
-        // Default bullet rendering, can be overridden
+        // Default Entity rendering, can be overridden
     }
 }
 
 // MARK: StaticEntity
 export class StaticEntity extends Entity {
     constructor({
-        pos = { x: 0, y: 0 },
+        pos = new Vec2(),
         angle = 0,
         scale: scale = 1,
     } = {}) {
@@ -63,9 +64,9 @@ export class StaticEntity extends Entity {
 // MARK: PhysicsObject
 export class PhysicsObject extends Entity {
     constructor({
-        pos = { x: 0, y: 0 },
-        vel = { x: 0, y: 0 },
-        acc = { x: 0, y: 0 },
+        pos = new Vec2(),
+        vel = new Vec2(),
+        acc = new Vec2(),
         angle = 0,
         angleVel = 0,
         angleAcc = 0,
@@ -97,13 +98,17 @@ export class PhysicsObject extends Entity {
     }
 
     updatePosition(gameDeltaTime) {
-        this.pos.x += this.vel.x * gameDeltaTime;
-        this.pos.y += this.vel.y * gameDeltaTime;
+        this.pos.addScaled(this.vel, gameDeltaTime)
     }
 
     updateVelocity(gameDeltaTime) {
-        this.vel.x += this.acc.x * gameDeltaTime;
-        this.vel.y += this.acc.y * gameDeltaTime;
+        // const owner = "noOwner"
+        // if (this.owner) {const owner = this.owner };
+        // console.log(`shortName: ${this.shortName} (${this.constructor.name}) of ${owner}`);
+        // if (this.shortName === "p1") {
+        //     const a = this.vel;
+        // }
+        this.vel.addScaled(this.acc, gameDeltaTime)
     }
 
     updateRotation(gameDeltaTime) {

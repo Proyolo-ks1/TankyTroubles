@@ -1,8 +1,8 @@
 import { getGlobal } from '../global-state.js';
 import { drawRect, drawRectRotated, drawCircle, drawText, drawRegPolygon, drawLine, drawVectorArrow} from '../utils/graphics-utils.js';
 import { PhysicsObject } from './entity.js';
-import { spawnRelativeClass } from './spawner.js';
-import { randomSeeded } from "../utils/math-utils.js";
+import { spawnClassRelatively } from './spawner.js';
+import { randomSeeded, Vec2 } from "../utils/math-utils.js";
 import { hexToRGB } from "../utils/color-utils.js";
 
 
@@ -20,22 +20,25 @@ class Particle extends PhysicsObject {
     static nextId = 0;
     constructor(
         owner,
-        posSpawn = { x: 0, y: 0 },
+        posSpawn = new Vec2(),
         angleSpawn = 0,
         scaleSpawn = 1,
         speedSpawn = 1,
         angleVel = 0,
-        lifeSpan = -1
+        lifeSpan = -1,
     ) {
         super({ // PhysicsObject
             pos: posSpawn,
-            vel: { x: Math.cos(angleSpawn) * speedSpawn, y: Math.sin(-angleSpawn) * speedSpawn },
+            vel: Vec2.fromAngle(angleSpawn, speedSpawn),
             angle: angleSpawn,
             angleVel: angleVel,
             lifeSpan: lifeSpan,
         });
-        this.name = `Particle ${Particle.nextId}`;
-        this.shortName = `p${Particle.nextId++}`;
+        // this.name = `Particle ${Particle.nextId}`;
+        // this.shortName = `p${Particle.nextId++}`;
+        // if (this.shortName === "p1") {
+        //     const a = this.vel;
+        // }
         this.owner = owner;
         
         this.scale = scaleSpawn;
@@ -126,7 +129,7 @@ class Particle extends PhysicsObject {
 
 // MARK: TankDriveParticle
 class TankExhaustParticle extends Particle {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "TankExhaustParticle";
         this.scale = scaleSpawn;
@@ -142,11 +145,17 @@ class TankExhaustParticle extends Particle {
 
 // MARK: TankTrackParticle
 class TankTrackMarkParticle extends Particle {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 5.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "TankTrackMarkParticle";
         this.scale = scaleSpawn;
         this.diameter = 1 / 25 * this.scale;
+    }
+
+    update(gameDeltaTime) {
+        super.update(gameDeltaTime);
+        // this.angle = this.owner.angle;
+        // this.vel = this.owner.vel.scale(0.5);
     }
 
     render(ctx, gameDeltaTime) {
@@ -158,7 +167,7 @@ class TankTrackMarkParticle extends Particle {
 
 // MARK: RocketExhaustParticle
 class RocketExhaustParticle extends Particle {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 5.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 1.8, angleVel = 0, lifeSpan = 5.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "RocketExhaustParticle";
         this.scale = scaleSpawn;

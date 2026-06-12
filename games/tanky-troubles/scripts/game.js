@@ -111,8 +111,8 @@ ${statsRingBufferValues}
 // Game Big Picture
 getGlobal().gameState = GAME_STATE_KEYS.RUNNING;
 getGlobal().overlayState = OVERLAY_STATE_KEYS.NONE;
-getGlobal().debugMode = false;
-getGlobal().showStatistics = false;
+getGlobal().debugMode = true;
+getGlobal().showStatistics = true;
 getGlobal().showParticles = true;
 camera.zoomLevel = 1/16;
 

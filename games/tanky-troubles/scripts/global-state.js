@@ -90,8 +90,8 @@ const GlobalVariables = {
     debugMode: true,
     showStatistics: true,
     showParticles: true,
-    canvasScale: 1280,  // dynamically scales with canvas width
-    renderScale: 128,  // is always calculated in updateGlobalVariables() every ExecuteGameLoop()
+    canvasScale: 1280,  // dynamically scales with canvas width - canvas width in pixel
+    renderScale: 128,  // is always calculated in updateGlobalVariables() every ExecuteGameLoop() - pixels per tile
     gameState: GAME_STATE_KEYS.MAIN_MENU,
     overlayState: OVERLAY_STATE_KEYS.NONE,
     entities: {

@@ -1,7 +1,8 @@
 import { getGlobal, GLOBAL_COLOR_KEYS } from '../global-state.js';
 import { BULLETS } from './bullet.js';
-import { spawnRelativeClass } from './spawner.js';
+import { spawnClassRelatively } from './spawner.js';
 import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../utils/graphics-utils.js';
+import { Vec2 } from "../utils/math-utils.js";
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -53,7 +54,7 @@ class NoWeapon extends Weapon {
 
     press() {
         const bulletSpeed = 1.8 // tiles per second
-        spawnRelativeClass(BULLETS.default, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, {x: this.barrelLength, y: 0}, 0, bulletSpeed, 0, 10.000);
+        spawnClassRelatively(BULLETS.default, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, new Vec2(this.barrelLength, 0), 0, bulletSpeed, 0, 10.000);
     }
 
     hold() {
@@ -74,7 +75,7 @@ class NoWeapon extends Weapon {
 
         // Dome
         const domeRadius = this.tank.width / 3;
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.tank.color, "black", 0.02);
+        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "black", 0.02);
     }
 }
 
@@ -129,19 +130,18 @@ class Chaingun extends Weapon {
                 const extraDistance = bulletSpeed * extraTravelTime;
 
                 // Get initial bullet position
-                const spawnPos = { x: this.barrelLength, y: 0 };
+                const spawnPos = new Vec2(this.barrelLength, 0);
 
                 const angle = this.tank.angle;
                 const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
 
                 // Move bullet forward to compensate for delay
-                const compensatedPos = {
-                    x: spawnPos.x + Math.cos(angle) * extraDistance,
-                    y: spawnPos.y + Math.sin(-angle) * extraDistance
-                };
+                const compensatedPos = spawnPos.add(
+                    Vec2.fromAngle(angle, extraDistance)
+                );
 
                 // Fire the bullet at the corrected position
-                spawnRelativeClass(BULLETS.chaingun, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, compensatedPos, randomBulletAngleOffset, bulletSpeed);
+                spawnClassRelatively(BULLETS.chaingun, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, compensatedPos, randomBulletAngleOffset, bulletSpeed);
             }
         }
     }
@@ -155,7 +155,7 @@ class Chaingun extends Weapon {
         
         // Dome
         const domeRadius = this.tank.width / 3;
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.tank.color, "black", 0.02);
+        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "black", 0.02);
 
         // Draw the base of the chaingun turret
         let turretSize = { w: this.tank.length * 0.7, h: this.tank.width * 4 / 15 };
@@ -181,7 +181,7 @@ class Chaingun extends Weapon {
             const barrelPositionX = Math.cos((flippedAngle + barrelAngles[i]) * Math.PI / 180) * (flipped === 0 ? 1 : -1);
             const barrelPositionY = Math.sin((flippedAngle + barrelAngles[i]) * Math.PI / 180);
             const barrelY = barrelPositionX * (barrelWidthDefault - subBarrelHeight) * 0.5 - subBarrelHeight * 0.5;
-            const barrelPos = { x: turretSize.w / 2, y: barrelY };
+            const barrelPos = new Vec2(turretSize.w / 2, barrelY);
             
             const min = 0;
             const max = 200;
@@ -226,11 +226,11 @@ class Shotgun extends Weapon {
         for (let i = 0; i < numBullets; i++) {
 
             // Randomize the angle offset for each bullet
-            const randomBulletBarrelPosY = this.barrelWidth * (Math.random() - 0.5);
+            const randomBulletBarrelPos = new Vec2(this.barrelLength, this.barrelWidth * (Math.random() - 0.5));
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
-            const bulletSpeed = 3.0 + Math.random() * 0.5; // tiles per second
+            const bulletSpeed = 0.1 ;//3.0 + Math.random() * 0.5; // tiles per second
             const lifeSpan = 1.750 - Math.random() * (1.750 / 15);
-            spawnRelativeClass(BULLETS.shotgun, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, { x: this.barrelLength, y: randomBulletBarrelPosY }, randomBulletAngleOffset, bulletSpeed, 0, lifeSpan);
+            spawnClassRelatively(BULLETS.shotgun, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, randomBulletBarrelPos, randomBulletAngleOffset, bulletSpeed, 0, lifeSpan);
         }
     }
 
@@ -273,11 +273,11 @@ class FlameThrower extends Weapon {
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
             const bulletSpeed = 3.0 + Math.random() * 0.5 * this.tank.radius; // tiles per second
             const lifeSpan = 5.000 - Math.random() * (2.500); // 2500-7500 ms
-            const relPos = { x: this.turretSize.w, y: 0 };
+            const relPos = new Vec2(this.turretSize.w, 0);
             // const nozzleSin = 0.1 * Math.sin(-this.tank.age * 80)
             // console.log(`nozzleSin: ${nozzleSin}`)
             const relAngle = randomBulletAngleOffset; // + nozzleSin;
-            spawnRelativeClass(BULLETS.fire, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, relPos, relAngle, bulletSpeed, 0, lifeSpan);
+            spawnClassRelatively(BULLETS.fire, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, relPos, relAngle, bulletSpeed, 0, lifeSpan);
     }
 
     release() {
@@ -287,13 +287,13 @@ class FlameThrower extends Weapon {
     renderTurret(ctx, realDeltaTime) {
         drawRect(ctx, { x: 0, y: -this.turretSize.h / 2 }, this.turretSize, "#FFA500", "black", 0.05);
         const customShape = [
-            { x: 50, y: 0 },
-            { x: 100, y: 50 },
-            { x: 75, y: 100 },
-            { x: 25, y: 75 },
+            new Vec2(50, 0),
+            new Vec2(100, 50),
+            new Vec2(75, 100),
+            new Vec2(25, 75),
         ];
         
-        const pos = { x: 100, y: 100 };  // Position where the shape will be drawn
+        const pos = new Vec2(100, 100);  // Position where the shape will be drawn
         const angle = 45;  // Rotation in degrees
         
         drawVertexPolygon(ctx, pos, angle, customShape, "aqua", "black", 0.05);
@@ -348,7 +348,7 @@ class ChainShotgun extends Weapon {
                 const extraDistance = bulletSpeed * extraTravelTime;
 
                 // Get initial bullet position
-                const spawnPos = { x: this.tank.width, y: 0 };
+                const spawnPos = new Vec2(this.tank.width, 0);
 
                 // Move bullet forward to compensate for delay
                 const angle = this.tank.angle;
@@ -364,11 +364,11 @@ class ChainShotgun extends Weapon {
                 for (let i = 0; i < numBullets; i++) {
 
                     // Randomize the angle offset for each bullet
-                    const randomBulletBarrelPosY = this.barrelWidth * (Math.random() - 0.5);
+                    const randomBulletBarrelPos = new Vec2(this.barrelLength, this.barrelWidth * (Math.random() - 0.5));
                     const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
                     const bulletSpeed = 3.0 + Math.random() * 0.5; // tiles per second
                     const lifeSpan = 1.750 - Math.random() * (1.750 / 15);
-                    spawnRelativeClass(BULLETS.shotgun, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, { x: this.barrelLength, y: randomBulletBarrelPosY }, randomBulletAngleOffset, bulletSpeed, 0, lifeSpan);
+                    spawnClassRelatively(BULLETS.shotgun, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, randomBulletBarrelPos, randomBulletAngleOffset, bulletSpeed, 0, lifeSpan);
                 }
             }
         }
@@ -383,7 +383,7 @@ class ChainShotgun extends Weapon {
         
         // Dome
         const domeRadius = this.tank.width / 3;
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.tank.color, "black", 0.02);
+        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "black", 0.02);
 
         // Draw the base of the chaingun turret
         let turretSize = { w: this.tank.length * 0.7, h: this.tank.width * 4 / 15 };
@@ -409,7 +409,7 @@ class ChainShotgun extends Weapon {
             const barrelPositionX = Math.cos((flippedAngle + barrelAngles[i]) * Math.PI / 180) * (flipped === 0 ? 1 : -1);
             const barrelPositionY = Math.sin((flippedAngle + barrelAngles[i]) * Math.PI / 180);
             const barrelY = barrelPositionX * (barrelWidthDefault - subBarrelHeight) * 0.5 - subBarrelHeight * 0.5;
-            const barrelPos = { x: turretSize.w / 2, y: barrelY };
+            const barrelPos = new Vec2(turretSize.w / 2, barrelY);
             
             const min = 0;
             const max = 200;
@@ -432,7 +432,7 @@ class ShrepnalBombWeapon extends Weapon {
 
     press() {
         const bulletSpeed = 1.8 // tiles per second
-        spawnRelativeClass(BULLETS.shrapnelBomb, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, { x: this.tank.width, y: 0 }, 0, bulletSpeed, 0, 1.000);
+        spawnClassRelatively(BULLETS.shrapnelBomb, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, new Vec2(this.tank.width, 0), 0, bulletSpeed, 0, 1.000);
     }
 
     hold() {
@@ -453,7 +453,7 @@ class ShrepnalBombWeapon extends Weapon {
 
         // Dome
         const domeRadius = this.tank.width / 3;
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.tank.color, "black", 0.02);
+        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "black", 0.02);
     }
 }
 
@@ -465,7 +465,7 @@ class MissileLauncher extends Weapon {
     }
 
     press() {
-        spawnRelativeClass(BULLETS.homingMissile, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, {x: this.barrelLength, y: 0}, 0, undefined, 0, 10.000);
+        spawnClassRelatively(BULLETS.homingMissile, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, new Vec2(this.barrelLength, 0), 0, undefined, 0, 10.000);
     }
 
     hold() {
@@ -486,7 +486,7 @@ class MissileLauncher extends Weapon {
 
         // Dome
         const domeRadius = this.tank.width / 3;
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.tank.color, "black", 0.02);
+        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "black", 0.02);
     }
 }
 
@@ -503,7 +503,7 @@ class ExperimentalWeapon extends Weapon {
         const spreadAngleRadians = spreadAngle * (Math.PI / 180);
 
         let randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
-        spawnRelativeClass(BULLETS.shrapnel, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, { x: this.tank.width, y: 0 }, randomBulletAngleOffset, (Math.random() + 0.5), undefined, 1.000);
+        spawnClassRelatively(BULLETS.shrapnel, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, new Vec2(this.tank.width, 0), randomBulletAngleOffset, (Math.random() + 0.5), undefined, 1.000);
     }
 
     hold() {
@@ -565,7 +565,7 @@ class ChainShotgunBoom extends Weapon {
                 const extraDistance = bulletSpeed * extraTravelTime;
 
                 // Get initial bullet position
-                const spawnPos = { x: this.tank.width, y: 0 };
+                const spawnPos = new Vec2(this.tank.width, 0);
 
                 // Move bullet forward to compensate for delay
                 const angle = this.tank.angle;
@@ -584,7 +584,7 @@ class ChainShotgunBoom extends Weapon {
                     const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
                     const bulletSpeed = 3.0 + Math.random() * 0.5; // tiles per second
                     const lifeSpan = 1.750 - Math.random() * (1.750 / 15);
-                    spawnRelativeClass(BULLETS.shrapnelBomb, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, { x: this.tank.width, y: 0 }, randomBulletAngleOffset, bulletSpeed, 0, lifeSpan);
+                    spawnClassRelatively(BULLETS.shrapnelBomb, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, new Vec2(this.tank.width, 0), randomBulletAngleOffset, bulletSpeed, 0, lifeSpan);
                 }
             }
         }
@@ -621,7 +621,7 @@ class ChainShotgunBoom extends Weapon {
             const barrelPositionX = Math.cos((flippedAngle + barrelAngles[i]) * Math.PI / 180) * (flipped === 0 ? 1 : -1);
             const barrelPositionY = Math.sin(-(flippedAngle + barrelAngles[i]) * Math.PI / 180);
             const barrelY = barrelPositionX * (barrelWidthDefault - subBarrelHeight) * 0.5 - subBarrelHeight * 0.5;
-            const barrelPos = { x: turretSize.w / 2, y: barrelY };
+            const barrelPos = new Vec2(turretSize.w / 2, barrelY);
             
             const min = 0;
             const max = 200;
@@ -641,7 +641,7 @@ class OppenheimerBOOOM extends Weapon {
 
     press() {
         const bulletSpeed = 1.8; // tiles per second
-        spawnRelativeClass(BULLETS.oppenheimerBullet, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, {x: this.barrelLength, y: 0}, 0, bulletSpeed, 0, undefined);
+        spawnClassRelatively(BULLETS.oppenheimerBullet, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, new Vec2(this.barrelLength, 0), 0, bulletSpeed, 0, undefined);
     }
 
     hold() {
@@ -662,17 +662,17 @@ class OppenheimerBOOOM extends Weapon {
 
         // Dome
         const domeRadius = this.tank.width / 3;
-        drawCircle(ctx, {x: 0, y: 0}, domeRadius, "#000");
-        drawCircle(ctx, {x: 0, y: 0}, domeRadius * 0.8, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
+        drawCircle(ctx, new Vec2(), domeRadius, "#000");
+        drawCircle(ctx, new Vec2(), domeRadius * 0.8, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
         for (let i = 0; i < 3; i++) {
             let triangleAngle = Math.PI + Math.PI * 2 / 3 * i;
             let triangleRotAngle = triangleAngle + Math.PI;
             let trianglePosRadius = domeRadius * 0.55;
-            let trianglePos = { x: trianglePosRadius * Math.cos(triangleAngle) , y: trianglePosRadius * Math.sin(-triangleAngle) };
+            let trianglePos = new Vec2(trianglePosRadius * Math.cos(triangleAngle) , trianglePosRadius * Math.sin(-triangleAngle));
             drawRegPolygon(ctx, trianglePos, trianglePosRadius, 3, triangleRotAngle, "#000000");
         }
-        drawCircle(ctx, {x: 0, y: 0}, domeRadius * 0.25, "#000");
-        drawCircle(ctx, {x: 0, y: 0}, domeRadius * 0.15, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
+        drawCircle(ctx, new Vec2(), domeRadius * 0.25, "#000");
+        drawCircle(ctx, new Vec2(), domeRadius * 0.15, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
     }
 }
 
@@ -688,7 +688,7 @@ class RocketBombWeapon extends Weapon {
 
     press() {
         const bulletSpeed = 1.8 // tiles per second
-        spawnRelativeClass(BULLETS.rocketBomb, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, { x: this.tank.width, y: 0 }, 0, bulletSpeed, 0, 1.000);
+        spawnClassRelatively(BULLETS.rocketBomb, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, new Vec2(this.tank.width, 0), 0, bulletSpeed, 0, 1.000);
     }
 
     hold() {
@@ -709,7 +709,7 @@ class RocketBombWeapon extends Weapon {
 
         // Dome
         const domeRadius = this.tank.width / 3;
-        drawCircle(ctx, { x: 0, y: 0 }, domeRadius, this.tank.color, "black", 0.02);
+        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "black", 0.02);
     }
 }
 

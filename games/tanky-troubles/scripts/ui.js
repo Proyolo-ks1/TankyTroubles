@@ -13,7 +13,7 @@ import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPol
 
 
 export class Button {
-    constructor(ctx, pos = {x: 0, y: 0}, size = {w: 20, h: 40} ) {
+    constructor(ctx, pos = new Vec2(), size = {w: 20, h: 40} ) {
         this.ctx = ctx
         this.pos = pos
         this.size = size

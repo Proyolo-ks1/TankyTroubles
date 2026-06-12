@@ -1,7 +1,7 @@
 import { getGlobal } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawRegPolygon, drawLine, drawVectorArrow, drawTextBox } from '../utils/graphics-utils.js';
-import { spawnRelativeClass as spawnClassRelatively } from './spawner.js';
-import { randomSeeded, randomRange } from "../utils/math-utils.js";
+import { spawnClassRelatively } from './spawner.js';
+import { randomSeeded, randomRange, Vec2 } from "../utils/math-utils.js";
 import { drawRocket } from '../utils/graphics-shapes.js';
 import { StaticEntity } from './entity.js';
 import { PARTICLES } from './particle.js';
@@ -23,7 +23,7 @@ export class UtilityEntity extends StaticEntity {
     static nextId = 0;
     constructor(
         owner,
-        posSpawn = { x: 0, y: 0 },
+        posSpawn = new Vec2(),
         angleSpawn = 0,
         scaleSpawn = 1,
     ) {
@@ -51,7 +51,7 @@ export class TextBoxEntity extends UtilityEntity {
     static nextId = 0;
     constructor(
         owner,
-        posSpawn = { x: 0, y: 0 },
+        posSpawn = new Vec2(),
         angleSpawn = 0,
         scaleSpawn = 1,
         text = "",
@@ -77,7 +77,7 @@ export class TextBoxEntity extends UtilityEntity {
                 borderColor: "#fff",
                 borderWidth: 0.02,
                 borderRadius: 0.05,
-                padding: { x: 0.05, y: 0.05 },
+                padding: new Vec2(0.05, 0.05),
                 textStyle: {
                     fontSize: 16 / renderScale, // px
                     font: "Arial",

@@ -1,6 +1,6 @@
 import { getGlobal, GLOBAL_COLOR_KEYS, recordDebugFrame } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawRegPolygon, drawVectorArrow} from '../utils/graphics-utils.js';
-import { signedPower } from '../utils/math-utils.js';
+import { signedPower, Vec2 } from '../utils/math-utils.js';
 import { generateMaze} from '../generate-maze.js';
 import { Tank } from '../classes/tank.js';
 import { loadMainMenu } from '../gamestates/main-menu.js';
@@ -131,13 +131,13 @@ function updateAndRenderWind(ctx, realDeltaTime) {
     windVel.y = Math.max(-maxSpeed, Math.min(maxSpeed, windVel.y));
 
     // Draw the Wind indicator vector arrow at position (50, 50)
-    const windIndicatorPos = { x: 5, y: 1 };
+    const windIndicatorPos = new Vec2(5, 1);
     drawCircle(ctx, windIndicatorPos, 1, null, "#000", 0.01);
     drawVectorArrow(ctx, windIndicatorPos, { x: windVel.x * 1, y: windVel.y * 1 }, "#ffcc23", 0.05);
 
     // debugging
-    // drawVectorArrow(ctx, { x: 5, y: 1 }, { x: windAcc.x * 5, y: windAcc.y * 5 }, "#b39a48", 0.05);
-    // drawVectorArrow(ctx, { x: 5, y: 1 }, { x: windJerk.x * 5, y: windJerk.y * 5 }, "#776835", 0.05);
+    // drawVectorArrow(ctx, new Vec2(5, 1), { x: windAcc.x * 5, y: windAcc.y * 5 }, "#b39a48", 0.05);
+    // drawVectorArrow(ctx, new Vec2(5, 1), { x: windJerk.x * 5, y: windJerk.y * 5 }, "#776835", 0.05);
     // console.log(`wind velocity vector: (${windVel.x},${windVel.y})`);
 }
 
@@ -221,9 +221,9 @@ function updateGlobalVariables() {
 // Settings
 let powerUpSpawnCooldown = 1; // seconds 
 let powerUpSpawnChance = 1;
-let windVel = {x: 0, y: 0};
-let windAcc = {x: 0, y: 0};
-let windJerk = {x: 0, y: 0};
+let windVel = new Vec2();
+let windAcc = new Vec2();
+let windJerk = new Vec2();
 let windEnabled = false;
 
 const iniDebugging = true;
@@ -247,11 +247,11 @@ export function initializeWorld() {
 
     // Create 2 tanks with position, color, and controls
     let angleSpawn = Math.random() * Math.PI * 2;
-    const posSpawn1 = { x: 1, y: 1 }
+    const posSpawn1 = new Vec2(1, 1)
     const tank0 = new Tank(posSpawn1, angleSpawn, undefined, undefined, undefined, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
 
     angleSpawn = Math.random() * Math.PI * 2;
-    const posSpawn2 = { x: 2, y: 1 }
+    const posSpawn2 = new Vec2(2, 1)
     const tank1 = new Tank(posSpawn2, angleSpawn, undefined, undefined, undefined, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
 
     // Debugging
@@ -259,8 +259,9 @@ export function initializeWorld() {
         spawnAllTestObjects();
 
     // Cam
-    camera.setTargets([tank0, tank1]);
-    // camera.setTargets(getGlobal().entities.tanks);
+    let targets = [tank0, tank1]
+    targets.push(...getGlobal().entities.tanks)
+    camera.setTargets(targets);
     }
 }
 
@@ -278,31 +279,36 @@ export function initializeWorld() {
 export function ExecuteGameLoop(ctx, gameDeltaTime) {
     window.globalSyncConsoleLogStr = "Global Logging:\n"
     if (!gameApi.isGamePaused) {
+        
+        //debugging
+        const timers = { calc: 0, render: 0 };
+        const debugActive = getGlobal().debugMode
 
         // Camera Translations
-        camera.update();
+        camera.update(gameDeltaTime);
+
         const g = getGlobal();
+        const canvasWidth = gameApi.canvasWidth;
+        const canvasHeight = gameApi.canvasHeight;
         ctx.save();
         // WORLD SPACE (affected by camera)
+
         ctx.scale(g.renderScale, g.renderScale);
         ctx.translate(
-            gameApi.canvasWidth / (2 * g.renderScale) - camera.pos.x,
-            gameApi.canvasHeight / (2 * g.renderScale) - camera.pos.y
+            canvasWidth / (2 * g.renderScale) - camera.pos.x,
+            canvasHeight / (2 * g.renderScale) - camera.pos.y
         );
 
         renderBackground(ctx);
         updateGlobalVariables();
 
         // Update and render tanks, bullets, other entities
-        const debugActive = getGlobal().debugMode
-
         const systems = [
             entities.bullets,
             entities.tanks,
             entities.particles,
             entities.utilities
         ];
-        const timers = { calc: 0, render: 0 };
         systems.forEach(list =>
             processEntities(list, ctx, gameDeltaTime, debugActive, timers)
         );
@@ -318,8 +324,13 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
 
         // Debugging ?
         // drawWindowDebug(ctx, canvasWidth, canvasHeight, realDeltaTime); // ?
+        if (debugActive) {
+            const t0 = performance.now();
+            camera.debugrender(ctx, gameDeltaTime, canvasWidth, canvasHeight);
+            timers.render += performance.now() - t0;
+        }
 
-        lastFrameCtx.clearRect(0, 0, gameApi.canvasWidth, gameApi.canvasHeight);
+        lastFrameCtx.clearRect(0, 0, canvasWidth, canvasHeight);
         lastFrameCtx.drawImage(ctx.canvas, 0, 0);
 
         // restore to screen space

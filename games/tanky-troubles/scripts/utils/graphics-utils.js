@@ -1,5 +1,6 @@
 import { getGlobal } from '../global-state.js';
 import { randomColorHSLSeeded } from './color-utils.js';
+import { Vec2 } from "../utils/math-utils.js";
 
 
 
@@ -82,7 +83,7 @@ export function drawText(ctx, text, pos, textStyle = {}) {
 
 // MARK: drawImg
 // Function to draw an image
-export function drawImg(ctx, pos = { x: 0, y: 0 }, size = { w: 0, h: 0 }, img, opacity = 1) {
+export function drawImg(ctx, pos = new Vec2(), size = { w: 0, h: 0 }, img, opacity = 1) {
     const renderScale = getGlobal().renderScale;
 
     const scaledX = pos.x;
@@ -170,7 +171,7 @@ export function drawRect(ctx, pos = {x: null, y: null}, size = {w: null, h: null
 
 // MARK: drawRectRotated
 // Draw a rotated rectangle with optional rounded corners, center-based coordinates
-export function drawRectRotated(ctx, posCenter = {x: 0, y: 0}, angle = 0, size = {w: 0, h: 0}, fillColor = null, strokeColor = null, strokeWidth = 0, borderRadius = 0) {
+export function drawRectRotated(ctx, posCenter = new Vec2(), angle = 0, size = {w: 0, h: 0}, fillColor = null, strokeColor = null, strokeWidth = 0, borderRadius = 0) {
     const renderScale = getGlobal().renderScale;
     const scaledWidth = size.w;
     const scaledHeight = size.h;
@@ -236,7 +237,7 @@ export function drawTextBox(ctx, text, pos, size, options = {}) {
         borderColor = null,
         borderWidth = 0.02,
         borderRadius = 0,
-        padding = { x: 0.3, y: 0.2 },
+        padding = new Vec2(0.3, 0.2),
 
         // Text
         textStyle = {},

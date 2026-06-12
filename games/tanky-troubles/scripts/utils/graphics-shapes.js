@@ -1,5 +1,6 @@
 import { getGlobal } from '../global-state.js';
 import { drawCircle, drawVertexLine, drawVertexPolygon} from './graphics-utils.js'
+import { Vec2 } from "../utils/math-utils.js";
 
 
 
@@ -89,7 +90,7 @@ export function drawRocket(ctx, pos, angle, scale, color) {
 
     drawVertexPolygon(
         ctx,
-        { x: 0, y: 0 },
+        new Vec2(),
         0,
         ROCKET_VERTICES,
         color,
@@ -104,8 +105,8 @@ export function drawRocket(ctx, pos, angle, scale, color) {
 export function drawNuclearIcon(ctx, pos, scale, color) {
 
     const domeRadius = this.tank.width / 3;
-    drawCircle(ctx, {x: 0, y: 0}, domeRadius, "#000");
-    drawCircle(ctx, {x: 0, y: 0}, domeRadius * 0.8, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
+    drawCircle(ctx, new Vec2(), domeRadius, "#000");
+    drawCircle(ctx, new Vec2(), domeRadius * 0.8, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
     for (let i = 0; i < 3; i++) {
         let triangleAngle = Math.PI + Math.PI * 2 / 3 * i;
         let triangleRotAngle = triangleAngle + Math.PI;
@@ -113,6 +114,6 @@ export function drawNuclearIcon(ctx, pos, scale, color) {
         let trianglePos = { x: trianglePosRadius * Math.cos(triangleAngle) , y: trianglePosRadius * Math.sin(-triangleAngle) };
         drawRegPolygon(ctx, trianglePos, trianglePosRadius, 3, triangleRotAngle, "#000000");
     }
-    drawCircle(ctx, {x: 0, y: 0}, domeRadius * 0.25, "#000");
-    drawCircle(ctx, {x: 0, y: 0}, domeRadius * 0.15, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
+    drawCircle(ctx, new Vec2(), domeRadius * 0.25, "#000");
+    drawCircle(ctx, new Vec2(), domeRadius * 0.15, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
 }

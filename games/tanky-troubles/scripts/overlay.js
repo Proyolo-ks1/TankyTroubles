@@ -46,46 +46,48 @@ export function renderGameStatistics(ctx, currentTime, realDeltaTime) {
 
     renderOverlayLeftPanel(ctx, currentTime, realDeltaTime, dbg, textStyle);
     renderOverlayTime(ctx, textStyle);
+    renderOverlayRightPanel(ctx, currentTime, realDeltaTime, dbg, textStyle);
 }
 
 
 
 // LEFT PANEL
 function renderOverlayLeftPanel(ctx, currentTime, realDeltaTime, dbg, textStyle) {
+    const DebugPanelSize = { w: 250, h: 250 }; // px
+    const DebugPanelPos = { x: 0, y: 0 };
     const DebugLeftPanel = {
-        position: {x: 0, y: 0,},
-        size: { w: 250, h: 250 }, // px
+        pos: DebugPanelPos,
+        size: DebugPanelSize,
         padding: 5, // px
-        cursor: {x: 0, y: 0, },
+        cursor: DebugPanelPos,
     };
 
     renderOverlayGraphs(ctx, DebugLeftPanel, dbg, textStyle);
-    renderOverlayVariables(ctx, DebugLeftPanel, currentTime, realDeltaTime, textStyle);
 }
 
 
 
 // GRAPHS
-function renderOverlayGraphs(ctx, DebugLeftPanel, dbg, textStyle) {
+function renderOverlayGraphs(ctx, ParentPanel, dbg, textStyle) {
     // Panel padding
-    DebugLeftPanel.cursor.x += DebugLeftPanel.padding;
-    DebugLeftPanel.cursor.y += DebugLeftPanel.padding;
-    const availableWidth = DebugLeftPanel.size.w - 2 * DebugLeftPanel.padding;
+    ParentPanel.cursor.x += ParentPanel.padding;
+    ParentPanel.cursor.y += ParentPanel.padding;
+    const availableWidth = ParentPanel.size.w - 2 * ParentPanel.padding;
 
-    const graphHeight = 150; // px
+    const graphHeight = 100; // px
     const amountOfGraphs = 3;
 
     // Graphs Container
     let graphsContainer = {
-        pos: { ...DebugLeftPanel.cursor },
+        pos: { ...ParentPanel.cursor },
         size: { w: availableWidth, h: 0 },
-        cursor: { ...DebugLeftPanel.cursor },
+        cursor: { ...ParentPanel.cursor },
         gap: 5,
     };
     graphsContainer.size.h = amountOfGraphs * graphHeight + (amountOfGraphs - 1) * graphsContainer.gap;
     drawRect(ctx, graphsContainer.pos, graphsContainer.size, "rgba(0,0,0,0.5)", null, 1 , 5 );
 
-    let defaultGraph = { pos: { x: 0, y: 0}, size: { w: availableWidth, h: graphHeight } };
+    let defaultGraph = { pos: { x: 0, y: 0 }, size: { w: availableWidth, h: graphHeight } };
 
     // Draw Bar Graphs
     drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 30 }, dbg.calculationDurations, dbg.index, dbg.count, "#0f0", "calcTime", "ms");
@@ -94,9 +96,9 @@ function renderOverlayGraphs(ctx, DebugLeftPanel, dbg, textStyle) {
     graphsContainer.cursor.y += defaultGraph.size.h + graphsContainer.gap;
     drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 150 }, dbg.fps, dbg.index, dbg.count, "#fa0", "frames", "fps");
     graphsContainer.cursor.y += defaultGraph.size.h;
-    DebugLeftPanel.size.h = graphsContainer.cursor.y;
+    ParentPanel.size.h = graphsContainer.cursor.y;
 
-    DebugLeftPanel.cursor.y += DebugLeftPanel.size.h + DebugLeftPanel.padding;
+    ParentPanel.cursor.y += ParentPanel.size.h + ParentPanel.padding;
 
     return
 }
@@ -104,14 +106,14 @@ function renderOverlayGraphs(ctx, DebugLeftPanel, dbg, textStyle) {
 
 
 // GAME VARIABLES
-function renderOverlayVariables(ctx, DebugLeftPanel, currentTime, realDeltaTime, textStyle) {
+function renderOverlayVariables(ctx, ParentPanel, currentTime, realDeltaTime, textStyle) {
     // Background (unit: pixel)
-    let pos = { x: DebugLeftPanel.cursor.x, y: DebugLeftPanel.cursor.y };
+    let pos = { x: ParentPanel.cursor.x, y: ParentPanel.cursor.y };
     const padding = 5 ;
     const textSpacing = 2 ;
     const fontSize = 16 ;  // unsure, something broke this
-    const linesOfText = 6;
-    const backgroundWidth = DebugLeftPanel.size.w + 2 * padding;
+    const linesOfText = 7;
+    const backgroundWidth = ParentPanel.size.w + 2 * padding;
     const backgroundHeight = linesOfText * fontSize + (linesOfText - 1) * textSpacing + 2 * padding;
     const size = { w: backgroundWidth, h: backgroundHeight };
     const borderRadius = padding;
@@ -133,6 +135,7 @@ function renderOverlayVariables(ctx, DebugLeftPanel, currentTime, realDeltaTime,
     pos = { x: pos.x + padding, y: pos.y + padding };
     const drawNextLine = createOverlayTextDrawer(ctx, pos, textStyle, textSpacing);
 
+    drawNextLine(`== Variables ==`);
     drawNextLine(`FPS:       ${Math.round(overlayFps)}`);
     drawNextLine(`ΔTime:     ${Math.round(overlayDeltaTime * 1000)} ms`);
     drawNextLine(`TileScale: ${getGlobal().renderScale.toFixed(2)} px/tile`);
@@ -143,7 +146,7 @@ function renderOverlayVariables(ctx, DebugLeftPanel, currentTime, realDeltaTime,
     // Toggle Button for debugMode
     const buttonWidth = 150 ;
     const buttonHeight = 30 ;
-    const buttonPos = { x: pos.x, y: pos.y + 6 * fontSize + 6 * textSpacing + padding };  // Position button below the overlay
+    const buttonPos = { x: pos.x, y: pos.y + linesOfText * fontSize + linesOfText * textSpacing + padding };  // Position button below the overlay
 
     // Draw the button
     drawRect(ctx, buttonPos, { w: buttonWidth, h: buttonHeight }, "rgba(0, 0, 0, 0.7)", "white", 2 , 5 );
@@ -227,4 +230,62 @@ function renderOverlayTime(ctx, textStyle) {
     const sliderValuePosX = timePanelPosX + timePanelWidth / 2 - ctx.measureText("0.00x").width / 2 ;
     const sliderValuePosY = sliderY + sliderHeight + pausePad;
     drawText(ctx, `${gt.gameSpeed.toFixed(2)}x`, { x: sliderValuePosX, y: sliderValuePosY }, { ...textStyle, align: "left" });
+}
+
+
+
+// RIGHT PANEL
+function renderOverlayRightPanel(ctx, currentTime, realDeltaTime, dbg, textStyle) {
+    const DebugPanelSize = { w: 250, h: 250 }; // px
+    const DebugPanelPos = { x: getGlobal().canvasScale - 250, y: 0 };
+    const DebugRightPanel = {
+        pos: DebugPanelPos,
+        size: DebugPanelSize,
+        padding: 5, // px
+        cursor: DebugPanelPos,
+    };
+
+    renderCalcandRenderAverage(ctx, DebugRightPanel, currentTime, realDeltaTime, textStyle);
+    renderOverlayVariables(ctx, DebugRightPanel, currentTime, realDeltaTime, textStyle);
+}
+
+// GRAPHS
+function renderCalcandRenderAverage(ctx, ParentPanel, currentTime, realDeltaTime, textStyle) {
+    
+    // Background (unit: pixel)
+    const padding = 5 ;
+    let pos = { x: ParentPanel.cursor.x, y: ParentPanel.cursor.y };
+    const textSpacing = 2 ;
+    const fontSize = 16 ;  // unsure, something broke this
+    const linesOfText = 3;
+    const backgroundWidth = ParentPanel.size.w + 2 * padding;
+    const backgroundHeight = linesOfText * fontSize + (linesOfText - 1) * textSpacing + 2 * padding;
+    const size = { w: backgroundWidth, h: backgroundHeight };
+    const borderRadius = padding;
+
+    // Overlay text
+    drawRect(ctx, pos, size, "rgba(0, 0, 0, 0.5)", null, null, borderRadius);
+    pos = { x: pos.x + padding, y: pos.y + padding };
+    const drawNextLine = createOverlayTextDrawer(ctx, pos, textStyle, textSpacing);
+
+    const debugSRBs = getGlobal().statsRingBuffers;
+    const averageCalc = ringAverageFromIndex(debugSRBs.calculationDurations, debugSRBs.index, debugSRBs.count);
+    const averageRender = ringAverageFromIndex(debugSRBs.renderingDurations, debugSRBs.index, debugSRBs.count);
+
+    drawNextLine(`== Averages ==`);
+    drawNextLine(`ΔCalc:   ${averageCalc.toFixed(2)} ms`);
+    drawNextLine(`ΔRender: ${averageRender.toFixed(2)} ms`);
+
+    ParentPanel.pos.y += backgroundHeight + padding;
+}
+
+function ringAverageFromIndex(buffer, index, count) {
+    let sum = 0;
+
+    for (let i = 0; i < count; i++) {
+        const idx = (index - i + buffer.length) % buffer.length;
+        sum += buffer[idx];
+    }
+
+    return count > 0 ? sum / count : 0;
 }

@@ -1,4 +1,5 @@
 // import { getGlobal } from '../global-state.js';
+import { Vec2 } from "../utils/math-utils.js";
 
 
 
@@ -11,12 +12,9 @@
 
 
 
-export function spawnRelativeClass(Class = undefined, owner = undefined, pos = {x: 0, y: 0}, angle = 0, scale = 1, relPos = {x: 0, y: 0}, relAngle = 0, speed = 1, angleVel = 0, lifeSpan = undefined) {
+export function spawnClassRelatively(Class = undefined, owner = undefined, pos = new Vec2(), angle = 0, scale = 1, relPos = new Vec2(), relAngle = 0, speed = 1, angleVel = 0, lifeSpan = undefined) {
     // Calculate absolute position based on relative position
-    const absPos = { 
-        x: pos.x + Math.cos(angle) * relPos.x - Math.sin(-angle) * relPos.y, 
-        y: pos.y + Math.sin(-angle) * relPos.x + Math.cos(angle) * relPos.y 
-    };
+    const absPos = relPos.clone().rotate(angle).add(pos);
     const absAngle = angle + relAngle;
 
     // Instantiate the class with the calculated values

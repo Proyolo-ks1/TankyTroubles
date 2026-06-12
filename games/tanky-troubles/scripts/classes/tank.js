@@ -1,12 +1,12 @@
 import { getGlobal } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from '../utils/graphics-utils.js';
-import { posMod, randomSeeded} from '../utils/math-utils.js';
+import { posMod, randomSeeded, Vec2} from '../utils/math-utils.js';
 import { drawSmiley} from '../utils/graphics-shapes.js';
 import { PhysicsObject } from './entity.js';
 import { BULLETS } from './bullet.js';
 import { PARTICLES } from './particle.js';
 import { WEAPONS } from './weapons.js';
-import { spawnRelativeClass as spawnClassRelatively } from './spawner.js';
+import { spawnClassRelatively } from './spawner.js';
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -29,7 +29,7 @@ export class Tank extends PhysicsObject {
 
     // This constructor has as default values, the values that were analyzed from the original game
     constructor(
-        posSpawn = { x: 1, y: 1 },
+        posSpawn = new Vec2(1, 1),
         angleSpawn = 0,
         scale = 1,
         speed = 1.6,
@@ -46,7 +46,7 @@ export class Tank extends PhysicsObject {
     ) {        
         super({ // PhysicsObject
             pos: posSpawn,
-            vel: { x: 0, y: 0 },
+            vel: new Vec2(),
             angle: angleSpawn,
             scale: scale,
         });
@@ -62,7 +62,7 @@ export class Tank extends PhysicsObject {
         this.color = color;
         this.controls = controls;
 
-        this.weapon = new WEAPONS.rocketBomb(this); // Default weapon
+        this.weapon = new WEAPONS.shotgun(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
 
@@ -129,8 +129,7 @@ export class Tank extends PhysicsObject {
         }
     
         // Reset velocity to (0, 0) when no keys are pressed
-        this.vel.x = 0;
-        this.vel.y = 0;
+        this.vel.zero();
     
         // Velocity-based movement
         if (globalKeys[this.controls.up]) {
@@ -143,20 +142,19 @@ export class Tank extends PhysicsObject {
         }
 
         // Update position using velocity
-        this.pos.x += this.vel.x * gameDeltaTime;
-        this.pos.y += this.vel.y * gameDeltaTime;
+        this.pos = this.pos.add(this.vel.scale(gameDeltaTime));
 
         // Update track rotation
         const forwardSpeed = Math.cos(this.angle) * this.vel.x + Math.sin(-this.angle) * this.vel.y;
         this.trackRotation.left += forwardSpeed * gameDeltaTime;
         if (Math.abs(this.trackRotationSinceMark.left - this.trackRotation.left) > 0.05) {
-            const offset = {x: -this.width / 2, y: -trackCenterRadius}
+            const offset = new Vec2(-this.width / 2, -trackCenterRadius)
             spawnClassRelatively(PARTICLES.tankTrackMark, this, this.pos, this.angle, this.scale, offset, 0, 0, 0, 5.000);
             this.trackRotationSinceMark.left = this.trackRotation.left;
         }
         this.trackRotation.right += forwardSpeed * gameDeltaTime;
         if (Math.abs(this.trackRotationSinceMark.right - this.trackRotation.right) > 0.05) {
-            const offset = {x: -this.width / 2, y: trackCenterRadius}
+            const offset = new Vec2(-this.width / 2, trackCenterRadius)
             spawnClassRelatively(PARTICLES.tankTrackMark, this, this.pos, this.angle, this.scale, offset, 0, 0, 0, 5.000);
             this.trackRotationSinceMark.right = this.trackRotation.right;
         }

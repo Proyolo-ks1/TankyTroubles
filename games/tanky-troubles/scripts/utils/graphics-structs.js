@@ -1,5 +1,5 @@
 import { getGlobal } from '../global-state.js';
-import { drawRect, drawCircle, drawVertexLine, drawVertexPolygon, drawTextBox, drawLine } from './graphics-utils.js'
+import { drawRect, drawCircle, drawVertexPolygon, drawTextBox, drawLine } from './graphics-utils.js'
 import { darkenHex } from './color-utils.js'
 
 
@@ -79,7 +79,7 @@ export function drawGraphBarsTYPEringBuffer(ctx, graphPos, graphSize, range, bar
             borderColor: "#000000",
             borderWidth: 1 ,
             borderRadius: 2 ,
-            padding: { x: 1 , y: 1  },
+            padding: { x: 1, y: 1 },
             textStyle: {
                 fontSize: 16 , // px
                 font: "Arial",

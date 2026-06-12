@@ -1,8 +1,8 @@
 import { getGlobal } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawRegPolygon, drawLine, drawVectorArrow, drawImg, drawImgRotated} from '../utils/graphics-utils.js';
-import { spawnRelativeClass as spawnClassRelatively } from './spawner.js';
+import { spawnClassRelatively } from './spawner.js';
 import { PhysicsObject } from './entity.js';
-import { randomSeeded } from "../utils/math-utils.js";
+import { randomSeeded, Vec2 } from "../utils/math-utils.js";
 import { getImage } from "../asset-handler.js";
 
 
@@ -23,7 +23,7 @@ class PowerUp extends PhysicsObject {
 
     constructor(
         owner,
-        posSpawn = { x: 0, y: 0 },
+        posSpawn = new Vec2(),
         angleSpawn = 0,
         scale = 1,
         speedSpawn = 0,
@@ -32,7 +32,7 @@ class PowerUp extends PhysicsObject {
     ) {
         super({ // PhysicsObject
             pos: posSpawn,
-            vel: { x: Math.cos(angleSpawn) * speedSpawn, y: Math.sin(-angleSpawn) * speedSpawn },
+            vel: Vec2.fromAngle(angleSpawn, speedSpawn),
             angle: angleSpawn,
             angleVel: angleVel,
             lifeSpan: lifeSpan,
@@ -118,7 +118,7 @@ class PowerUp extends PhysicsObject {
 
 // MARK: DefaultPowerup
 class DefaultPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "DefaultPowerup";
     }
@@ -136,7 +136,7 @@ class DefaultPowerup extends PowerUp {
 
 // OffensiveUnknown
 class OffensiveUnknown extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "OffensiveUnknown";
         this.img = getImage("powerup", "unknown-gray");
@@ -145,7 +145,7 @@ class OffensiveUnknown extends PowerUp {
 
 // BoobyTrapPowerup
 class BoobyTrapPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "BoobyTrapPowerup";
         this.img = getImage("powerup", "booby-trap");
@@ -154,7 +154,7 @@ class BoobyTrapPowerup extends PowerUp {
 
 // ChaingunPowerup
 class ChaingunPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ChaingunPowerup";
         this.img = getImage("powerup", "chaingun");
@@ -163,7 +163,7 @@ class ChaingunPowerup extends PowerUp {
 
 // CryoBombPowerup
 class CryoBombPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "CryoBombPowerup";
         this.img = getImage("powerup", "cryo-bomb");
@@ -172,7 +172,7 @@ class CryoBombPowerup extends PowerUp {
 
 // DoubleBarrelPowerup
 class DoubleBarrelPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "DoubleBarrelPowerup";
         this.img = getImage("powerup", "double-barrel");
@@ -181,7 +181,7 @@ class DoubleBarrelPowerup extends PowerUp {
 
 // DrillPowerup
 class DrillPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "DrillPowerup";
         this.img = getImage("powerup", "drill");
@@ -190,7 +190,7 @@ class DrillPowerup extends PowerUp {
 
 // DroneTankDetonatorPowerup
 class DroneTankDetonatorPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "DroneTankDetonatorPowerup";
         this.img = getImage("powerup", "drone-tank-detonator");
@@ -199,7 +199,7 @@ class DroneTankDetonatorPowerup extends PowerUp {
 
 // DroneTankShooterPowerup
 class DroneTankShooterPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "DroneTankShooterPowerup";
         this.img = getImage("powerup", "drone-tank-shooter");
@@ -208,7 +208,7 @@ class DroneTankShooterPowerup extends PowerUp {
 
 // LaserPowerup
 class LaserPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "LaserPowerup";
         this.img = getImage("powerup", "laser");
@@ -217,7 +217,7 @@ class LaserPowerup extends PowerUp {
 
 // MissileHomingPowerup
 class MissileHomingPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "MissileHomingPowerup";
         this.img = getImage("powerup", "missle-homing");
@@ -226,7 +226,7 @@ class MissileHomingPowerup extends PowerUp {
 
 // RailgunPowerup
 class RailgunPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "RailgunPowerup";
         this.img = getImage("powerup", "railgun");
@@ -235,7 +235,7 @@ class RailgunPowerup extends PowerUp {
 
 // ShotgunPowerup
 class ShotgunPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ShotgunPowerup";
         this.img = getImage("powerup", "shotgun");
@@ -244,7 +244,7 @@ class ShotgunPowerup extends PowerUp {
 
 // ShrapnelBombPowerup
 class ShrapnelBombPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ShrapnelBombPowerup";
         this.img = getImage("powerup", "shrapnal-bomb");
@@ -253,7 +253,7 @@ class ShrapnelBombPowerup extends PowerUp {
 
 // SmokeBombPowerup
 class SmokeBombPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "SmokeBombPowerup";
         this.img = getImage("powerup", "smoke-bomb");
@@ -283,7 +283,7 @@ export const OFFENSIVE_POWERUPS = {
 
 // DefensiveUnknown
 class DefensiveUnknown extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "DefensiveUnknown";
         this.img = getImage("powerup", "unknown-blue");
@@ -292,7 +292,7 @@ class DefensiveUnknown extends PowerUp {
 
 // HealingPowerup
 class HealingPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "HealingPowerup";
         this.img = getImage("powerup", "healing");
@@ -301,7 +301,7 @@ class HealingPowerup extends PowerUp {
 
 // ShieldHPPowerup
 class ShieldHPPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ShieldHPPowerup";
         this.img = getImage("powerup", "shield-hp");
@@ -310,7 +310,7 @@ class ShieldHPPowerup extends PowerUp {
 
 // ShieldTimePowerup
 class ShieldTimePowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ShieldTimePowerup";
         this.img = getImage("powerup", "shield-time");
@@ -330,7 +330,7 @@ export const DEFENSIVE_POWERUPS = {
 
 // BoostUnknown
 class BoostUnknown extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "BoostUnknown";
         this.img = getImage("powerup", "unknown-yellow");
@@ -339,7 +339,7 @@ class BoostUnknown extends PowerUp {
 
 // BoostBulletDamagePowerup
 class BoostBulletDamagePowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "BoostBulletDamagePowerup";
         this.img = getImage("powerup", "boost-bullet-damage");
@@ -348,7 +348,7 @@ class BoostBulletDamagePowerup extends PowerUp {
 
 // BoostBulletSpeedPowerup
 class BoostBulletSpeedPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "BoostBulletSpeedPowerup";
         this.img = getImage("powerup", "boost-bullet-speed");
@@ -357,7 +357,7 @@ class BoostBulletSpeedPowerup extends PowerUp {
 
 // BoostMovementSpeedPowerup
 class BoostMovementSpeedPowerup extends PowerUp {
-    constructor(owner, posSpawn = { x: 0, y: 0 }, angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
+    constructor(owner, posSpawn = new Vec2(), angleSpawn = 0, scaleSpawn = 1, speedSpawn = 0, angleVel = 0, lifeSpan = 10.000) {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "BoostMovementSpeedPowerup";
         this.img = getImage("powerup", "boost-movement-speed");
