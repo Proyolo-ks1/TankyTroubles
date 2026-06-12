@@ -50,26 +50,6 @@ class Camera {
         this.zoomLevel = lerp(this.zoomLevel, this.zoomLevelTarget, this.smoothness);
     }
 
-    // == NEW after / renderscale ==
-    // debugrender(ctx, gameDeltaTime, canvasWidth, canvasHeight) {
-    //     const renderScale = getGlobal().renderScale;
-        
-    //     const { bounds, center } = getBoundsAndCenter(this.targetEntities);
-
-    //     drawRect(ctx, bounds.pos.scale(renderScale), { x: bounds.size.x * renderScale, y: bounds.size.y * renderScale }, undefined, "rgb(253, 172, 51)", 5)
-    //     drawRect(ctx,bounds.pos.scale(renderScale), { x: bounds.size.x * renderScale, y: bounds.size.y * renderScale }, undefined, "rgb(253, 91, 51)", 5)
-    //     for (const target of this.targetEntities) {
-    //         drawCircle(ctx, target.pos.scale(renderScale), 10, "rgb(84, 201, 181)")
-    //         drawLine(ctx, target.pos.scale(renderScale), center.scale(renderScale), "rgb(84, 201, 181)", 5)
-    //     }
-    //     drawCircle(ctx, center.scale(renderScale), 10 / renderScale, "rgb(60, 85, 81)")
-    //     const screenCenter = new Vec2(canvasWidth / 2, canvasHeight / 2);
-    //     drawVectorArrow(ctx, screenCenter, center.scale(renderScale).sub(screenCenter), "rgb(162, 102, 231)", 5)
-    //     drawCircle(ctx, screenCenter, 10, "rgb(122, 36, 221)")
-    // }
-
-    
-    // == OLD before / renderscale ==
     debugrender(ctx, gameDeltaTime, canvasWidth, canvasHeight) {
         const renderScale = getGlobal().renderScale;
         
@@ -81,10 +61,21 @@ class Camera {
             drawCircle(ctx, target.pos, 10 / renderScale, "rgb(84, 201, 181)")
             drawLine(ctx, target.pos, center, "rgb(84, 201, 181)", 5 / renderScale)
         }
-        drawCircle(ctx, center, 10 / renderScale, "rgb(60, 85, 81)")
+
+        // Position
+        drawCircle(ctx, center, 10 / renderScale, "rgb(80, 133, 124)")
         const screenCenter = this.pos
         drawVectorArrow(ctx, screenCenter, center.sub(screenCenter), "rgb(162, 102, 231)", 5 / renderScale)
         drawCircle(ctx, screenCenter, 10 / renderScale, "rgb(122, 36, 221)")
+
+        // Zoom
+        const zoomTargetRectSize = { w: this.zoomLevelTarget * 10, h: this.zoomLevelTarget * 10 }
+        drawRect(ctx, screenCenter.sub({ x: zoomTargetRectSize.w / 2, y: zoomTargetRectSize.h / 2 }), zoomTargetRectSize, undefined, "rgb(80, 133, 124)", 5 / renderScale)
+        const zoomCurrentRectSize = { w: this.zoomLevel * 10, h: this.zoomLevel * 10 }
+        drawRect(ctx, screenCenter.sub({ x: zoomCurrentRectSize.w / 2, y: zoomCurrentRectSize.h / 2 }), zoomCurrentRectSize, undefined, "rgb(122, 36, 221)", 5 / renderScale)
+
+
+
     }
 }
 
