@@ -93,6 +93,10 @@ export class PhysicsObject extends Entity {
         this.updatePosition(gameDeltaTime);
         this.updateVelocity(gameDeltaTime);
         this.updateRotation(gameDeltaTime);
+        const frame = getGlobal().frameCount;
+        if (this.shortName === "b10") {
+            const a = 0;
+        }
         this.updateAge(gameDeltaTime);
         this.updateHitbox();
     }

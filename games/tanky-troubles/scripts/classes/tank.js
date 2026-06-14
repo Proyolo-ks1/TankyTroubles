@@ -62,7 +62,7 @@ export class Tank extends PhysicsObject {
         this.color = color;
         this.controls = controls;
 
-        this.weapon = new OppenheimerBOOOM(this); // Default weapon
+        this.weapon = new WEAPONS.chainShotgunBoom(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
 

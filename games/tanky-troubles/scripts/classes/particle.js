@@ -1,4 +1,4 @@
-import { getGlobal } from '../global-state.js';
+import { getGlobal, spawn } from '../global-state.js';
 import { drawRect, drawRectRotated, drawCircle, drawText, drawRegPolygon, drawLine, drawVectorArrow} from '../utils/graphics-utils.js';
 import { PhysicsObject } from './entity.js';
 import { spawnClassRelatively } from './spawner.js';
@@ -46,7 +46,7 @@ class Particle extends PhysicsObject {
 
         this.active = true;
 
-        getGlobal().entities.particles.unshift(this);
+        spawn(this, getGlobal().entities.particles)
     }
 
     

@@ -612,7 +612,7 @@ class ChainShotgunBoom extends Weapon {
             const flipped = this.barrelRotation < 30 ? 0 : 1;
             const flippedAngle = 30 - Math.abs(30 - barrelAngle);
             const barrelPositionX = Math.cos((flippedAngle + barrelAngles[i]) * Math.PI / 180) * (flipped === 0 ? 1 : -1);
-            const barrelPositionY = Math.sin(-(flippedAngle + barrelAngles[i]) * Math.PI / 180);
+            const barrelPositionY = Math.sin((flippedAngle + barrelAngles[i]) * Math.PI / 180);
             const barrelY = barrelPositionX * (barrelWidthDefault - subBarrelHeight) * 0.5 - subBarrelHeight * 0.5;
             const barrelPos = new Vec2(turretSize.w / 2, barrelY);
             
@@ -620,7 +620,7 @@ class ChainShotgunBoom extends Weapon {
             const max = 200;
             const gray = Math.round(min + (barrelPositionY + 1) * 0.5 * (max - min));
             const barrelColor = `rgb(${gray}, ${gray}, ${gray})`;
-            drawRect(ctx, barrelPos, { w: subBarrelWidth, h: subBarrelHeight }, barrelColor, "black", 0.01); // thinner outline for barrels
+            drawRect(ctx, barrelPos, { w: subBarrelWidth, h: subBarrelHeight }, barrelColor, "black", 0.005); // thinner outline for barrels
         }
     }
 }

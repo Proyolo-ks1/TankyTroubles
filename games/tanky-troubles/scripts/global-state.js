@@ -52,6 +52,12 @@ export const HITBOX_TYPES = Object.freeze({
  */
 
 /**
+ * @typedef {Object} SpawnQueueItem
+ * @property {Entity} instance
+ * @property {Entity[]} targetArray
+ */
+
+/**
  * @typedef {Object} StatsRingBuffersType
  * @property {Float32Array} calculationDurations
  * @property {Float32Array} renderingDurations
@@ -70,6 +76,7 @@ export const HITBOX_TYPES = Object.freeze({
 
 /**
  * @typedef {Object} GlobalVariablesType
+ * @property {number} frameCount
  * @property {boolean} debugMode
  * @property {boolean} showStatistics
  * @property {boolean} showParticles
@@ -79,6 +86,7 @@ export const HITBOX_TYPES = Object.freeze({
  * @property {string} gameState
  * @property {string} overlayState
  * @property {EntityType} entities
+ * @property {SpawnQueueItem[]} spawnQueue
  * @property {StatsRingBuffersType} statsRingBuffers
  * @property {GameTimeType} gameTime
  */
@@ -87,6 +95,7 @@ const DEBUG_HISTORY_SIZE = 100;
 
 /** @type {GlobalVariablesType} */
 const GlobalVariables = {
+    frameCount: 0,
     debugMode: true,
     showStatistics: true,
     showParticles: true,
@@ -100,6 +109,7 @@ const GlobalVariables = {
         particles: [],
         utilities: [],
     },
+    spawnQueue: [],
     statsRingBuffers: {
         calculationDurations: new Float32Array(DEBUG_HISTORY_SIZE),
         renderingDurations: new Float32Array(DEBUG_HISTORY_SIZE),
@@ -140,4 +150,16 @@ export function recordDebugFrame(calcTime, renderTime, fps) {
 
     dbg.index = (dbg.index + 1) % DEBUG_HISTORY_SIZE;
     dbg.count = Math.min(dbg.count + 1, DEBUG_HISTORY_SIZE);
+}
+
+export function spawn(instance, targetArray) {
+    getGlobal().spawnQueue.push({ instance, targetArray });
+}
+
+export function flushSpawnQueue() {
+    const spawnQueue = getGlobal().spawnQueue
+    for (const item of spawnQueue) {
+        item.targetArray.push(item.instance);
+    }
+    spawnQueue.length = 0;
 }

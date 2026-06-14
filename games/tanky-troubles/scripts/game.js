@@ -167,9 +167,11 @@ async function boot() {
 let debugInitialized = false;
 
 function gameLoop(currentTime) {
-    const ctx = gameApi.canvasCtx
-    const canvasWidth = gameApi.canvasWidth
-    const canvasHeight = gameApi.canvasHeight
+    getGlobal().frameCount++
+    // console.log(`frame: ${getGlobal().frameCount}`);
+    const ctx = gameApi.canvasCtx;
+    const canvasWidth = gameApi.canvasWidth;
+    const canvasHeight = gameApi.canvasHeight;
     getGlobal().canvasScale = canvasWidth;
 
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);

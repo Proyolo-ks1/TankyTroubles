@@ -1,4 +1,4 @@
-import { getGlobal } from '../global-state.js';
+import { getGlobal, spawn } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawRegPolygon, drawLine, drawVectorArrow, drawTextBox } from '../utils/graphics-utils.js';
 import { spawnClassRelatively } from './spawner.js';
 import { randomSeeded, randomRange, Vec2 } from "../utils/math-utils.js";
@@ -37,7 +37,7 @@ export class UtilityEntity extends StaticEntity {
         
         this.scale = scaleSpawn;
 
-        getGlobal().entities.utilities.unshift(this);
+        spawn(this, getGlobal().entities.entities)
     }
     
     render(ctx, gameDeltaTime) {

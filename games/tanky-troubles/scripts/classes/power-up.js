@@ -1,4 +1,4 @@
-import { getGlobal } from '../global-state.js';
+import { getGlobal, spawn } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawRegPolygon, drawLine, drawVectorArrow, drawImg, drawImgRotated} from '../utils/graphics-utils.js';
 import { spawnClassRelatively } from './spawner.js';
 import { PhysicsObject } from './entity.js';
@@ -37,8 +37,8 @@ class PowerUp extends PhysicsObject {
             angleVel: angleVel,
             lifeSpan: lifeSpan,
         });
-        this.name = `Bullet ${PowerUp.nextId}`;
-        this.shortName = `b${PowerUp.nextId++}`;
+        this.name = `PowerUp ${PowerUp.nextId}`;
+        this.shortName = `pu${PowerUp.nextId++}`;
         this.owner = owner;
 
         this.radius = scale;
@@ -46,7 +46,7 @@ class PowerUp extends PhysicsObject {
 
         this.active = true;
 
-        getGlobal().entities.utilities.unshift(this);
+        spawn(this, getGlobal().entities.utilities)
     }
 
     

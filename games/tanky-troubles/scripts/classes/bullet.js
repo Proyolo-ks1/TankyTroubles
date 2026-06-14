@@ -1,4 +1,4 @@
-import { getGlobal, GLOBAL_COLOR_KEYS } from '../global-state.js';
+import { getGlobal, spawn, GLOBAL_COLOR_KEYS } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawRegPolygon, drawLine, drawVectorArrow } from '../utils/graphics-utils.js';
 import { spawnClassRelatively } from './spawner.js';
 import { randomSeeded, randomRange, Vec2 } from "../utils/math-utils.js";
@@ -46,7 +46,7 @@ class Bullet extends PhysicsObject {
 
         this.active = true;
 
-        getGlobal().entities.bullets.unshift(this);
+        spawn(this, getGlobal().entities.bullets)
     }
 
     
@@ -356,14 +356,14 @@ class OppenheimerBullet extends Bullet {
     destroy() {
         super.destroy();
         let bulletSpeed = 1;
-        console.log(`spawnClassRelatively() ${bulletSpeed}`);
+        console.log(`${this.shortName} got destroyed and spawns 2 Bullets at frame ${getGlobal().frameCount} (id ${Bullet.nextId} and Bullet ${Bullet.nextId + 1}) (${getGlobal().entities.bullets.length-0 + 1} bullets after spawning)`);
         
         // Left at -45 degrees
         spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, new Vec2(), -Math.PI / 2, bulletSpeed, 0, undefined);
 
         // Right at +45 degrees
         spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, new Vec2(), Math.PI / 2, bulletSpeed, 0, undefined);
-}
+    }
 
     render(ctx, realDeltaTime) {
         if (this.active) {
@@ -387,12 +387,13 @@ class OppenheimerNeutron extends Bullet {
         super.update(gameDeltaTime);
         this.vel.x *= 1 - 0.9 * gameDeltaTime;
         this.vel.y *= 1 - 0.9 * gameDeltaTime;
+        console.log(`${this.shortName}'s age: ${this.age}`);
     }
     
     destroy() {
         super.destroy();
         let bulletSpeed = 1;
-        console.log(`spawnClassRelatively() ${bulletSpeed}`);
+        console.log(`${this.shortName} got destroyed and spawns 2 Bullets at frame ${getGlobal().frameCount} (id ${Bullet.nextId} and Bullet ${Bullet.nextId + 1}) (${getGlobal().entities.bullets.length-0 + 1} bullets after spawning)`);
         
         // Left at -45 degrees
         spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, new Vec2(), -Math.PI / 4, bulletSpeed, 0, undefined);

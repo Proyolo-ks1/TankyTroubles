@@ -1,4 +1,4 @@
-import { getGlobal, GLOBAL_COLOR_KEYS, recordDebugFrame } from '../global-state.js';
+import { getGlobal, GLOBAL_COLOR_KEYS, recordDebugFrame, flushSpawnQueue } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawRegPolygon, drawVectorArrow} from '../utils/graphics-utils.js';
 import { signedPower, Vec2 } from '../utils/math-utils.js';
 import { generateMaze} from '../generate-maze.js';
@@ -72,36 +72,59 @@ async function startGame() {
 //     console.log(missileImage); // Should log the cached scaled image
 }
 
-// Clean up inactive objects of an array
-function cleanupInactiveEntries(objectArray) {
-    for (let i = objectArray.length - 1; i >= 0; i--) {
-        if (!objectArray[i].active) objectArray.splice(i, 1);
+// Clean up inactive objects of an array (non-splice edition :D)
+function cleanupInactiveEntries(arr) {
+    let write = 0;
+    for (let read = 0; read < arr.length; read++) {
+        if (arr[read].active) {
+            arr[write++] = arr[read];
+        }
     }
+    arr.length = write;
 }
 
-function processEntities(array, ctx, gameDeltaTime, debugActive, timers) {
-    array.forEach(entity => {
-        let t0 = performance.now();
+function processEntities(ctx, gameDeltaTime, debugActive, timers) {
+    console.log(`processEntities() at frame ${getGlobal().frameCount}`);
+    console.log(`BulletArray (${getGlobal().entities.bullets.length-0}): ${getGlobal().entities.bullets.slice(0, 20).map(b => b.shortName).join(", ")}`);
 
-        entity.update(gameDeltaTime);
-        timers.calc += performance.now() - t0;
+    const systems = [
+        entities.bullets,
+        entities.tanks,
+        entities.particles,
+        entities.utilities
+    ];
+    
+    systems.forEach(array =>
+        array.forEach(entity => {
+            let t0 = performance.now();
 
-        t0 = performance.now();
-        entity.render(ctx, gameDeltaTime);
-        timers.render += performance.now() - t0;
+            // here the problem MUST lie
+            entity.update(gameDeltaTime);
+            timers.calc += performance.now() - t0;
 
-        if (debugActive) {
             t0 = performance.now();
-            entity.debugrender(ctx, gameDeltaTime);
+            entity.render(ctx, gameDeltaTime);
             timers.render += performance.now() - t0;
-        }
-        if (windEnabled) {
-            updateWindEffect(entity, gameDeltaTime); // should not move tanks etc, lets see
-        }
-    });
+
+            if (debugActive) {
+                t0 = performance.now();
+                entity.debugrender(ctx, gameDeltaTime);
+                timers.render += performance.now() - t0;
+            }
+            if (windEnabled) {
+                updateWindEffect(entity, gameDeltaTime); // should not move tanks etc, lets see
+            }
+
+        })
+    );
+
+    // Iterate Spawn Queue
+    flushSpawnQueue();
 
     // Cleanup inactive entities (every frame single for now)
-    cleanupInactiveEntries(array);
+    for (const array of systems) {
+        cleanupInactiveEntries(array);
+    }
 }
 
 function updateAndRenderWind(ctx, realDeltaTime) {
@@ -224,10 +247,16 @@ let powerUpSpawnChance = 1;
 let windVel = new Vec2();
 let windAcc = new Vec2();
 let windJerk = new Vec2();
-let windEnabled = false;
 
-const iniDebugging = true;
+// Boolean Default = false
+let windEnabled = false;
+const iniDebugging = false;
 const debugCamera = false;
+
+// Boolean Overwrite = true
+// let windEnabled = true;
+// const iniDebugging = true;
+// const debugCamera = true;
 
 // Support Variables
 let lastPowerUpSpawnTime = 0;
@@ -248,7 +277,7 @@ export function initializeWorld() {
 
     // Create 2 tanks with position, color, and controls
     let angleSpawn = Math.random() * Math.PI * 2;
-    const posSpawn1 = new Vec2(2, 9)
+    const posSpawn1 = new Vec2(2, 2)
     const tank0 = new Tank(posSpawn1, angleSpawn, undefined, undefined, undefined, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
 
     angleSpawn = Math.random() * Math.PI * 2;
@@ -265,8 +294,8 @@ export function initializeWorld() {
     // targets.push(...getGlobal().entities.tanks)
     // camera.setTargets(targets);
     // camera.setTargets([getGlobal().entities.particles[1]])
-    camera.pos.set(1.5,7.5);
-    camera.zoomLevel = 1/2.5;;
+    camera.pos.set(1.5,1.5);
+    camera.zoomLevel = 1/2;;
     // camera.setTargets([getGlobal().entities.bullets[3], tank0]) // nuclear rocket
     camera.padding = .2;
     camera.zoomMax = 0.5;
@@ -310,15 +339,7 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
         updateGlobalVariables();
 
         // Update and render tanks, bullets, other entities
-        const systems = [
-            entities.bullets,
-            entities.tanks,
-            entities.particles,
-            entities.utilities
-        ];
-        systems.forEach(list =>
-            processEntities(list, ctx, gameDeltaTime, debugActive, timers)
-        );
+        processEntities(ctx, gameDeltaTime, debugActive, timers)
 
         // updateGame(currentTime);
 
