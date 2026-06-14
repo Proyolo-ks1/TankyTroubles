@@ -128,6 +128,12 @@ let lastTime = performance.now();
 let lastDebugPrint = 0;
 const DEBUG_INTERVAL = 10; // ms
 
+// Fps Cap
+let lastFrameTime = 0;
+const fpsCap = false;
+const simFPS = 8;
+const frameDelay = 1000 / simFPS;
+
 // Just normal stuff i guess?
 let realDeltaTime = 0; //ms
 let gameDeltaTime = 0; //ms
@@ -167,6 +173,12 @@ async function boot() {
 let debugInitialized = false;
 
 function gameLoop(currentTime) {
+    if (fpsCap && currentTime - lastFrameTime < frameDelay) {
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+    lastFrameTime = currentTime;
+
     getGlobal().frameCount++
     // console.log(`frame: ${getGlobal().frameCount}`);
     const ctx = gameApi.canvasCtx;
@@ -237,9 +249,7 @@ function gameLoop(currentTime) {
         lastDebugPrint = currentTime;
     }
 
-    // Simulate low FPS
-    const simFPS = 60;
-    const frameDelay = 1000 / simFPS;
+    // Loop
     requestAnimationFrame(gameLoop);
 }
 

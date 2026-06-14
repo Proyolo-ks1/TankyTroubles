@@ -62,7 +62,7 @@ export class Tank extends PhysicsObject {
         this.color = color;
         this.controls = controls;
 
-        this.weapon = new WEAPONS.chainShotgunBoom(this); // Default weapon
+        this.weapon = new WEAPONS.chaingun(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
 
@@ -73,7 +73,7 @@ export class Tank extends PhysicsObject {
         getGlobal().entities.tanks.push(this);
     }
 
-    // Triggered once when the shoot-key is pressed down
+    // Triggered once, when the shoot-key is pressed down
     shootPress() {
         this.weapon.press();
     }
@@ -83,7 +83,7 @@ export class Tank extends PhysicsObject {
         this.weapon.hold(gameDeltaTime);
     }
 
-    // Triggered once the shoot-key is released
+    // Triggered once, when the shoot-key is released
     shootRelease() {
         this.weapon.release();
     }
@@ -94,6 +94,7 @@ export class Tank extends PhysicsObject {
     }
 
     update(gameDeltaTime) {
+        this.weapon.update(gameDeltaTime);
 
         // Detect shooting press & release
         const isShooting = globalKeys[this.controls.shoot];
@@ -164,7 +165,7 @@ export class Tank extends PhysicsObject {
         this.updateHitbox();
     }
 
-    render(ctx, realDeltaTime) {
+    render(ctx, gameDeltaTime) {
         ctx.save();
 
         const renderScale = getGlobal().renderScale
@@ -206,7 +207,7 @@ export class Tank extends PhysicsObject {
         // }
 
         // Turret
-        this.weapon.renderTurret(ctx, realDeltaTime);
+        this.weapon.renderTurret(ctx, gameDeltaTime);
 
         ctx.restore();
 
@@ -226,7 +227,7 @@ export class Tank extends PhysicsObject {
         drawText(ctx, text, textPos, textStyle);
     }
 
-    debugrender(ctx, realDeltaTime) {
+    debugrender(ctx, gameDeltaTime) {
         // Velocity Arrow
         drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 0.02);
 

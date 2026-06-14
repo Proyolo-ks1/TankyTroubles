@@ -356,7 +356,7 @@ class OppenheimerBullet extends Bullet {
     destroy() {
         super.destroy();
         let bulletSpeed = 1;
-        console.log(`${this.shortName} got destroyed and spawns 2 Bullets at frame ${getGlobal().frameCount} (id ${Bullet.nextId} and Bullet ${Bullet.nextId + 1}) (${getGlobal().entities.bullets.length-0 + 1} bullets after spawning)`);
+        // console.log(`${this.shortName} got destroyed and spawns 2 Bullets at frame ${getGlobal().frameCount} (id ${Bullet.nextId} and Bullet ${Bullet.nextId + 1}) (${getGlobal().entities.bullets.length-0 + 1} bullets after spawning)`);
         
         // Left at -45 degrees
         spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, new Vec2(), -Math.PI / 2, bulletSpeed, 0, undefined);
@@ -365,7 +365,7 @@ class OppenheimerBullet extends Bullet {
         spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, new Vec2(), Math.PI / 2, bulletSpeed, 0, undefined);
     }
 
-    render(ctx, realDeltaTime) {
+    render(ctx, gameDeltaTime) {
         if (this.active) {
             drawRocket(ctx, this.pos, this.angle, this.radius, this.color);
             const radius = this.radius / 3;
@@ -393,7 +393,7 @@ class OppenheimerNeutron extends Bullet {
     destroy() {
         super.destroy();
         let bulletSpeed = 1;
-        console.log(`${this.shortName} got destroyed and spawns 2 Bullets at frame ${getGlobal().frameCount} (id ${Bullet.nextId} and Bullet ${Bullet.nextId + 1}) (${getGlobal().entities.bullets.length-0 + 1} bullets after spawning)`);
+        // console.log(`${this.shortName} got destroyed and spawns 2 Bullets at frame ${getGlobal().frameCount} (id ${Bullet.nextId} and Bullet ${Bullet.nextId + 1}) (${getGlobal().entities.bullets.length-0 + 1} bullets after spawning)`);
         
         // Left at -45 degrees
         spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, new Vec2(), -Math.PI / 4, bulletSpeed, 0, undefined);

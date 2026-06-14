@@ -27,7 +27,7 @@ class Entity {
         this.active = true;
     }
 
-    update(realDeltaTime) {
+    update(gameDeltaTime) {
         // Nothing
     }
 

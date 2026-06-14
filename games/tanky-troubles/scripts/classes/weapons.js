@@ -27,20 +27,25 @@ class Weapon {
 
     press() {
         // Default press behavior, can be overridden
-        // console.log(`PRESS`);
+        // console.log(`Weapon.PRESS()`);
     }
 
-    hold() {
+    hold(gameDeltaTime) {
         // Default hold behavior, can be overridden
-        // console.log(`HOLD`);
+        // console.log(`Weapon.HOLD()`);
     }
 
     release() {
         // Default release behavior, can be overridden
-        // console.log(`RELEASE`);
+        // console.log(`Weapon.RELEASE()`);
     }
 
-    renderTurret(ctx, realDeltaTime) {
+    update(gameDeltaTime) {
+        // Default update rendering, can be overridden
+        // console.log(`Weapon.UPDATE()`);
+    }
+
+    renderTurret(ctx, gameDeltaTime) {
         // Default turret rendering, can be overridden
     }
 }
@@ -65,7 +70,7 @@ class NoWeapon extends Weapon {
         // empty
     }
 
-    renderTurret(ctx, realDeltaTime) {
+    renderTurret(ctx, gameDeltaTime) {
         // Barrel
         const barrelLength = this.tank.length * 0.7;
         const barrelWidth = this.tank.width * 4 / 15;
@@ -93,7 +98,9 @@ class Chaingun extends Weapon {
         this.fireRateCooldown = 1 / this.fireRate; // Time between shots in seconds
         this.timeSinceLastShot = 0; // Tracks time since last bullet
         this.chargeTime = 1; // Time (in seconds) to charge before firing
-        this.barrelRotation = 0;
+        this.barrelRotation = 0; // somehow still in degrees
+        this.barrelRotationSpeed = 0; // somehow still in degrees per second
+        this.barrelRotationSpeedMax = 60 * this.fireRate; // somehow still in degrees per second
     }
 
     press() {
@@ -103,42 +110,30 @@ class Chaingun extends Weapon {
         this.isReadyToFire = false; // Reset firing state
     }
 
-    hold(realDeltaTime) {
+    hold(gameDeltaTime) {
         if (!this.isCharging) return;
 
+        const angle = this.tank.angle;
+        const bulletSpeed = 2.75; // tiles per second
         const spreadAngle = 10;// Spread angle in degrees
         const spreadAngleRadians = spreadAngle * (Math.PI / 180);
+        this.barrelRotationSpeed += Math.min(this.barrelRotationSpeedMax - this.barrelRotationSpeed, 2 * this.barrelRotationSpeedMax / this.chargeTime * gameDeltaTime); // 2x because fighting the slow down.
 
-        // Accumulate time since charge started
-        this.timeSinceChargeStarted += realDeltaTime;
 
-        // Start firing only after charge time has passed
-        if (this.timeSinceChargeStarted >= this.chargeTime) {
-            this.isReadyToFire = true;
-        }
-
-        // If ready to fire, continue shooting
-        if (this.isReadyToFire) {
-            this.timeSinceLastShot += realDeltaTime; // Accumulate time for rapid fire
+        // If shooting barrel rotation speed has been reached, start shooting
+        if (this.barrelRotationSpeed >= this.barrelRotationSpeedMax) {
+            this.timeSinceLastShot += gameDeltaTime; // Accumulate time for rapid fire
 
             while (this.timeSinceLastShot > this.fireRateCooldown) {
                 this.timeSinceLastShot -= this.fireRateCooldown; // Reduce accumulated time
+                
+                const shotTimeAgo = this.timeSinceLastShot;
 
-                // Calculate compensation distance
-                const extraTravelTime = this.timeSinceLastShot; // Time bullet is "late"
-                const bulletSpeed = 2.75; // tiles per second
-                const extraDistance = bulletSpeed * extraTravelTime;
-
-                // Get initial bullet position
-                const spawnPos = new Vec2(this.barrelLength, 0);
-
-                const angle = this.tank.angle;
+                // Calculate compensated position
+                const extraDistance = bulletSpeed * shotTimeAgo;
+                const compensatedPos = new Vec2(this.barrelLength + extraDistance, 0);
+    
                 const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
-
-                // Move bullet forward to compensate for delay
-                const compensatedPos = spawnPos.add(
-                    Vec2.fromAngle(angle, extraDistance)
-                );
 
                 // Fire the bullet at the corrected position
                 spawnClassRelatively(BULLETS.chaingun, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, compensatedPos, randomBulletAngleOffset, bulletSpeed);
@@ -147,11 +142,15 @@ class Chaingun extends Weapon {
     }
 
     release() {
-        this.isCharging = false;
-        this.isReadyToFire = false; // Stop firing when button is released
     }
 
-    renderTurret(ctx, realDeltaTime) {
+    update(gameDeltaTime) {
+        this.barrelRotationSpeed += Math.max(0 - this.barrelRotationSpeed, -(this.barrelRotationSpeedMax / this.chargeTime * gameDeltaTime)); // self slowing
+        this.barrelRotation += this.barrelRotationSpeed * gameDeltaTime;
+        this.barrelRotation %= 60;
+    }
+
+    renderTurret(ctx, gameDeltaTime) {
         
         // Dome
         const domeRadius = this.tank.width / 3;
@@ -162,8 +161,6 @@ class Chaingun extends Weapon {
         let turretColor = this.tank.color
         if (globalKeys[this.tank.controls.shoot]) {
             turretColor = "orange"
-            this.barrelRotation += 60 * this.fireRate * realDeltaTime;
-            this.barrelRotation %= 60;
         }
         drawRect(ctx, { x: 0, y: -turretSize.h / 2 }, turretSize, turretColor, "black", 0.02);
     
@@ -242,7 +239,7 @@ class Shotgun extends Weapon {
         // empty
     }
 
-    renderTurret(ctx, realDeltaTime) {
+    renderTurret(ctx, gameDeltaTime) {
         // Barrel
         const length = this.barrelLength
         const width = this.barrelWidth
@@ -259,32 +256,50 @@ class FlameThrower extends Weapon {
         this.isCharging = false;
         this.chargeStartTime = 0;
         this.turretSize = { w: this.tank.length * 0.7, h: this.tank.width / 3 };
+
+        this.fireRate = 600; // Bullets per second
+        this.fireRateCooldown = 1 / this.fireRate; // Time between shots in seconds
+        this.timeSinceLastShot = 0; // Tracks time since last bullet
     }
 
     press() {
         // empty
     }
 
-    hold() {
+    hold(gameDeltaTime) {
         const spreadAngle = 20; // Spread angle in degrees
         const spreadAngleRadians = spreadAngle * (Math.PI / 180);
 
-            // Randomize the angle offset for each bullet
-            const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
+        this.timeSinceLastShot += gameDeltaTime; // Accumulate time for rapid fire
+
+        while (this.timeSinceLastShot > this.fireRateCooldown) {
+            const shotTimeAgo = this.timeSinceLastShot;
+            this.timeSinceLastShot -= this.fireRateCooldown; // Reduce accumulated time
+
+            // stats
             const bulletSpeed = 3.0 + Math.random() * 0.5 * this.tank.radius; // tiles per second
             const lifeSpan = 5.000 - Math.random() * (2.500); // 2500-7500 ms
-            const relPos = new Vec2(this.turretSize.w, 0);
+            const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
+
+            // Calculate compensation distance
+            const extraDistance = bulletSpeed * shotTimeAgo;
+
+            // Move bullet forward to compensate for delay
+            const compensatedPos = new Vec2(this.turretSize.w + extraDistance, 0);
+
+            // Fire the bullet at the corrected position
             // const nozzleSin = 0.1 * Math.sin(-this.tank.age * 80)
             // console.log(`nozzleSin: ${nozzleSin}`)
             const relAngle = randomBulletAngleOffset; // + nozzleSin;
-            spawnClassRelatively(BULLETS.fire, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, relPos, relAngle, bulletSpeed, 0, lifeSpan);
+            spawnClassRelatively(BULLETS.fire, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, compensatedPos, relAngle, bulletSpeed);
+        }
     }
 
     release() {
         // empty
     }
 
-    renderTurret(ctx, realDeltaTime) {
+    renderTurret(ctx, gameDeltaTime) {
         drawRect(ctx, { x: 0, y: -this.turretSize.h / 2 }, this.turretSize, "#FFA500", "black", 0.05);
         const customShape = [
             new Vec2(50, 0),
@@ -324,11 +339,11 @@ class ChainShotgun extends Weapon {
         this.isReadyToFire = false;
     }
 
-    hold(realDeltaTime) {
+    hold(gameDeltaTime) {
         if (!this.isCharging) return;
 
         // Accumulate time since charge started
-        this.timeSinceChargeStarted += realDeltaTime;
+        this.timeSinceChargeStarted += gameDeltaTime;
 
         // Start firing only after charge time has passed
         if (this.timeSinceChargeStarted >= this.chargeTime) {
@@ -337,7 +352,7 @@ class ChainShotgun extends Weapon {
 
         // If ready to fire, continue shooting
         if (this.isReadyToFire) {
-            this.timeSinceLastShot += realDeltaTime; // Accumulate time for rapid fire
+            this.timeSinceLastShot += gameDeltaTime; // Accumulate time for rapid fire
 
             while (this.timeSinceLastShot > this.fireRateCooldown) {
                 this.timeSinceLastShot -= this.fireRateCooldown; // Reduce accumulated time
@@ -376,7 +391,7 @@ class ChainShotgun extends Weapon {
         this.isReadyToFire = false; // Stop firing when button is released
     }
     
-    renderTurret(ctx, realDeltaTime) {
+    renderTurret(ctx, gameDeltaTime) {
         
         // Dome
         const domeRadius = this.tank.width / 3;
@@ -387,7 +402,7 @@ class ChainShotgun extends Weapon {
         let turretColor = this.tank.color
         if (globalKeys[this.tank.controls.shoot]) {
             turretColor = "orange"
-            this.barrelRotation += 60 * this.fireRate * realDeltaTime;
+            this.barrelRotation += 60 * this.fireRate * gameDeltaTime;
             this.barrelRotation %= 60;
         }
         drawRect(ctx, { x: 0, y: -turretSize.h / 2 }, turretSize, turretColor, "black", 0.02);
@@ -440,7 +455,7 @@ class ShrepnalBombWeapon extends Weapon {
         // empty
     }
     
-    renderTurret(ctx, realDeltaTime) {
+    renderTurret(ctx, gameDeltaTime) {
         // Barrel
         const barrelLength = this.tank.length * 0.7;
         const barrelWidth = this.tank.width / 2.5;
@@ -473,7 +488,7 @@ class MissileLauncher extends Weapon {
         // empty
     }
 
-    renderTurret(ctx, realDeltaTime) {
+    renderTurret(ctx, gameDeltaTime) {
         // Barrel
         const barrelLength = this.tank.length * 0.7;
         const barrelWidth = this.tank.width * 4 / 15;
@@ -511,7 +526,7 @@ class ExperimentalWeapon extends Weapon {
         // empty
     }
 
-    renderTurret(ctx, realDeltaTime) {
+    renderTurret(ctx, gameDeltaTime) {
         let turretSize = { w: this.tank.length * 0.7, h: this.tank.width / 3 };
         drawRect(ctx, { x: 0, y: -turretSize.h / 2 }, turretSize,this.tank.color, "black", 0.02);
     }
@@ -538,11 +553,11 @@ class ChainShotgunBoom extends Weapon {
         this.isReadyToFire = false;
     }
 
-    hold(realDeltaTime) {
+    hold(gameDeltaTime) {
         if (!this.isCharging) return;
 
         // Accumulate time since charge started
-        this.timeSinceChargeStarted += realDeltaTime;
+        this.timeSinceChargeStarted += gameDeltaTime;
 
         // Start firing only after charge time has passed
         if (this.timeSinceChargeStarted >= this.chargeTime) {
@@ -551,7 +566,7 @@ class ChainShotgunBoom extends Weapon {
 
         // If ready to fire, continue shooting
         if (this.isReadyToFire) {
-            this.timeSinceLastShot += realDeltaTime; // Accumulate time for rapid fire
+            this.timeSinceLastShot += gameDeltaTime; // Accumulate time for rapid fire
 
             while (this.timeSinceLastShot > this.fireRateCooldown) {
                 this.timeSinceLastShot -= this.fireRateCooldown; // Reduce accumulated time
@@ -589,13 +604,13 @@ class ChainShotgunBoom extends Weapon {
     }
 
     
-    renderTurret(ctx, realDeltaTime) {
+    renderTurret(ctx, gameDeltaTime) {
         // Draw the base of the chaingun turret
         let turretSize = { w: this.tank.length * 0.7, h: this.tank.width * 4 / 15 };
         let turretColor = this.tank.color
         if (globalKeys[this.tank.controls.shoot]) {
             turretColor = "orange"
-            this.barrelRotation += 60 * this.fireRate * realDeltaTime;
+            this.barrelRotation += 60 * this.fireRate * gameDeltaTime;
             this.barrelRotation %= 60;
         }
         drawRect(ctx, { x: 0, y: -turretSize.h / 2 }, turretSize, turretColor, "black", 0.02);
@@ -645,7 +660,7 @@ export class OppenheimerBOOOM extends Weapon {
         // empty
     }
 
-    renderTurret(ctx, realDeltaTime) {
+    renderTurret(ctx, gameDeltaTime) {
         // Barrel
         const length = this.tank.length * 0.7;
         const width = this.tank.width / 2;
@@ -692,7 +707,7 @@ class RocketBombWeapon extends Weapon {
         // empty
     }
     
-    renderTurret(ctx, realDeltaTime) {
+    renderTurret(ctx, gameDeltaTime) {
         // Barrel
         const barrelLength = this.tank.length * 0.7;
         const barrelWidth = this.tank.width / 2.5;

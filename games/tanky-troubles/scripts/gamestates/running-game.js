@@ -84,8 +84,8 @@ function cleanupInactiveEntries(arr) {
 }
 
 function processEntities(ctx, gameDeltaTime, debugActive, timers) {
-    console.log(`processEntities() at frame ${getGlobal().frameCount}`);
-    console.log(`BulletArray (${getGlobal().entities.bullets.length-0}): ${getGlobal().entities.bullets.slice(0, 20).map(b => b.shortName).join(", ")}`);
+    // console.log(`processEntities() at frame ${getGlobal().frameCount}`);
+    // console.log(`BulletArray (${getGlobal().entities.bullets.length-0}): ${getGlobal().entities.bullets.slice(0, 20).map(b => b.shortName).join(", ")}`);
 
     const systems = [
         entities.bullets,
@@ -127,7 +127,7 @@ function processEntities(ctx, gameDeltaTime, debugActive, timers) {
     }
 }
 
-function updateAndRenderWind(ctx, realDeltaTime) {
+function updateAndRenderWind(ctx, gameDeltaTime) {
     const maxSpeed = 1;       // max wind speed in any direction (tiles per second)
     const dampingFactor = 0.1;  // how strong the wind drifts back to zero
     const randomness = 2;   // max random change per update
@@ -136,18 +136,18 @@ function updateAndRenderWind(ctx, realDeltaTime) {
     windJerk.x = (Math.random() * 2 - 1 - signedPower(windVel.x, 1.1)) * randomness;
     windJerk.y = (Math.random() * 2 - 1 - signedPower(windVel.y, 1.1)) * randomness;
 
-    windAcc.x += windJerk.x * realDeltaTime;
-    windAcc.y += windJerk.y * realDeltaTime;
+    windAcc.x += windJerk.x * gameDeltaTime;
+    windAcc.y += windJerk.y * gameDeltaTime;
     
     windAcc.x *= 0.999
     windAcc.y *= 0.999
 
-    windVel.x += windAcc.x * realDeltaTime;
-    windVel.y += windAcc.y * realDeltaTime;
+    windVel.x += windAcc.x * gameDeltaTime;
+    windVel.y += windAcc.y * gameDeltaTime;
 
     // Drift back to zero (damping)
-    windVel.x -= windVel.x * dampingFactor * realDeltaTime;
-    windVel.y -= windVel.y * dampingFactor * realDeltaTime;
+    windVel.x -= windVel.x * dampingFactor * gameDeltaTime;
+    windVel.y -= windVel.y * dampingFactor * gameDeltaTime;
 
     // Clamp max speed so it doesn't go wild
     windVel.x = Math.max(-maxSpeed, Math.min(maxSpeed, windVel.x));
@@ -164,7 +164,7 @@ function updateAndRenderWind(ctx, realDeltaTime) {
     // console.log(`wind velocity vector: (${windVel.x},${windVel.y})`);
 }
 
-function updateWindEffect(entity, realDeltaTime) {
+function updateWindEffect(entity, gameDeltaTime) {
     const windForceFactor = 1; // strength of wind force (can be tuned)
     const mass = entity.mass || 1; // default to 1 if no mass set
 
@@ -175,11 +175,11 @@ function updateWindEffect(entity, realDeltaTime) {
     const accelX = (dx * windForceFactor) / mass;
     const accelY = (dy * windForceFactor) / mass;
 
-    entity.vel.x += accelX * realDeltaTime;
-    entity.vel.y += accelY * realDeltaTime;
+    entity.vel.x += accelX * gameDeltaTime;
+    entity.vel.y += accelY * gameDeltaTime;
 
-    entity.pos.x += entity.vel.x * realDeltaTime;
-    entity.pos.y += entity.vel.y * realDeltaTime;
+    entity.pos.x += entity.vel.x * gameDeltaTime;
+    entity.pos.y += entity.vel.y * gameDeltaTime;
     console.log(`entity: (${entity.shortName}, mass: ${entity.mass})`);
 }
 
@@ -219,7 +219,7 @@ function drawCorners(ctx, canvasWidth, canvasHeight) {
 }
 
 // Draw the game scene
-export function drawWindowDebug(ctx, canvasWidth, canvasHeight, realDeltaTime) {
+export function drawWindowDebug(ctx, canvasWidth, canvasHeight, gameDeltaTime) {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);  // Clear
     drawGrid(ctx, canvasWidth, canvasHeight);
     drawCorners(ctx, canvasWidth, canvasHeight);
@@ -295,7 +295,7 @@ export function initializeWorld() {
     // camera.setTargets(targets);
     // camera.setTargets([getGlobal().entities.particles[1]])
     camera.pos.set(1.5,1.5);
-    camera.zoomLevel = 1/2;;
+    camera.zoomLevel = 1/8;;
     // camera.setTargets([getGlobal().entities.bullets[3], tank0]) // nuclear rocket
     camera.padding = .2;
     camera.zoomMax = 0.5;
@@ -351,7 +351,7 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
         recordDebugFrame(timers.calc, timers.render, 1000 / gameDeltaTime * getGlobal().gameTime.gameSpeed / 1000);
 
         // Debugging ?
-        // drawWindowDebug(ctx, canvasWidth, canvasHeight, realDeltaTime); // ?
+        // drawWindowDebug(ctx, canvasWidth, canvasHeight, gameDeltaTime); // ?
         if (debugActive && debugCamera) {
             const t0 = performance.now();
             camera.debugrender(ctx, gameDeltaTime, canvasWidth, canvasHeight);
