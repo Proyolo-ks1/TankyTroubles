@@ -2,7 +2,7 @@ import { getGlobal, GLOBAL_COLOR_KEYS } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawRegPolygon, drawLine, drawVectorArrow } from '../utils/graphics-utils.js';
 import { spawnClassRelatively } from './spawner.js';
 import { randomSeeded, randomRange, Vec2 } from "../utils/math-utils.js";
-import { drawRocket } from '../utils/graphics-shapes.js';
+import { drawRocket, drawNuclearIcon } from '../utils/graphics-shapes.js';
 import { PhysicsObject } from './entity.js';
 import { PARTICLES } from './particle.js';
 
@@ -59,9 +59,6 @@ class Bullet extends PhysicsObject {
     destroy() {
         super.destroy();
         // Nothing
-        
-        // TEMP DEBUGGING
-        // drawCircle(ctx, this.pos, 1 / 2, "#ffffff", "#ffffff");
     }
     
     render(ctx, gameDeltaTime) {
@@ -78,21 +75,19 @@ class Bullet extends PhysicsObject {
             
             // Heading Line
             const headingLength = 1;
-            let headingX = this.pos.x + Math.cos(this.angle) * headingLength;
-            let headingY = this.pos.y + Math.sin(-this.angle) * headingLength;
+            let heading = this.pos.add(Vec2.fromAngle(this.angle, headingLength));
             
             // Draw the heading line
-            drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#FF0000", 0.02); // Red color for the heading line
+            drawLine(ctx, this.pos, heading, "#FF0000", 0.02);
             
             // Draw the random indicator
             const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
-            headingX = this.pos.x + Math.cos(randomAngle) * 1.2 * headingLength;
-            headingY = this.pos.y + Math.sin(-randomAngle) * 1.2 * headingLength;
-            drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#4c00ff", 0.02); // Red color for the heading line
+            heading = this.pos.add(Vec2.fromAngle(randomAngle, 1.2 * headingLength));
+            drawLine(ctx, this.pos, heading, "#4c00ff", 0.02);
 
             // name
             const text = `${this.shortName}(${this.age.toFixed(2)}/${this.lifeSpan.toFixed(2)})`;
-            const textPos = { x: headingX, y: headingY };
+            const textPos = heading;
             const textStyle = {
                 align: "center",
                 baseline: "bottom",
@@ -105,9 +100,7 @@ class Bullet extends PhysicsObject {
 
             drawText(ctx, text, textPos, textStyle);
 
-            if (this.active) {
-                drawCircle(ctx, this.pos, 1 / 2 / renderScale, "#ffffff", "#ffffff");
-            }
+            drawCircle(ctx, this.pos, 1 / 2 / renderScale, "#ffffff", "#ffffff");
         }
     }
 }
@@ -277,7 +270,7 @@ class homingMissile extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "HomingMissle";
         this.scale = scaleSpawn;
-        this.radius = 1 / 4 * this.scale;
+        this.radius = 1 / 10 * this.scale;
 
         this.exhaustsPerSecond = 50
         this.timeSinceLastExhaust = 0;
@@ -294,7 +287,7 @@ class homingMissile extends Bullet {
         // --- target velocity from heading ---
         const targetVel = {
             x: Math.cos(this.angle) * thrust,
-            y: -Math.sin(this.angle) * thrust
+            y: Math.sin(this.angle) * thrust
         };
 
         // --- steer velocity toward target (smooth drift) ---
@@ -340,7 +333,7 @@ class homingMissile extends Bullet {
 
     render(ctx, gameDeltaTime) {
         if (this.active) {
-            drawRocket(ctx, this.pos, this.angle, this.scale, this.color)
+            drawRocket(ctx, this.pos, this.angle, this.radius, this.color)
         }
     }
 }
@@ -351,7 +344,7 @@ class OppenheimerBullet extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "OppenheimerBullet";
         this.scale = scaleSpawn;
-        this.radius = 1 / 6 * this.scale;
+        this.radius = 1 / 10 * this.scale;
     }
 
     update(gameDeltaTime) {
@@ -363,6 +356,7 @@ class OppenheimerBullet extends Bullet {
     destroy() {
         super.destroy();
         let bulletSpeed = 1;
+        console.log(`spawnClassRelatively() ${bulletSpeed}`);
         
         // Left at -45 degrees
         spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, new Vec2(), -Math.PI / 2, bulletSpeed, 0, undefined);
@@ -373,19 +367,9 @@ class OppenheimerBullet extends Bullet {
 
     render(ctx, realDeltaTime) {
         if (this.active) {
-            drawRocket(ctx, this.pos, this.angle, this.scale, this.color)
+            drawRocket(ctx, this.pos, this.angle, this.radius, this.color);
             const radius = this.radius / 3;
-            drawCircle(ctx, this.pos, radius, "#000");
-            drawCircle(ctx, this.pos, radius * 0.8, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
-            for (let i = 0; i < 3; i++) {
-                let triangleAngle = Math.PI / 2 + Math.PI * 2 / 3 * i;
-                let triangleRotAngle = triangleAngle + Math.PI;
-                let trianglePosRadius = radius * 0.55;
-                let trianglePos = { x: this.pos.x + trianglePosRadius * Math.cos(triangleAngle) , y: this.pos.y + trianglePosRadius * Math.sin(-triangleAngle) };
-                drawRegPolygon(ctx, trianglePos, trianglePosRadius, 3, triangleRotAngle, "#000000");
-            }
-            drawCircle(ctx, this.pos, radius * 0.25, "#000");
-            drawCircle(ctx, this.pos, radius * 0.15, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
+            drawNuclearIcon(ctx, this.pos, this.angle, radius, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW, "#000");
         }
     }
 }
@@ -408,7 +392,7 @@ class OppenheimerNeutron extends Bullet {
     destroy() {
         super.destroy();
         let bulletSpeed = 1;
-        const relAngle = randomBulletAngleOffset + 0.2 * Math.sin(-this.tank.age / 50);
+        console.log(`spawnClassRelatively() ${bulletSpeed}`);
         
         // Left at -45 degrees
         spawnClassRelatively(OppenheimerNeutron, undefined, this.pos, this.angle, 1, new Vec2(), -Math.PI / 4, bulletSpeed, 0, undefined);
@@ -420,17 +404,7 @@ class OppenheimerNeutron extends Bullet {
     render(ctx, gameDeltaTime) {
         if (this.active) {
             const radius = this.radius / 3;
-            drawCircle(ctx, this.pos, radius, "#000");
-            drawCircle(ctx, this.pos, radius * 0.8, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
-            for (let i = 0; i < 3; i++) {
-                let triangleAngle = Math.PI / 2 + Math.PI * 2 / 3 * i;
-                let triangleRotAngle = triangleAngle + Math.PI;
-                let trianglePosRadius = radius * 0.55;
-                let trianglePos = { x: this.pos.x + trianglePosRadius * Math.cos(triangleAngle) , y: this.pos.y + trianglePosRadius * Math.sin(-triangleAngle) };
-                drawRegPolygon(ctx, trianglePos, trianglePosRadius, 11, triangleRotAngle, "#000000");
-            }
-            drawCircle(ctx, this.pos, radius * 0.25, "#000");
-            drawCircle(ctx, this.pos, radius * 0.15, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
+            drawNuclearIcon(ctx, this.pos, this.angle, radius, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW, "#000");
         }
     }
 }

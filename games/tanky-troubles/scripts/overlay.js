@@ -1,6 +1,7 @@
 import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from './utils/graphics-utils.js';
 import { GAME_STATE_KEYS, OVERLAY_STATE_KEYS, getGlobal } from './global-state.js';
 import { drawGraphBarsTYPEringBuffer } from './utils/graphics-structs.js';
+import { Vec2 } from "./utils/math-utils.js";
 
 
 
@@ -187,7 +188,7 @@ function renderOverlayTime(ctx, textStyle) {
     } else {
         // Playing
         const triangleOffset = (pauseSize / 2) * 0.25; // its ( radius ) / ( cos(120 degrees) / 2 ) -> which turns out is radius / 0.25
-        drawRegPolygon(ctx, { x: pauseX + pauseSize / 2 - triangleOffset, y: pauseY + pauseSize / 2 }, pauseSize / 2, 3, Math.PI * 2, "#33ff00");
+        drawRegPolygon(ctx, new Vec2(pauseX + pauseSize / 2 - triangleOffset, pauseY + pauseSize / 2), pauseSize / 2, 3, Math.PI * 2, "#33ff00");
     }
     drawText(ctx, `Paused: ${gt.paused}`, { x: pauseX + pauseSize + pausePad, y: pauseY }, textStyle);
 

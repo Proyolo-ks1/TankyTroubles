@@ -51,18 +51,15 @@ class PowerUp extends PhysicsObject {
 
     
 
-    update(gameDeltaTime) {
-        super.update(gameDeltaTime);
-        this.angle += 1 * gameDeltaTime;
-        // Nothing
-    }
+    // update(gameDeltaTime) {
+    //     super.update(gameDeltaTime);
+    //     this.angle += 1 * gameDeltaTime;
+    //     // Nothing
+    // }
 
     destroy() {
         super.destroy();
         // Nothing
-        
-        // TEMP DEBUGGING
-        // drawCircle(ctx, this.pos, 1 / renderScale / 2, "#ffffff", "#ffffff");
     }
     
     render(ctx, gameDeltaTime) {
@@ -82,21 +79,19 @@ class PowerUp extends PhysicsObject {
             
             // Heading Line
             const headingLength = 1;
-            let headingX = this.pos.x + Math.cos(this.angle) * headingLength;
-            let headingY = this.pos.y + Math.sin(-this.angle) * headingLength;
+            let heading = this.pos.add(Vec2.fromAngle(this.angle, headingLength));
             
             // Draw the heading line
-            drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#FF0000", 0.02); // Red color for the heading line
+            drawLine(ctx, this.pos, heading, "#FF0000", 0.02);
             
             // Draw the random indicator
             const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
-            headingX = this.pos.x + Math.cos(randomAngle) * 1.2 * headingLength;
-            headingY = this.pos.y + Math.sin(-randomAngle) * 1.2 * headingLength;
-            drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#4c00ff", 0.02); // Red color for the heading line
+            heading = this.pos.add(Vec2.fromAngle(randomAngle, headingLength));
+            drawLine(ctx, this.pos, heading, "#4c00ff", 0.02);
 
             // name
             const text = `${this.shortName}(${this.age.toFixed(2)}/${this.lifeSpan.toFixed(2)})`;
-            const textPos = { x: headingX, y: headingY };
+            const textPos = heading;
             const textStyle = {
                 align: "center",
                 baseline: "bottom",
@@ -108,10 +103,7 @@ class PowerUp extends PhysicsObject {
             };
 
             drawText(ctx, text, textPos, textStyle);
-
-            if (this.active) {
-                drawCircle(ctx, this.pos, 1 / renderScale / 2, "#ffffff", "#ffffff");
-            }
+            drawCircle(ctx, this.pos, 1 / renderScale / 2, "#ffffff", "#ffffff");
         }
     }
 }

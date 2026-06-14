@@ -5,7 +5,7 @@ import { drawSmiley} from '../utils/graphics-shapes.js';
 import { PhysicsObject } from './entity.js';
 import { BULLETS } from './bullet.js';
 import { PARTICLES } from './particle.js';
-import { WEAPONS } from './weapons.js';
+import { WEAPONS, OppenheimerBOOOM } from './weapons.js';
 import { spawnClassRelatively } from './spawner.js';
 
 // RunningGameApi
@@ -32,7 +32,7 @@ export class Tank extends PhysicsObject {
         posSpawn = new Vec2(1, 1),
         angleSpawn = 0,
         scale = 1,
-        speed = 1.6,
+        baseDrivingSpeed = 1.6,
         turningSpeed = 5,
         color = "#555",
         controls = {
@@ -57,12 +57,12 @@ export class Tank extends PhysicsObject {
         this.length = 2 / 5; // Tiles
         this.width = 1 / 3 // Tiles
         
-        this.speed = speed;
+        this.baseDrivingSpeed = baseDrivingSpeed;
         this.turningSpeed = turningSpeed;
         this.color = color;
         this.controls = controls;
 
-        this.weapon = new WEAPONS.shotgun(this); // Default weapon
+        this.weapon = new OppenheimerBOOOM(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
 
@@ -117,13 +117,13 @@ export class Tank extends PhysicsObject {
             const linearVelocityAtRadius = trackCenterRadius * this.turningSpeed;
             if (globalKeys[this.controls.left]) {
                 this.angle += this.turningSpeed * gameDeltaTime;
-                this.trackRotation.left -= linearVelocityAtRadius * gameDeltaTime;
-                this.trackRotation.right += linearVelocityAtRadius * gameDeltaTime;
+                this.trackRotation.left += linearVelocityAtRadius * gameDeltaTime;
+                this.trackRotation.right -= linearVelocityAtRadius * gameDeltaTime;
             }
             if (globalKeys[this.controls.right]) {
                 this.angle -= this.turningSpeed * gameDeltaTime;
-                this.trackRotation.left += linearVelocityAtRadius * gameDeltaTime;
-                this.trackRotation.right -= linearVelocityAtRadius * gameDeltaTime;
+                this.trackRotation.left -= linearVelocityAtRadius * gameDeltaTime;
+                this.trackRotation.right += linearVelocityAtRadius * gameDeltaTime;
             }
             this.angle = (this.angle + 2 * Math.PI) % (2 * Math.PI);
         }
@@ -133,28 +133,26 @@ export class Tank extends PhysicsObject {
     
         // Velocity-based movement
         if (globalKeys[this.controls.up]) {
-            this.vel.x = Math.cos(this.angle) * this.speed;
-            this.vel.y = Math.sin(-this.angle) * this.speed;
+            this.vel = Vec2.fromAngle(this.angle, this.baseDrivingSpeed);
         }
         if (globalKeys[this.controls.down]) {
-            this.vel.x = -Math.cos(this.angle) * this.speed;
-            this.vel.y = -Math.sin(-this.angle) * this.speed;
+            this.vel = Vec2.fromAngle(this.angle, -this.baseDrivingSpeed);
         }
 
         // Update position using velocity
         this.pos = this.pos.add(this.vel.scale(gameDeltaTime));
 
         // Update track rotation
-        const forwardSpeed = Math.cos(this.angle) * this.vel.x + Math.sin(-this.angle) * this.vel.y;
+        const forwardSpeed = Math.cos(this.angle) * this.vel.x + Math.sin(this.angle) * this.vel.y;
         this.trackRotation.left += forwardSpeed * gameDeltaTime;
         if (Math.abs(this.trackRotationSinceMark.left - this.trackRotation.left) > 0.05) {
-            const offset = new Vec2(-this.width / 2, -trackCenterRadius)
+            const offset = new Vec2(0, -trackCenterRadius)
             spawnClassRelatively(PARTICLES.tankTrackMark, this, this.pos, this.angle, this.scale, offset, 0, 0, 0, 5.000);
             this.trackRotationSinceMark.left = this.trackRotation.left;
         }
         this.trackRotation.right += forwardSpeed * gameDeltaTime;
         if (Math.abs(this.trackRotationSinceMark.right - this.trackRotation.right) > 0.05) {
-            const offset = new Vec2(-this.width / 2, trackCenterRadius)
+            const offset = new Vec2(0, trackCenterRadius)
             spawnClassRelatively(PARTICLES.tankTrackMark, this, this.pos, this.angle, this.scale, offset, 0, 0, 0, 5.000);
             this.trackRotationSinceMark.right = this.trackRotation.right;
         }
@@ -172,7 +170,7 @@ export class Tank extends PhysicsObject {
         const renderScale = getGlobal().renderScale
 
         ctx.translate(this.pos.x, this.pos.y);
-        ctx.rotate(-this.angle);
+        ctx.rotate(this.angle);
 
         // Body
         const BodyLength = this.length * this.radius;
@@ -234,11 +232,10 @@ export class Tank extends PhysicsObject {
 
         // Heading Line
         const headingLength = 1; // Adjust this value to control the length of the heading line
-        let headingX = this.pos.x + Math.cos(this.angle) * headingLength;
-        let headingY = this.pos.y + Math.sin(-this.angle) * headingLength;
+        let heading = this.pos.add(Vec2.fromAngle(this.angle, headingLength));
 
         // Draw the heading line
-        drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#808", 0.02);
+        drawLine(ctx, this.pos, heading, "#808", 0.02);
 
         // Smiley :D
         const renderScale = getGlobal().renderScale
@@ -247,13 +244,11 @@ export class Tank extends PhysicsObject {
 
         // Draw the random indicator
         const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
-        headingX = this.pos.x + Math.cos(randomAngle) * 1.2 * headingLength;
-        headingY = this.pos.y + Math.sin(-randomAngle) * 1.2 * headingLength;
-        drawLine(ctx, this.pos, { x: headingX, y: headingY }, "#4c00ff", 0.02); // Red color for the heading line
+        heading = this.pos.add(Vec2.fromAngle(randomAngle, headingLength));
+        drawLine(ctx, this.pos, heading, "#4c00ff", 0.02);
 
-        // name
         const text = `a: ${this.angle.toFixed(2)}π rad`;
-        const textPos = { x: headingX, y: headingY };
+        const textPos = heading;
         const textStyle = {
             align: "center",
             baseline: "bottom",
@@ -263,7 +258,9 @@ export class Tank extends PhysicsObject {
             outlineColor: "#ffffff",
             outlineWidth: 2 / renderScale, //px
         };
-
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0); // reset naar screen space
         drawText(ctx, text, textPos, textStyle);
+        ctx.restore();
     }
 }

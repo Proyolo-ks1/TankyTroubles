@@ -46,11 +46,11 @@ export function spawnAllTestObjects() {
             WeaponClass.name
         );
         tank.weapon = new WeaponClass(tank);
-        new TextBoxEntity(tank, { x: 0, y: 0.68 + i }, 0, 1, WeaponClass.name)
+        new TextBoxEntity(tank, new Vec2(0, 0.68 + i), 0, 1, WeaponClass.name)
     });
 
     const categories = [
-        // { x: 1.5, items: BULLETS },
+        { x: 1.5, items: BULLETS },
         { x: 2.5, items: PARTICLES },
         { x: 3.5, items: OFFENSIVE_POWERUPS },
         { x: 4.5, items: DEFENSIVE_POWERUPS },
@@ -59,18 +59,18 @@ export function spawnAllTestObjects() {
 
     for (const category of categories) {
         Object.entries(category.items).forEach(([name, ClassRef], k) => {
-                spawnClassRelatively(
-                    ClassRef,
-                    dummyOwner,
-                    new Vec2(category.x, baseY + k),
-                    0,
-                    1,
-                    new Vec2(),
-                    0,
-                    0,
-                    undefined,
-                    -1,
-                );
+            spawnClassRelatively(
+                ClassRef,
+                dummyOwner,
+                new Vec2(category.x, baseY + k),
+                0,
+                1,
+                new Vec2(),
+                0,
+                0,
+                1,
+                -1,
+            );
             // try {
             // } catch (err) {
             //     console.warn(`Failed to spawn ${name}:`, err);

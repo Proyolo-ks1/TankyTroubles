@@ -228,7 +228,7 @@ class Shotgun extends Weapon {
             // Randomize the angle offset for each bullet
             const randomBulletBarrelPos = new Vec2(this.barrelLength, this.barrelWidth * (Math.random() - 0.5));
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
-            const bulletSpeed = 0.1 ;//3.0 + Math.random() * 0.5; // tiles per second
+            const bulletSpeed = 3.0 + Math.random() * 0.5; // tiles per second
             const lifeSpan = 1.750 - Math.random() * (1.750 / 15);
             spawnClassRelatively(BULLETS.shotgun, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, randomBulletBarrelPos, randomBulletAngleOffset, bulletSpeed, 0, lifeSpan);
         }
@@ -352,10 +352,7 @@ class ChainShotgun extends Weapon {
 
                 // Move bullet forward to compensate for delay
                 const angle = this.tank.angle;
-                const compensatedPos = {
-                    x: spawnPos.x + Math.cos(angle) * extraDistance,
-                    y: spawnPos.y + Math.sin(-angle) * extraDistance
-                };
+                const compensatedPos = spawnPos.add(Vec2.fromAngle(angle, extraDistance))
 
                 const numBullets = 20;
                 const spreadAngle = 20; // Spread angle in degrees
@@ -569,11 +566,7 @@ class ChainShotgunBoom extends Weapon {
 
                 // Move bullet forward to compensate for delay
                 const angle = this.tank.angle;
-                const compensatedPos = {
-                    x: spawnPos.x + Math.cos(angle) * extraDistance,
-                    y: spawnPos.y + Math.sin(-angle) * extraDistance
-                };
-
+                const compensatedPos = spawnPos.add(Vec2.fromAngle(angle, extraDistance))
                 const numBullets = 20;
                 const spreadAngle = 20; // Spread angle in degrees
                 const spreadAngleRadians = spreadAngle * (Math.PI / 180);
@@ -633,7 +626,7 @@ class ChainShotgunBoom extends Weapon {
 }
 
 // MARK: OppenheimerBOOOM
-class OppenheimerBOOOM extends Weapon {
+export class OppenheimerBOOOM extends Weapon {
     constructor(tank) {
         super(tank);
         this.barrelLength = this.tank.length * 0.7;

@@ -37,7 +37,7 @@ class Particle extends PhysicsObject {
         // this.name = `Particle ${Particle.nextId}`;
         // this.shortName = `p${Particle.nextId++}`;
         // if (this.shortName === "p1") {
-        //     const a = this.vel;
+        //     const a = 1;
         // }
         this.owner = owner;
         
@@ -59,9 +59,6 @@ class Particle extends PhysicsObject {
     destroy() {
         super.destroy();
         // Nothing
-        
-        // TEMP DEBUGGING
-        // drawCircle(ctx, this.pos, 1 / 2, "#ffffff", "#ffffff");
     }
     
     render(ctx, gameDeltaTime) {
@@ -80,19 +77,15 @@ class Particle extends PhysicsObject {
             
             // Heading Line
             const headingLength = 0.1;
-            const headingX = this.pos.x + Math.cos(this.angle) * headingLength;
-            const headingY = this.pos.y + Math.sin(-this.angle) * headingLength;
-            const headingPos = { x: headingX, y: headingY }
+            let heading = this.pos.add(Vec2.fromAngle(this.angle, headingLength));
             
             // Draw the heading line
-            drawLine(ctx, this.pos, headingPos, "#FF0000", 0.01); // Red color for the heading line
+            drawLine(ctx, this.pos, heading, "#FF0000", 0.02);
             
             // Draw the random indicator
             const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
-            const labelX = this.pos.x + Math.cos(randomAngle) * 1.2 * headingLength;
-            const labelY = this.pos.y + Math.sin(-randomAngle) * 1.2 * headingLength;
-            const labelPos = { x: labelX, y: labelY }
-            drawLine(ctx, this.pos, labelPos, "#4c00ff", 0.01); // Red color for the heading line
+            let labelPos = this.pos.add(Vec2.fromAngle(randomAngle, 1.2 * headingLength));
+            drawLine(ctx, this.pos, labelPos, "#4c00ff", 0.02);
 
             // Text Info
             const fontSize = 12 / renderScale; //px
@@ -119,10 +112,7 @@ class Particle extends PhysicsObject {
             drawRect(ctx, barPos, barSize, "#000000aa", "#555555", 2/ renderScale); // background
             drawRect(ctx, barPos, { w: barSize.w * life, h: barSize.h }, fillColor, null, 0); // background
             drawText(ctx, this.shortName, labelPos, textStyle);
-
-            if (this.active) {
-                drawCircle(ctx, this.pos, 1 / renderScale / 2, "#ffffff", "#ffffff");
-            }
+            drawCircle(ctx, this.pos, 1 / renderScale / 2, "#ffffff", "#ffffff");
         }
     }
 }

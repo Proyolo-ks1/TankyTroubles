@@ -227,6 +227,7 @@ let windJerk = new Vec2();
 let windEnabled = false;
 
 const iniDebugging = true;
+const debugCamera = false;
 
 // Support Variables
 let lastPowerUpSpawnTime = 0;
@@ -247,22 +248,28 @@ export function initializeWorld() {
 
     // Create 2 tanks with position, color, and controls
     let angleSpawn = Math.random() * Math.PI * 2;
-    const posSpawn1 = new Vec2(1, 1)
+    const posSpawn1 = new Vec2(2, 9)
     const tank0 = new Tank(posSpawn1, angleSpawn, undefined, undefined, undefined, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
 
     angleSpawn = Math.random() * Math.PI * 2;
-    const posSpawn2 = new Vec2(2, 1)
+    const posSpawn2 = new Vec2(1, 1)
     const tank1 = new Tank(posSpawn2, angleSpawn, undefined, undefined, undefined, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
 
     // Debugging
     if (iniDebugging) {
         spawnAllTestObjects();
+    }
 
     // Cam
     let targets = [tank0, tank1]
-    targets.push(...getGlobal().entities.tanks)
-    camera.setTargets(targets);
-    }
+    // targets.push(...getGlobal().entities.tanks)
+    // camera.setTargets(targets);
+    // camera.setTargets([getGlobal().entities.particles[1]])
+    camera.pos.set(1.5,7.5);
+    camera.zoomLevel = 1/2.5;;
+    // camera.setTargets([getGlobal().entities.bullets[3], tank0]) // nuclear rocket
+    camera.padding = .2;
+    camera.zoomMax = 0.5;
 }
 
 
@@ -291,12 +298,12 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
         const canvasWidth = gameApi.canvasWidth;
         const canvasHeight = gameApi.canvasHeight;
         ctx.save();
-        // WORLD SPACE (affected by camera)
 
-        ctx.scale(g.renderScale, g.renderScale);
+        // WORLD SPACE (affected by camera) (this is where we invert Y-axis)
+        ctx.scale(g.renderScale, -g.renderScale);
         ctx.translate(
             canvasWidth / (2 * g.renderScale) - camera.pos.x,
-            canvasHeight / (2 * g.renderScale) - camera.pos.y
+            -canvasHeight / (2 * g.renderScale) - camera.pos.y
         );
 
         renderBackground(ctx);
@@ -324,7 +331,7 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
 
         // Debugging ?
         // drawWindowDebug(ctx, canvasWidth, canvasHeight, realDeltaTime); // ?
-        if (debugActive) {
+        if (debugActive && debugCamera) {
             const t0 = performance.now();
             camera.debugrender(ctx, gameDeltaTime, canvasWidth, canvasHeight);
             timers.render += performance.now() - t0;

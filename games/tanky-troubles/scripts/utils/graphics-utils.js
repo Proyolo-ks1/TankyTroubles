@@ -108,7 +108,7 @@ export function drawImgRotated(ctx, pos, angle, size, img, opacity = 1) {
 
     ctx.save();
     ctx.translate(pos.x, pos.y);
-    ctx.rotate(-angle);
+    ctx.rotate(angle);
 
     ctx.globalAlpha = opacity;
 
@@ -179,7 +179,7 @@ export function drawRectRotated(ctx, posCenter = new Vec2(), angle = 0, size = {
 
     ctx.save();
     ctx.translate(posCenter.x, posCenter.y);
-    ctx.rotate(-angle);
+    ctx.rotate(angle);
 
     if (scaledBorderRadius === 0) {
         // Simple rectangle
@@ -302,14 +302,9 @@ export function drawCircle(ctx, posCenter, radius, fillColor = null, strokeColor
 
 // MARK: drawRegPolygon
 // Function to draw a regular polygon with one flat side facing the bottom
-export function drawRegPolygon(ctx, posCenter, radius, n, direction = 0, fillColor, strokeColor = null, strokeWidth = 0.02) {
+export function drawRegPolygon(ctx, posCenter = Vec2(), radius, n, direction = 0, fillColor, strokeColor = null, strokeWidth = 0.02) {
     const renderScale = getGlobal().renderScale
     const angleStep = (Math.PI * 2) / n;
-
-    // Scale the center position and radius early
-    const scaledX = posCenter.x;
-    const scaledY = posCenter.y;
-    const scaledRadius = radius;
 
     // Adjust the rotation offset based on the desired direction
     const baseRotation = direction; // Add direction to the base rotation
@@ -318,19 +313,19 @@ export function drawRegPolygon(ctx, posCenter, radius, n, direction = 0, fillCol
     ctx.beginPath();
 
     // Start at the rotated position
+    let vertex = new Vec2()
     for (let i = 0; i < n; i++) {
         // Calculate the angle for each vertex, considering the rotation offset and direction
         const angle = startRotation + angleStep * i;
 
         // Calculate the x and y position using polar coordinates, already scaled
-        const vx = scaledX + scaledRadius * Math.cos(angle);
-        const vy = scaledY + scaledRadius * Math.sin(-angle);
+        vertex = posCenter.add( Vec2.fromAngle(angle, radius))
 
         // Move to the first vertex or draw a line to the next vertex
         if (i === 0) {
-            ctx.moveTo(vx, vy);
+            ctx.moveTo(vertex.x, vertex.y);
         } else {
-            ctx.lineTo(vx, vy);
+            ctx.lineTo(vertex.x, vertex.y);
         }
     }
 

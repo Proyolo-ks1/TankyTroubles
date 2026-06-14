@@ -20,10 +20,13 @@ class Camera {
         this.targetEntities = []; // e.g. follow player(s)
         this.zoomLevel = 1 / 8;
         this.zoomLevelTarget = 1 / 8;
-        this.smoothness = 0.005; // camera lerp (current -> target)
-        this.padding = 1
+        this.smoothness = 0.02; // camera lerp (current -> target)
+        this.padding = 1; // tiles
+        this.zoomMax = 1; // tiles
+        this.zoomMin = 0.01; //tiles
     }
 
+    // so its probably smarter to not use scale -1 so it flips y, because now text is upside down, but to just 
     setTargets(entities) {
         this.targetEntities = entities;
     }
@@ -37,6 +40,7 @@ class Camera {
             // this.posTarget = getGlobal().entities.tanks[0].pos;
         }
         
+        if (this.targetEntities.length === 0) return;
         const { bounds, center } = getBoundsAndCenter(this.targetEntities);
         
         // Positon
@@ -45,18 +49,37 @@ class Camera {
 
         // Zoom
         const canvasRatio = gameApi.canvasWidth / gameApi.canvasHeight;
-        const spread = Math.max(bounds.size.w, bounds.size.h * canvasRatio);
-        this.zoomLevelTarget = 1 / Math.max(2, Math.min(100, this.padding*2 + spread)); // 1 / Horizontal Tiles
+        const spread = Math.max((bounds.size.w + 2*this.padding), (bounds.size.h + 2*this.padding) * canvasRatio);
+        this.zoomLevelTarget = Math.max(this.zoomMin, Math.min(this.zoomMax, 1 / spread));
         this.zoomLevel = lerp(this.zoomLevel, this.zoomLevelTarget, this.smoothness);
     }
 
     debugrender(ctx, gameDeltaTime, canvasWidth, canvasHeight) {
+        if (this.targetEntities.length === 0) return;
         const renderScale = getGlobal().renderScale;
         
         const { bounds, center } = getBoundsAndCenter(this.targetEntities);
 
         drawRect(ctx,  bounds.pos.sub({x: this.padding, y: this.padding}), {w: bounds.size.w+ 2*this.padding, h: bounds.size.h + 2*this.padding}, undefined, "rgb(253, 172, 51)", 5 / renderScale)
         drawRect(ctx, bounds.pos, bounds.size, undefined, "rgb(253, 91, 51)", 5 / renderScale)
+
+        const p = this.padding;
+
+        const oTL = { x: bounds.pos.x - p, y: bounds.pos.y - p };
+        const oTR = { x: bounds.pos.x + bounds.size.w + p, y: bounds.pos.y - p };
+        const oBR = { x: bounds.pos.x + bounds.size.w + p, y: bounds.pos.y + bounds.size.h + p };
+        const oBL = { x: bounds.pos.x - p, y: bounds.pos.y + bounds.size.h + p };
+
+        const iTL = bounds.pos;
+        const iTR = { x: bounds.pos.x + bounds.size.w, y: bounds.pos.y };
+        const iBR = { x: bounds.pos.x + bounds.size.w, y: bounds.pos.y + bounds.size.h };
+        const iBL = { x: bounds.pos.x, y: bounds.pos.y + bounds.size.h };
+
+        drawLine(ctx, oTL, iTL, "rgb(253, 91, 51)", 5 / renderScale);
+        drawLine(ctx, oTR, iTR, "rgb(253, 91, 51)", 5 / renderScale);
+        drawLine(ctx, oBR, iBR, "rgb(253, 91, 51)", 5 / renderScale);
+        drawLine(ctx, oBL, iBL, "rgb(253, 91, 51)", 5 / renderScale);
+
         for (const target of this.targetEntities) {
             drawCircle(ctx, target.pos, 10 / renderScale, "rgb(84, 201, 181)")
             drawLine(ctx, target.pos, center, "rgb(84, 201, 181)", 5 / renderScale)
@@ -73,9 +96,6 @@ class Camera {
         drawRect(ctx, screenCenter.sub({ x: zoomTargetRectSize.w / 2, y: zoomTargetRectSize.h / 2 }), zoomTargetRectSize, undefined, "rgb(80, 133, 124)", 5 / renderScale)
         const zoomCurrentRectSize = { w: this.zoomLevel * 10, h: this.zoomLevel * 10 }
         drawRect(ctx, screenCenter.sub({ x: zoomCurrentRectSize.w / 2, y: zoomCurrentRectSize.h / 2 }), zoomCurrentRectSize, undefined, "rgb(122, 36, 221)", 5 / renderScale)
-
-
-
     }
 }
 

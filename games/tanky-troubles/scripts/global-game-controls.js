@@ -70,19 +70,19 @@ const keyHoldActions = {
         console.log(`DB: Increased Cam.zoomLevel by 1%: ${Math.round(camera.zoomLevel*1000) / 10}%`);
     },
     'g': (realDeltaTime) => {
-        camera.pos.x -= 1 * realDeltaTime;
+        camera.pos.x -= 1 / camera.zoomLevel * realDeltaTime;
         console.log(`DB: Decreased Cam.x by 2: ${camera.pos.x.toFixed(2)}`);
     },
     'j': (realDeltaTime) => {
-        camera.pos.x += 1 * realDeltaTime;
+        camera.pos.x += 1 / camera.zoomLevel * realDeltaTime;
         console.log(`DB: Increased Cam.x by 2: ${camera.pos.x.toFixed(2)}`);
     },
-    'y': (realDeltaTime) => {
-        camera.pos.y -= 1 * realDeltaTime;
+    'h': (realDeltaTime) => {
+        camera.pos.y -= 1 / camera.zoomLevel * realDeltaTime;
         console.log(`DB: Decreased Cam.y by 2: ${camera.pos.y.toFixed(2)}`);
     },
-    'h': (realDeltaTime) => {
-        camera.pos.y += 1 * realDeltaTime;
+    'y': (realDeltaTime) => {
+        camera.pos.y += 1 / camera.zoomLevel * realDeltaTime;
         console.log(`DB: Increased Cam.y by 2: ${camera.pos.y.toFixed(2)}`);
     },
     // Camera Control

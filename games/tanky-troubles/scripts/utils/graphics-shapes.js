@@ -1,5 +1,5 @@
-import { getGlobal } from '../global-state.js';
-import { drawCircle, drawVertexLine, drawVertexPolygon} from './graphics-utils.js'
+import { getGlobal, GLOBAL_COLOR_KEYS } from '../global-state.js';
+import { drawCircle, drawVertexLine, drawVertexPolygon, drawRegPolygon } from './graphics-utils.js'
 import { Vec2 } from "../utils/math-utils.js";
 
 
@@ -17,7 +17,7 @@ import { Vec2 } from "../utils/math-utils.js";
 // TODO
 
 // MARK: drawSmiley
-export function drawSmiley(ctx, pos, smileSize) {
+export function drawSmiley(ctx, pos = new Vec2(), smileSize) {
     const renderScale = getGlobal().renderScale;
 
     // Face
@@ -41,12 +41,12 @@ export function drawSmiley(ctx, pos, smileSize) {
     const startAngle = Math.PI * 0.2; // slightly right of horizontal
     const endAngle = Math.PI * 0.8;   // slightly left of horizontal
 
+    let segmentPos = new Vec2();
     for (let i = 0; i <= segments; i++) {
         const t = i / segments;
         const angle = startAngle + t * (endAngle - startAngle);
-        const x = pos.x + mouthRadius * Math.cos(angle);
-        const y = pos.y + mouthRadius * Math.sin(-angle); // offset down a bit
-        mouthVertices.push({ x: x - pos.x, y: y - pos.y }); // relative to pos
+        segmentPos = Vec2.fromAngle(angle, mouthRadius);
+        mouthVertices.push(segmentPos); // relative to pos
     }
 
     drawVertexLine(ctx, pos, 0, mouthVertices, "#000", 5 / renderScale);
@@ -74,18 +74,11 @@ const ROCKET_VERTICES = [
     { x:  0.8,   y: 0.33 },
 ];
 
-const ROCKET_SIZE = 0.1; // Tiles
-
 export function drawRocket(ctx, pos, angle, scale, color) {
-
     const renderScale = getGlobal().renderScale
-
-    scale = ROCKET_SIZE * scale; // needs to be fixed laterl lol (TODO)
-
     ctx.save();
-
     ctx.translate(pos.x, pos.y);
-    ctx.rotate(-angle);
+    ctx.rotate(angle);
     ctx.scale(scale, scale);
 
     drawVertexPolygon(
@@ -97,23 +90,21 @@ export function drawRocket(ctx, pos, angle, scale, color) {
         "#000000",
         0.05
     );
-
+    
     ctx.restore();
 }
 
 // MARK: drawNuclearIcon
-export function drawNuclearIcon(ctx, pos, scale, color) {
-
-    const domeRadius = this.tank.width / 3;
-    drawCircle(ctx, new Vec2(), domeRadius, "#000");
-    drawCircle(ctx, new Vec2(), domeRadius * 0.8, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
+export function drawNuclearIcon(ctx, pos, angle, radius, colorCenter, colorSecondary) {
+    drawCircle(ctx, pos, radius, colorSecondary);
+    drawCircle(ctx, pos, radius * 0.8, colorCenter);
     for (let i = 0; i < 3; i++) {
-        let triangleAngle = Math.PI + Math.PI * 2 / 3 * i;
+        let triangleAngle = angle + Math.PI + Math.PI * 2 / 3 * i;
+        let trianglePosRadius = radius * 0.56;
+        let trianglePos = pos.add(new Vec2(trianglePosRadius * Math.cos(triangleAngle), trianglePosRadius * Math.sin(triangleAngle)));
         let triangleRotAngle = triangleAngle + Math.PI;
-        let trianglePosRadius = domeRadius * 0.55;
-        let trianglePos = { x: trianglePosRadius * Math.cos(triangleAngle) , y: trianglePosRadius * Math.sin(-triangleAngle) };
-        drawRegPolygon(ctx, trianglePos, trianglePosRadius, 3, triangleRotAngle, "#000000");
+        drawRegPolygon(ctx, trianglePos, trianglePosRadius, 3, triangleRotAngle, colorSecondary);
     }
-    drawCircle(ctx, new Vec2(), domeRadius * 0.25, "#000");
-    drawCircle(ctx, new Vec2(), domeRadius * 0.15, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW);
+    drawCircle(ctx, pos, radius * 0.25, colorSecondary);
+    drawCircle(ctx, pos, radius * 0.15, colorCenter);
 }
