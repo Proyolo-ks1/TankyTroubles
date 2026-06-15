@@ -250,13 +250,13 @@ let windJerk = new Vec2();
 
 // Boolean Default = false
 let windEnabled = false;
-const iniDebugging = false;
-const debugCamera = false;
+let iniDebugging = false;
+let debugCamera = false;
 
 // Boolean Overwrite = true
-// let windEnabled = true;
-// const iniDebugging = true;
-// const debugCamera = true;
+// windEnabled = true;
+iniDebugging = true;
+debugCamera = true;
 
 // Support Variables
 let lastPowerUpSpawnTime = 0;
@@ -277,11 +277,11 @@ export function initializeWorld() {
 
     // Create 2 tanks with position, color, and controls
     let angleSpawn = Math.random() * Math.PI * 2;
-    const posSpawn1 = new Vec2(2, 2)
+    const posSpawn1 = new Vec2(1, 1)
     const tank0 = new Tank(posSpawn1, angleSpawn, undefined, undefined, undefined, "#ff0000", { up: "e", down: "d", left: "s", right: "f", shoot: "q" });
 
     angleSpawn = Math.random() * Math.PI * 2;
-    const posSpawn2 = new Vec2(1, 1)
+    const posSpawn2 = new Vec2(2, 1)
     const tank1 = new Tank(posSpawn2, angleSpawn, undefined, undefined, undefined, "#00ff00", { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", shoot: "m" });
 
     // Debugging
@@ -292,13 +292,15 @@ export function initializeWorld() {
     // Cam
     let targets = [tank0, tank1]
     // targets.push(...getGlobal().entities.tanks)
-    // camera.setTargets(targets);
+    camera.setTargets(targets);
     // camera.setTargets([getGlobal().entities.particles[1]])
     camera.pos.set(1.5,1.5);
     camera.zoomLevel = 1/8;;
     // camera.setTargets([getGlobal().entities.bullets[3], tank0]) // nuclear rocket
-    camera.padding = .2;
+    camera.padding = 1;
     camera.zoomMax = 0.5;
+    camera.doTrackPosition = true;
+    camera.doTrackZoom = true;
 }
 
 
@@ -329,11 +331,10 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
         ctx.save();
 
         // WORLD SPACE (affected by camera) (this is where we invert Y-axis)
+        ctx.translate(canvasWidth / 2, canvasHeight / 2);
         ctx.scale(g.renderScale, -g.renderScale);
-        ctx.translate(
-            canvasWidth / (2 * g.renderScale) - camera.pos.x,
-            -canvasHeight / (2 * g.renderScale) - camera.pos.y
-        );
+        ctx.rotate(camera.angle);
+        ctx.translate(-camera.pos.x, -camera.pos.y);
 
         renderBackground(ctx);
         updateGlobalVariables();

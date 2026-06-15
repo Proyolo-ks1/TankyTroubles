@@ -61,6 +61,7 @@ const keyPressActions = {
 };
 
 const keyHoldActions = {
+    // Camera Control
     'u': (realDeltaTime) => {
         camera.zoomLevel *= Math.pow(0.5, realDeltaTime);
         console.log(`DB: Decreased Cam.zoomLevel by 1%: ${Math.round(camera.zoomLevel*1000) / 10}%`);
@@ -85,7 +86,14 @@ const keyHoldActions = {
         camera.pos.y += 1 / camera.zoomLevel * realDeltaTime;
         console.log(`DB: Increased Cam.y by 2: ${camera.pos.y.toFixed(2)}`);
     },
-    // Camera Control
+    'b': (realDeltaTime) => {
+        camera.angle -= 2 * realDeltaTime;
+        console.log(`DB: Decreased Cam.angle by 2: ${camera.angle.toFixed(2)}`);
+    },
+    'n': (realDeltaTime) => {
+        camera.angle += 2 * realDeltaTime;
+        console.log(`DB: Increased Cam.angle by 2: ${camera.angle.toFixed(2)}`);
+    },
     
 };
 

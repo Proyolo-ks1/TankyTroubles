@@ -38,6 +38,16 @@ export function lerp2(object, target, t) {
     };
 }
 
+// Shortest-angle interpolation
+export function lerpAngle(a, b, t) {
+    let diff = (b - a + Math.PI) % (Math.PI * 2) - Math.PI;
+    return a + diff * t;
+}
+
+export function normalizeAngle(a) {
+    return (a + Math.PI) % (Math.PI * 2) - Math.PI;
+}
+
 export class Vec2 {
     constructor(x = 0, y = 0) {
         this.x = x;

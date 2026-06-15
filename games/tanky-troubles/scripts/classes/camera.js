@@ -1,6 +1,6 @@
 import { getGlobal, ENTITY_TYPES } from '../global-state.js';
 import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '../utils/graphics-utils.js';
-import { Vec2, lerp } from "../utils/math-utils.js";
+import { Vec2, lerp, lerpAngle, normalizeAngle } from "../utils/math-utils.js";
 
 
 
@@ -17,9 +17,14 @@ class Camera {
     constructor() {
         this.pos = new Vec2();
         this.posTarget = new Vec2();
-        this.targetEntities = []; // e.g. follow player(s)
         this.zoomLevel = 1 / 8;
         this.zoomLevelTarget = 1 / 8;
+        this.angle = 0;
+        this.angleTarget = 0;
+        this.targetEntities = []; // e.g. follow player(s)
+        this.doTrackRotation = false;
+        this.doTrackPosition = false;
+        this.doTrackZoom = false;
         this.smoothness = 0.02; // camera lerp (current -> target)
         this.padding = 1; // tiles
         this.zoomMax = 1; // tiles
@@ -41,17 +46,44 @@ class Camera {
         }
         
         if (this.targetEntities.length === 0) return;
-        const { bounds, center } = getBoundsAndCenter(this.targetEntities);
-        
+
+        let bounds;
+        let center;
+        if (this.doTrackPosition || this.doTrackZoom) {
+            ({ bounds, center } = getBoundsAndCenter(this.targetEntities));
+        }
+
         // Positon
-        this.posTarget.set(center.x, center.y);
-        this.pos.lerp(this.posTarget, this.smoothness);
+        if (this.doTrackPosition) {
+            this.posTarget.set(center.x, center.y);
+            this.pos.lerp(this.posTarget, this.smoothness);
+        }
 
         // Zoom
-        const canvasRatio = gameApi.canvasWidth / gameApi.canvasHeight;
-        const spread = Math.max((bounds.size.w + 2*this.padding), (bounds.size.h + 2*this.padding) * canvasRatio);
-        this.zoomLevelTarget = Math.max(this.zoomMin, Math.min(this.zoomMax, 1 / spread));
-        this.zoomLevel = lerp(this.zoomLevel, this.zoomLevelTarget, this.smoothness);
+        if (this.doTrackZoom) {
+            const canvasRatio = gameApi.canvasWidth / gameApi.canvasHeight;
+            const spread = Math.max((bounds.size.w + 2*this.padding), (bounds.size.h + 2*this.padding) * canvasRatio);
+            this.zoomLevelTarget = Math.max(this.zoomMin, Math.min(this.zoomMax, 1 / spread));
+            this.zoomLevel = lerp(this.zoomLevel, this.zoomLevelTarget, this.smoothness);
+        }
+
+        // Rotation
+        if (this.doTrackRotation) {
+            if (this.targetEntities.length > 2) return;
+            if (this.targetEntities.length === 1) {
+                this.angleTarget = this.targetEntities[0].angle
+                this.angle = normalizeAngle(this.angle);
+                this.angle = lerpAngle(this.angle, this.angleTarget, this.smoothness * 2);
+            }
+            if (this.targetEntities.length === 2) {
+                const dx = this.targetEntities[1].pos.x - this.targetEntities[0].pos.x;
+                const dy = this.targetEntities[1].pos.y - this.targetEntities[0].pos.y;
+                this.angleTarget = Math.atan2(-dy, dx);
+                this.angle = normalizeAngle(this.angle);
+                this.angle = lerpAngle(this.angle, this.angleTarget, this.smoothness);
+            }
+            console.log(`this.angle: ${this.angle}`);
+        }
     }
 
     debugrender(ctx, gameDeltaTime, canvasWidth, canvasHeight) {
@@ -92,11 +124,15 @@ class Camera {
         drawCircle(ctx, screenCenter, 10 / renderScale, "rgb(122, 36, 221)")
 
         // Zoom
-        const zoomTargetRectSize = { w: this.zoomLevelTarget * 10, h: this.zoomLevelTarget * 10 }
+        const zoomTargetRectSize = zoomDebugRectSize(this.zoomLevelTarget, renderScale)
         drawRect(ctx, screenCenter.sub({ x: zoomTargetRectSize.w / 2, y: zoomTargetRectSize.h / 2 }), zoomTargetRectSize, undefined, "rgb(80, 133, 124)", 5 / renderScale)
-        const zoomCurrentRectSize = { w: this.zoomLevel * 10, h: this.zoomLevel * 10 }
+        const zoomCurrentRectSize = zoomDebugRectSize(this.zoomLevel, renderScale)
         drawRect(ctx, screenCenter.sub({ x: zoomCurrentRectSize.w / 2, y: zoomCurrentRectSize.h / 2 }), zoomCurrentRectSize, undefined, "rgb(122, 36, 221)", 5 / renderScale)
     }
+}
+
+function zoomDebugRectSize(zoomLevel, renderScale) {
+    return  { w: zoomLevel * 100 / renderScale, h: zoomLevel * 100 / renderScale }
 }
 
 export const camera = new Camera();

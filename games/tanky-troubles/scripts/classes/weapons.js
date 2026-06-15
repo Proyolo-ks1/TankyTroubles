@@ -288,9 +288,9 @@ class FlameThrower extends Weapon {
             const compensatedPos = new Vec2(this.turretSize.w + extraDistance, 0);
 
             // Fire the bullet at the corrected position
-            // const nozzleSin = 0.1 * Math.sin(-this.tank.age * 80)
-            // console.log(`nozzleSin: ${nozzleSin}`)
-            const relAngle = randomBulletAngleOffset; // + nozzleSin;
+            const nozzleSin = 0.08 * Math.sin(-this.tank.age * 60)
+            console.log(`nozzleSin: ${nozzleSin}`)
+            const relAngle = randomBulletAngleOffset+ nozzleSin;
             spawnClassRelatively(BULLETS.fire, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, compensatedPos, relAngle, bulletSpeed);
         }
     }

@@ -37,7 +37,7 @@ export class UtilityEntity extends StaticEntity {
         
         this.scale = scaleSpawn;
 
-        spawn(this, getGlobal().entities.entities)
+        spawn(this, getGlobal().entities.utilities)
     }
     
     render(ctx, gameDeltaTime) {
