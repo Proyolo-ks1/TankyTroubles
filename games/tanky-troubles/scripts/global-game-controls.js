@@ -23,7 +23,7 @@ const keyPressActions = {
         Camera: ${getGlobal().debugOverlays.camera})`);
     },
     '2': () => {
-        getGlobal().debugOverlays.showStatistics = !getGlobal().debugOverlays.showStatistics;
+        getGlobal().showStatistics = !getGlobal().showStatistics;
         console.log(`DB: toggled showStatistics: ${getGlobal().showStatistics}`);
     },
     '3': () => {

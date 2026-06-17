@@ -27,10 +27,24 @@ function createOverlayTextDrawer(ctx, basePos, style, spacing) {
     };
 }
 
+function createOverlayButtonDrawer(ctx, buttonDrawerPos, buttonSize, textStyle, buttonPadding) {
+    let buttonIndex = 0;
+
+    return function drawNextOverlayButton(text, buttonColor) {
+        drawButton(ctx, { x: buttonDrawerPos.x, y: buttonDrawerPos.y + buttonIndex * (buttonSize.h + buttonPadding)}, buttonSize, text, textStyle, buttonColor);
+        buttonIndex++;
+    };
+}
+
+function drawButton(ctx, buttonPos, buttonSize, debugText, textStyle, color) {
+    drawRect(ctx, buttonPos, buttonSize, color, "white", 2 , 5 );
+    drawText(ctx, debugText, { x: buttonPos.x + buttonSize.w / 2, y: buttonPos.y + buttonSize.h / 2 }, { ...textStyle, align: "center", baseline: "middle" });
+}
+
 let lastRenderStatisticsTime = performance.now();
 let overlayFps = 0;
 let overlayDeltaTime = 0;
-let statisticUpdatesPerSecond = 10
+let statisticUpdatesPerSecond = 10;
 
 export function renderGameStatistics(ctx, currentTime, realDeltaTime) {
     const dbg = getGlobal().statsRingBuffers;
@@ -38,11 +52,11 @@ export function renderGameStatistics(ctx, currentTime, realDeltaTime) {
     let textStyle = {
         align: "left",
         baseline: "top",
-        fontSize: 16 ,
+        fontSize: 16,
         font: "Consolas",
         textColor: "#fff",
         outlineColor: "#000",
-        outlineWidth: 2 , //px
+        outlineWidth: 2, //px
     };
 
     renderOverlayLeftPanel(ctx, currentTime, realDeltaTime, dbg, textStyle);
@@ -109,11 +123,11 @@ function renderOverlayGraphs(ctx, ParentPanel, dbg, textStyle) {
 // GAME VARIABLES
 function renderOverlayVariables(ctx, ParentPanel, currentTime, realDeltaTime, textStyle) {
     // Background (unit: pixel)
-    let pos = { x: ParentPanel.cursor.x, y: ParentPanel.cursor.y };
-    const padding = 5 ;
-    const textSpacing = 2 ;
-    const fontSize = 16 ;  // unsure, something broke this
-    const linesOfText = 7;
+    let panelPos = { x: ParentPanel.cursor.x, y: ParentPanel.cursor.y };
+    const padding = 5;
+    const textSpacing = 2;
+    const fontSize = 16;  // unsure, something broke this
+    const linesOfText = 14;
     const backgroundWidth = ParentPanel.size.w + 2 * padding;
     const backgroundHeight = linesOfText * fontSize + (linesOfText - 1) * textSpacing + 2 * padding;
     const size = { w: backgroundWidth, h: backgroundHeight };
@@ -132,39 +146,54 @@ function renderOverlayVariables(ctx, ParentPanel, currentTime, realDeltaTime, te
     }
 
     // Overlay text
-    drawRect(ctx, pos, size, "rgba(0, 0, 0, 0.5)", null, null, borderRadius);
-    pos = { x: pos.x + padding, y: pos.y + padding };
-    const drawNextLine = createOverlayTextDrawer(ctx, pos, textStyle, textSpacing);
+    drawRect(ctx, panelPos, size, "rgba(0, 0, 0, 0.5)", null, null, borderRadius);
+    panelPos = { x: panelPos.x + padding, y: panelPos.y + padding };
+    const drawNextLine = createOverlayTextDrawer(ctx, panelPos, textStyle, textSpacing);
 
     drawNextLine(`== Variables ==`);
-    drawNextLine(`FPS:       ${Math.round(overlayFps)}`);
-    drawNextLine(`ΔTime:     ${Math.round(overlayDeltaTime * 1000)} ms`);
-    drawNextLine(`TileScale: ${getGlobal().renderScale.toFixed(2)} px/tile`);
-    drawNextLine(`Tanks:     ${getGlobal().entities.tanks.length}`);
-    drawNextLine(`Bullets:   ${getGlobal().entities.bullets.length}`);
-    drawNextLine(`Speed:     ${getGlobal().gameTime.gameSpeed}x`);
+    drawNextLine(`GameState:    ${getGlobal().gameState}`);
+    drawNextLine(`OverlayState: ${getGlobal().overlayState}`);
+    drawNextLine("")
+    drawNextLine(`FPS:          ${Math.round(overlayFps)}`);
+    drawNextLine(`ΔTime:        ${Math.round(overlayDeltaTime * 1000)} ms`);
+    drawNextLine(`Speed:        ${getGlobal().gameTime.gameSpeed}x`);
+    drawNextLine("")
+    drawNextLine(`canvasScale:  ${getGlobal().canvasScale} px horizontal`);
+    drawNextLine(`TileScale:    ${getGlobal().renderScale.toFixed(2)} px/tile`);
+    drawNextLine(`RenderScale:  ${getGlobal().renderScale.toFixed(2)} px/tile`);
+    drawNextLine("")
+    drawNextLine(`Tanks:        ${getGlobal().entities.tanks.length}`);
+    drawNextLine(`Bullets:      ${getGlobal().entities.bullets.length}`);
 
-    // Toggle Button for debugMode
-    const buttonWidth = 150 ;
-    const buttonHeight = 30 ;
-    const buttonPos = { x: pos.x, y: pos.y + linesOfText * fontSize + linesOfText * textSpacing + padding };  // Position button below the overlay
-
-    // Draw the button
-    drawRect(ctx, buttonPos, { w: buttonWidth, h: buttonHeight }, "rgba(0, 0, 0, 0.7)", "white", 2 , 5 );
-
-    // Button text (showing current state of debugMode)
-    const debugText = getGlobal().debugOverlays.ShowDebugOverlays ? "Debug: ON" : "Debug: OFF";
-    drawText(ctx, debugText, { x: buttonPos.x + buttonWidth / 2, y: buttonPos.y + buttonHeight / 2 }, { ...textStyle, align: "center", baseline: "middle" });
+    // Toggle Buttons for debugModes
+    const buttonWidth = 200;
+    const buttonHeight = 30;
+    const buttonDrawerPos = { x: getGlobal().canvasScale - buttonWidth - padding, y: panelPos.y + linesOfText * fontSize + linesOfText * textSpacing + padding + padding };  // Position button below the overlay
+    let debugText = "";
+    
+    const drawNextButton = createOverlayButtonDrawer(ctx, buttonDrawerPos, { w: buttonWidth, h: buttonHeight }, textStyle, padding);
+    debugText = getGlobal().debugOverlays.show ? "Debug: ON" : "Debug: OFF";
+    drawNextButton(debugText, "rgba(0, 0, 0, 0.7)");
+    debugText = getGlobal().debugOverlays.entityDetails ? "Entity details: ON" : "Entity details: OFF";
+    drawNextButton(debugText, "rgba(0, 0, 0, 0.7)");
+    debugText = getGlobal().debugOverlays.entityPhysics ? "Entity physics: ON" : "Entity physics: OFF";
+    drawNextButton(debugText, "rgba(0, 0, 0, 0.7)");
+    debugText = getGlobal().debugOverlays.hitboxes ? "Hitboxes: ON" : "Hitboxes: OFF";
+    drawNextButton(debugText, "rgba(0, 0, 0, 0.7)");
+    debugText = getGlobal().debugOverlays.camera ? "Camera: ON" : "Camera: OFF";
+    drawNextButton(debugText, "rgba(0, 0, 0, 0.7)");
+    debugText = getGlobal().debugOverlays.miscellaneous ? "Miscellaneous: ON" : "Miscellaneous: OFF";
+    drawNextButton(debugText, "rgba(0, 0, 0, 0.7)");
 }
 
 
 
 // GAME TIME
 function renderOverlayTime(ctx, textStyle) {
-    const timePanelWidth = 150 ;
-    const timePanelHeight = 75 ;
-    const timePanelPosX = getGlobal().canvasScale / 2  - timePanelWidth / 2;
-    const timePanelPosY = 5 ;
+    const timePanelWidth = 150;
+    const timePanelHeight = 75;
+    const timePanelPosX = getGlobal().canvasScale / 2 - timePanelWidth / 2;
+    const timePanelPosY = 5;
 
     // Background
     drawRect(ctx, { x: timePanelPosX, y: timePanelPosY }, { w: timePanelWidth, h: timePanelHeight }, "rgba(0, 0, 0, 0.7)", "rgba(61, 61, 61, 0.7)", 2 , 5 );
@@ -172,7 +201,7 @@ function renderOverlayTime(ctx, textStyle) {
 
 
     // -- Play / Pause --
-    const pausePad = 5 ; // px
+    const pausePad = 5; // px
     const pauseX = timePanelPosX + pausePad;
     const pauseY = timePanelPosY + pausePad;
     const pauseSize = textStyle.fontSize;

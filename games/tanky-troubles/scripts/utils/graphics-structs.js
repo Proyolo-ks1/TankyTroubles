@@ -19,7 +19,7 @@ export function drawGraphBarsTYPEringBuffer(ctx, graphPos, graphSize, range, bar
     // Draw graph grid
     const gridSize = 0;  // MARK: TODO: Grid
 
-    // Draw graph outline
+    // Draw graph background
     drawRect(ctx, graphPos, graphSize, "#9999", "#444", 2);
 
     // Draw bars
@@ -39,13 +39,15 @@ export function drawGraphBarsTYPEringBuffer(ctx, graphPos, graphSize, range, bar
             pos: { x: graphPos.x + i * barWidth, y: graphPos.y + graphSize.h - barHeight },
             size: { w: barWidth, h: barHeight },
             fillColor: graphColor,
-            strokeColor: null,
+            strokeColor: graphColor,
             strokeWidth: 1,
             borderRadius: 0,
         };
 
         drawRect(ctx, barRect.pos, barRect.size, barRect.fillColor, barRect.strokeColor, barRect.strokeWidth, barRect.borderRadius);
     }
+    // Draw graph outline
+    drawRect(ctx, graphPos, graphSize, null, "#444", 2);
 
     // Lines
     const points = [];

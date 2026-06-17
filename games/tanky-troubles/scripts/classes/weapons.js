@@ -48,6 +48,10 @@ class Weapon {
     renderTurret(ctx, gameDeltaTime) {
         // Default turret rendering, can be overridden
     }
+
+    debugrender(ctx, gameDeltaTime) {
+        // Default turret debug rendering, can be overridden
+    }
 }
 
 // MARK: NoWeapon
@@ -76,11 +80,11 @@ class NoWeapon extends Weapon {
         const barrelWidth = this.tank.width * 4 / 15;
         const x = 0;
         const y = -barrelWidth / 2;
-        drawRect(ctx, { x: x, y: y }, { w: barrelLength, h: barrelWidth }, this.tank.color, "black", 0.02);
+        drawRect(ctx, { x: x, y: y }, { w: barrelLength, h: barrelWidth }, this.tank.color, "#000", 0.02);
 
         // Dome
         const domeRadius = this.tank.width / 3;
-        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "black", 0.02);
+        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "#000", 0.02);
     }
 }
 
@@ -89,6 +93,7 @@ class Chaingun extends Weapon {
     constructor(tank) {
         super(tank);
         this.barrelLength = this.tank.length * 0.7;
+        this.turretSize = { w: this.tank.length * 0.7, h: this.tank.width * 4 / 15 };
 
         this.isCharging = false;
         this.timeSinceChargeStarted = 0; // Time since charging started
@@ -154,19 +159,18 @@ class Chaingun extends Weapon {
         
         // Dome
         const domeRadius = this.tank.width / 3;
-        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "black", 0.02);
+        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "#000", 0.02);
 
         // Draw the base of the chaingun turret
-        let turretSize = { w: this.tank.length * 0.7, h: this.tank.width * 4 / 15 };
         let turretColor = this.tank.color
         if (globalKeys[this.tank.controls.shoot]) {
             turretColor = "orange"
         }
-        drawRect(ctx, { x: 0, y: -turretSize.h / 2 }, turretSize, turretColor, "black", 0.02);
+        drawRect(ctx, { x: 0, y: -this.turretSize.h / 2 }, this.turretSize, turretColor, "#000", 0.02);
     
         // Calculate barrel dimensions
         const barrelWidthDefault = this.tank.width * 4 / 15;
-        const subBarrelWidth = turretSize.w / 2;
+        const subBarrelWidth = this.turretSize.w / 2;
         const subBarrelHeight = barrelWidthDefault / 3;
     
         // Draw barrels spaced evenly across the turret
@@ -178,7 +182,7 @@ class Chaingun extends Weapon {
             const barrelPositionX = Math.cos((flippedAngle + barrelAngles[i]) * Math.PI / 180) * (flipped === 0 ? 1 : -1);
             const barrelPositionY = Math.sin((flippedAngle + barrelAngles[i]) * Math.PI / 180);
             const barrelY = barrelPositionX * (barrelWidthDefault - subBarrelHeight) * 0.5 - subBarrelHeight * 0.5;
-            const barrelPos = new Vec2(turretSize.w / 2, barrelY);
+            const barrelPos = new Vec2(this.turretSize.w / 2, barrelY);
             
             const min = 0;
             const max = 200;
@@ -202,7 +206,14 @@ class Chaingun extends Weapon {
                     barrelColor = `#ED1C24`;
                 }
             }
-            drawRect(ctx, barrelPos, { w: subBarrelWidth, h: subBarrelHeight }, barrelColor, "black", 0.005); // thinner outline for barrels
+            drawRect(ctx, barrelPos, { w: subBarrelWidth, h: subBarrelHeight }, barrelColor, "#000", 0.005); // thinner outline for barrels
+        }
+    }
+
+    debugrender(ctx, gameDeltaTime) {
+        if (getGlobal().debugOverlays.hitboxes) {
+            drawCircle(ctx, this.tank.pos, this.tank.radius, null, "#0a0", 0.01)
+            drawRect(ctx, { x: 0, y: -this.turretSize.h / 2 }, this.turretSize, null, "#0a0", 0.02);
         }
     }
 }
@@ -245,7 +256,7 @@ class Shotgun extends Weapon {
         const width = this.barrelWidth
         const x = 0;
         const y = -width / 2;
-        drawRect(ctx, { x: x, y: y }, { w: length, h: width }, this.tank.color, "black", 0.02);
+        drawRect(ctx, { x: x, y: y }, { w: length, h: width }, this.tank.color, "#000", 0.02);
     }
 }
 
@@ -289,7 +300,6 @@ class FlameThrower extends Weapon {
 
             // Fire the bullet at the corrected position
             const nozzleSin = 0.08 * Math.sin(-this.tank.age * 60)
-            console.log(`nozzleSin: ${nozzleSin}`)
             const relAngle = randomBulletAngleOffset+ nozzleSin;
             spawnClassRelatively(BULLETS.fire, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, compensatedPos, relAngle, bulletSpeed);
         }
@@ -300,7 +310,7 @@ class FlameThrower extends Weapon {
     }
 
     renderTurret(ctx, gameDeltaTime) {
-        drawRect(ctx, { x: 0, y: -this.turretSize.h / 2 }, this.turretSize, "#FFA500", "black", 0.05);
+        drawRect(ctx, { x: 0, y: -this.turretSize.h / 2 }, this.turretSize, "#FFA500", "#000", 0.02);
         const customShape = [
             new Vec2(50, 0),
             new Vec2(100, 50),
@@ -311,7 +321,7 @@ class FlameThrower extends Weapon {
         const pos = new Vec2(100, 100);  // Position where the shape will be drawn
         const angle = 45;  // Rotation in degrees
         
-        drawVertexPolygon(ctx, pos, angle, customShape, "aqua", "black", 0.05);
+        drawVertexPolygon(ctx, pos, angle, customShape, "aqua", "#000", 0.05);
     }
 }
 
@@ -395,7 +405,7 @@ class ChainShotgun extends Weapon {
         
         // Dome
         const domeRadius = this.tank.width / 3;
-        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "black", 0.02);
+        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "#000", 0.02);
 
         // Draw the base of the chaingun turret
         let turretSize = { w: this.tank.length * 0.7, h: this.tank.width * 4 / 15 };
@@ -405,7 +415,7 @@ class ChainShotgun extends Weapon {
             this.barrelRotation += 60 * this.fireRate * gameDeltaTime;
             this.barrelRotation %= 60;
         }
-        drawRect(ctx, { x: 0, y: -turretSize.h / 2 }, turretSize, turretColor, "black", 0.02);
+        drawRect(ctx, { x: 0, y: -turretSize.h / 2 }, turretSize, turretColor, "#000", 0.02);
     
         // Calculate barrel dimensions
         const barrelWidthDefault = this.tank.width * 4 / 15;
@@ -427,7 +437,7 @@ class ChainShotgun extends Weapon {
             const max = 200;
             const gray = Math.round(min + (barrelPositionY + 1) * 0.5 * (max - min));
             let barrelColor = `rgb(${gray}, ${gray}, ${gray})`;
-            drawRect(ctx, barrelPos, { w: subBarrelWidth, h: subBarrelHeight }, barrelColor, "black", 0.005); // thinner outline for barrels
+            drawRect(ctx, barrelPos, { w: subBarrelWidth, h: subBarrelHeight }, barrelColor, "#000", 0.005); // thinner outline for barrels
         }
     }
 }
@@ -461,11 +471,11 @@ class ShrepnalBombWeapon extends Weapon {
         const barrelWidth = this.tank.width / 2.5;
         const x = 0;
         const y = -barrelWidth / 2;
-        drawRect(ctx, { x: x, y: y }, { w: barrelLength, h: barrelWidth }, this.tank.color, "black", 0.02);
+        drawRect(ctx, { x: x, y: y }, { w: barrelLength, h: barrelWidth }, this.tank.color, "#000", 0.02);
 
         // Dome
         const domeRadius = this.tank.width / 3;
-        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "black", 0.02);
+        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "#000", 0.02);
     }
 }
 
@@ -494,11 +504,11 @@ class MissileLauncher extends Weapon {
         const barrelWidth = this.tank.width * 4 / 15;
         const x = 0;
         const y = -barrelWidth / 2;
-        drawRect(ctx, { x: x, y: y }, { w: barrelLength, h: barrelWidth }, this.tank.color, "black", 0.02);
+        drawRect(ctx, { x: x, y: y }, { w: barrelLength, h: barrelWidth }, this.tank.color, "#000", 0.02);
 
         // Dome
         const domeRadius = this.tank.width / 3;
-        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "black", 0.02);
+        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "#000", 0.02);
     }
 }
 
@@ -528,7 +538,7 @@ class ExperimentalWeapon extends Weapon {
 
     renderTurret(ctx, gameDeltaTime) {
         let turretSize = { w: this.tank.length * 0.7, h: this.tank.width / 3 };
-        drawRect(ctx, { x: 0, y: -turretSize.h / 2 }, turretSize,this.tank.color, "black", 0.02);
+        drawRect(ctx, { x: 0, y: -turretSize.h / 2 }, turretSize,this.tank.color, "#000", 0.02);
     }
 }
 
@@ -613,7 +623,7 @@ class ChainShotgunBoom extends Weapon {
             this.barrelRotation += 60 * this.fireRate * gameDeltaTime;
             this.barrelRotation %= 60;
         }
-        drawRect(ctx, { x: 0, y: -turretSize.h / 2 }, turretSize, turretColor, "black", 0.02);
+        drawRect(ctx, { x: 0, y: -turretSize.h / 2 }, turretSize, turretColor, "#000", 0.02);
     
         // Calculate barrel dimensions
         const barrelWidthDefault = this.tank.width * 4 / 15;
@@ -635,7 +645,7 @@ class ChainShotgunBoom extends Weapon {
             const max = 200;
             const gray = Math.round(min + (barrelPositionY + 1) * 0.5 * (max - min));
             const barrelColor = `rgb(${gray}, ${gray}, ${gray})`;
-            drawRect(ctx, barrelPos, { w: subBarrelWidth, h: subBarrelHeight }, barrelColor, "black", 0.005); // thinner outline for barrels
+            drawRect(ctx, barrelPos, { w: subBarrelWidth, h: subBarrelHeight }, barrelColor, "#000", 0.005); // thinner outline for barrels
         }
     }
 }
@@ -713,11 +723,11 @@ class RocketBombWeapon extends Weapon {
         const barrelWidth = this.tank.width / 2.5;
         const x = 0;
         const y = -barrelWidth / 2;
-        drawRect(ctx, { x: x, y: y }, { w: barrelLength, h: barrelWidth }, this.tank.color, "black", 0.02);
+        drawRect(ctx, { x: x, y: y }, { w: barrelLength, h: barrelWidth }, this.tank.color, "#000", 0.02);
 
         // Dome
         const domeRadius = this.tank.width / 3;
-        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "black", 0.02);
+        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "#000", 0.02);
     }
 }
 

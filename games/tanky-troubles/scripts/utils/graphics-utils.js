@@ -120,7 +120,7 @@ export function drawImgRotated(ctx, pos, angle, size, img, opacity = 1) {
 
 // MARK: drawRect
 // Function to draw a rectangle with optional rounded corners, applying canvas scaling - 0,0 topleft
-export function drawRect(ctx, pos = {x: null, y: null}, size = {w: null, h: null}, fillColor = null, strokeColor = null, strokeWidth = null, borderRadius = 0) {
+export function drawRect(ctx, pos = {x: null, y: null}, size = {w: null, h: null}, fillColor = null, strokeColor = "#000", strokeWidth = null, borderRadius = 0) {
     const renderScale = getGlobal().renderScale
 
     // Scale values
@@ -137,7 +137,7 @@ export function drawRect(ctx, pos = {x: null, y: null}, size = {w: null, h: null
             ctx.fillRect(scaledX, scaledY, scaledWidth, scaledHeight);
         }
 
-        if (strokeColor && strokeWidth > 0) {
+        if (strokeWidth > 0) {
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = strokeWidth;
             ctx.strokeRect(scaledX, scaledY, scaledWidth, scaledHeight);

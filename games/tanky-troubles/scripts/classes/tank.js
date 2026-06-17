@@ -176,13 +176,13 @@ export class Tank extends PhysicsObject {
         // Body
         const BodyLength = this.length * this.scale;
         const BodyWidth = this.width * this.scale;
-        drawRect(ctx, { x: -BodyLength / 2, y: -BodyWidth / 2 }, { w: BodyLength, h: BodyWidth }, this.color, "black", 0.02);
+        drawRect(ctx, { x: -BodyLength / 2, y: -BodyWidth / 2 }, { w: BodyLength, h: BodyWidth }, this.color, "#000", 0.02);
 
         // Tracks
         const trackLength = BodyLength;
         const trackWidth = BodyWidth / 6;
-        drawRect(ctx, { x: -trackLength / 2, y: -BodyWidth / 2 }, { w: trackLength, h: trackWidth }, this.color, "black", 0.02);
-        drawRect(ctx, { x: -trackLength / 2, y: BodyWidth / 2 - trackWidth }, { w: trackLength, h: trackWidth }, this.color, "black", 0.02);
+        drawRect(ctx, { x: -trackLength / 2, y: -BodyWidth / 2 }, { w: trackLength, h: trackWidth }, this.color, "#000", 0.02);
+        drawRect(ctx, { x: -trackLength / 2, y: BodyWidth / 2 - trackWidth }, { w: trackLength, h: trackWidth }, this.color, "#000", 0.02);
 
         const amountOfTrackLinks = 12;
         this.trackRotation.left = posMod(this.trackRotation.left, amountOfTrackLinks * 2);
@@ -282,5 +282,8 @@ export class Tank extends PhysicsObject {
             const renderScale = getGlobal().renderScale
             drawSmiley(ctx, this.pos, this.radius / 15)
         }
+        
+        // Turret
+        this.weapon.debugrender(ctx, gameDeltaTime);
     }
 }

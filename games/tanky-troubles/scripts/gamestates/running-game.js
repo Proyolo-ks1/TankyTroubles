@@ -63,7 +63,7 @@ function setCameraTargets() {
     const targets = [
         ...playerTanks,
         ...bullets.filter(bullet => playerTanks.has(bullet.owner)),
-        getGlobal().entities.bullets[6],
+        // getGlobal().entities.bullets[6],
     ];
 
     const a = 
@@ -86,7 +86,7 @@ async function startGame() {
 //     console.log(missileImage); // Should log the cached scaled image
 }
 
-function updateEntities(systems, ctx, gameDeltaTime, debugActive, calcTimer) {
+function updateEntities(systems, ctx, gameDeltaTime, debugActive, timers) {
     // console.log(`processEntities() at frame ${getGlobal().frameCount}`);
     // console.log(`BulletArray (${getGlobal().entities.bullets.length-0}): ${getGlobal().entities.bullets.slice(0, 20).map(b => b.shortName).join(", ")}`);
     
@@ -95,7 +95,7 @@ function updateEntities(systems, ctx, gameDeltaTime, debugActive, calcTimer) {
             let t0 = performance.now();
 
             entity.update(gameDeltaTime);
-            calcTimer += performance.now() - t0;
+            timers.calc += performance.now() - t0;
 
             if (windEnabled) {
                 updateWindEffect(entity, gameDeltaTime); // should not move tanks etc, lets see
@@ -104,7 +104,7 @@ function updateEntities(systems, ctx, gameDeltaTime, debugActive, calcTimer) {
     );
 }
 
-function renderEntities(systems, ctx, gameDeltaTime, debugActive, renderTimer) {
+function renderEntities(systems, ctx, gameDeltaTime, debugActive, timers) {
     // console.log(`processEntities() at frame ${getGlobal().frameCount}`);
     // console.log(`BulletArray (${getGlobal().entities.bullets.length-0}): ${getGlobal().entities.bullets.slice(0, 20).map(b => b.shortName).join(", ")}`);
     
@@ -112,12 +112,12 @@ function renderEntities(systems, ctx, gameDeltaTime, debugActive, renderTimer) {
         array.forEach(entity => {
             let t0 = performance.now();
             entity.render(ctx, gameDeltaTime);
-            renderTimer += performance.now() - t0;
+            timers.render += performance.now() - t0;
 
             if (debugActive) {
                 t0 = performance.now();
                 entity.debugrender(ctx, gameDeltaTime);
-                renderTimer += performance.now() - t0;
+                timers.render += performance.now() - t0;
             }
         })
     );
@@ -326,7 +326,7 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
         // === 1. UPDATE WORLD STATE (LOGIC) ===
         // updateGame(currentTime);
         updateGlobalVariables();
-        updateEntities(systems, ctx, gameDeltaTime, debugActive, timers.calc);
+        updateEntities(systems, ctx, gameDeltaTime, debugActive, timers);
 
         // === 2. RESOLVE EVENTS (SPAWNS, DEATHS, ETC.) ===
         flushSpawnQueue();
@@ -351,7 +351,7 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
 
         // === 5. RENDER ===
         renderBackground(ctx);
-        renderEntities(systems, ctx, gameDeltaTime, debugActive, timers.render)
+        renderEntities(systems, ctx, gameDeltaTime, debugActive, timers)
 
         if (windEnabled) {
             updateAndRenderWind(ctx, gameDeltaTime);

@@ -123,12 +123,13 @@ getGlobal().showParticles = false;
 
 // Boolean Overwrite = true
 getGlobal().debugOverlays.show = true;
-getGlobal().debugOverlays.entityDetails = true;
+// getGlobal().debugOverlays.entityDetails = true;
 getGlobal().debugOverlays.entityPhysics = true;
 getGlobal().debugOverlays.hitboxes = true;
-getGlobal().debugOverlays.camera = true;
+// getGlobal().debugOverlays.camera = true;
 getGlobal().debugOverlays.miscellaneous = true;
-// getGlobal().showStatistics = true;
+
+getGlobal().showStatistics = true;
 getGlobal().showParticles = true;
 
 // Statistics
@@ -243,7 +244,7 @@ function gameLoop(currentTime) {
             break;
     
     }
-    if (getGlobal().debugOverlays.show && getGlobal().debugOverlays.showStatistics) {
+    if (getGlobal().showStatistics) {
         renderGameStatistics(ctx, currentTime, realDeltaTime);
     }
     lastTime = currentTime;

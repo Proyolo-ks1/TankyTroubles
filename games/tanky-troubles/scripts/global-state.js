@@ -91,7 +91,6 @@ export const HITBOX_TYPES = Object.freeze({
  * @property {boolean} showStatistics
  * @property {boolean} showParticles
  * @property {number} canvasScale
- * @property {number} zoomLevel
  * @property {number} renderScale
  * @property {string} gameState
  * @property {string} overlayState
