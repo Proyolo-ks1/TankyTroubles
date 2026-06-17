@@ -324,21 +324,16 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
         ];
 
         // === 1. UPDATE WORLD STATE (LOGIC) ===
-
         // updateGame(currentTime);
         updateGlobalVariables();
         updateEntities(systems, ctx, gameDeltaTime, debugActive, timers.calc);
 
-
-
         // === 2. RESOLVE EVENTS (SPAWNS, DEATHS, ETC.) ===
-
         flushSpawnQueue();
         cleanupInactiveEntities(systems);
 
 
-        // === 4. COMPUTE CAMERA AND TRANSLATE CANVAS ===
-
+        // === 3. COMPUTE CAMERA AND TRANSLATE CANVAS ===
         // Camera Update
         setCameraTargets();
         camera.update(gameDeltaTime);
@@ -354,9 +349,7 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
         ctx.rotate(camera.angle);
         ctx.translate(-camera.pos.x, -camera.pos.y);
 
-
         // === 5. RENDER ===
-
         renderBackground(ctx);
         renderEntities(systems, ctx, gameDeltaTime, debugActive, timers.render)
 
