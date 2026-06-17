@@ -74,7 +74,7 @@ class Bullet extends PhysicsObject {
             drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 0.02);
             
             // Heading Line
-            const heading = this.pos.add(Vec2.fromAngle(this.angle, 1));
+            const heading = this.pos.add(Vec2.fromAngle(this.angle, 0.2));
             
             // Draw the heading line
             drawLine(ctx, this.pos, heading, "#FF0000", 0.02);
@@ -101,7 +101,7 @@ class Bullet extends PhysicsObject {
                 outlineWidth: 2 / renderScale, //px
             };
 
-            drawText(ctx, text, textPos, textStyle);
+            // drawText(ctx, text, textPos, textStyle);
             drawHealthBar(ctx, textPos, this.lifeSpan, this.age, 5 / renderScale)
 
             drawCircle(ctx, this.pos, 1 / 2 / renderScale, "#ffffff", "#ffffff");
@@ -210,7 +210,7 @@ class ShrapnelBomb extends Bullet {
             const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
             const bulletSpeed = 1 + Math.random() * 0.5;
             const lifeSpan = 3.000 - Math.random() * (3.000 / 2);
-            spawnClassRelatively(Shrapnel, this, this.pos, this.angle, this.scale, new Vec2(), randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
+            spawnClassRelatively(Shrapnel, this.owner, this.pos, this.angle, this.scale, new Vec2(), randomBulletAngleOffset, bulletSpeed, 1, lifeSpan);
         }
     }
 

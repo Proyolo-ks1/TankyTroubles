@@ -107,17 +107,19 @@ class Camera {
         const iBR = { x: bounds.pos.x + bounds.size.w, y: bounds.pos.y + bounds.size.h };
         const iBL = { x: bounds.pos.x, y: bounds.pos.y + bounds.size.h };
 
-        drawLine(ctx, oTL, iTL, "rgb(253, 91, 51)", 5 / renderScale);
-        drawLine(ctx, oTR, iTR, "rgb(253, 91, 51)", 5 / renderScale);
-        drawLine(ctx, oBR, iBR, "rgb(253, 91, 51)", 5 / renderScale);
-        drawLine(ctx, oBL, iBL, "rgb(253, 91, 51)", 5 / renderScale);
+        drawLine(ctx, oTL, iTL, "rgb(253, 91, 51)", 2 / renderScale);
+        drawLine(ctx, oTR, iTR, "rgb(253, 91, 51)", 2 / renderScale);
+        drawLine(ctx, oBR, iBR, "rgb(253, 91, 51)", 2 / renderScale);
+        drawLine(ctx, oBL, iBL, "rgb(253, 91, 51)", 2 / renderScale);
 
         for (const target of this.targetEntities) {
-            drawCircle(ctx, target.pos, 10 / renderScale, "rgb(84, 201, 181)")
-            drawLine(ctx, target.pos, center, "rgb(84, 201, 181)", 5 / renderScale)
+            drawCircle(ctx, target.pos, 10 / renderScale, "rgb(253, 91, 51)")
+            // drawLine(ctx, target.pos, center, "rgb(253, 91, 51)", 5 / renderScale)
         }
 
         // Position
+        drawLine(ctx, iTL, iBR, "rgb(80, 133, 124)", 5 / renderScale);
+        drawLine(ctx, iTR, iBL, "rgb(80, 133, 124)", 5 / renderScale);
         drawCircle(ctx, center, 10 / renderScale, "rgb(80, 133, 124)")
         const screenCenter = this.pos
         drawVectorArrow(ctx, screenCenter, center.sub(screenCenter), "rgb(162, 102, 231)", 5 / renderScale)

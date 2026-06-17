@@ -62,7 +62,7 @@ export class Tank extends PhysicsObject {
         this.color = color;
         this.controls = controls;
 
-        this.weapon = new WEAPONS.chaingun(this); // Default weapon
+        this.weapon = new WEAPONS.shrapnelBomb(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
 
@@ -224,7 +224,7 @@ export class Tank extends PhysicsObject {
             outlineColor: "#000000",
             outlineWidth: 2 / renderScale, //px
         };
-        drawText(ctx, text, textPos, textStyle);
+        // drawText(ctx, text, textPos, textStyle);
     }
 
     debugrender(ctx, gameDeltaTime) {
@@ -235,8 +235,8 @@ export class Tank extends PhysicsObject {
             drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 0.02);
 
             // Heading Line
-            const heading = this.pos.add(Vec2.fromAngle(this.angle, 1));
-            drawLine(ctx, this.pos, heading, "#808", 0.02);
+            const heading = this.pos.add(Vec2.fromAngle(this.angle, 0.5));
+            drawLine(ctx, this.pos, heading, "#FF0000", 0.02);
         }
 
         if (getGlobal().debugOverlays.entityDetails) {
@@ -260,7 +260,7 @@ export class Tank extends PhysicsObject {
             };
             ctx.save();
             ctx.setTransform(1, 0, 0, 1, 0, 0); // reset naar screen space
-            drawText(ctx, text, textPos, textStyle);
+            // drawText(ctx, text, textPos, textStyle);
             ctx.restore();
         }
 

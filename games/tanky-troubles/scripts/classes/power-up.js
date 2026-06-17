@@ -79,7 +79,7 @@ class PowerUp extends PhysicsObject {
             drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 0.02);
             
             // Heading Line
-            const heading = this.pos.add(Vec2.fromAngle(this.angle, 1));
+            const heading = this.pos.add(Vec2.fromAngle(this.angle, 0.2));
             drawLine(ctx, this.pos, heading, "#FF0000", 0.02);
         }
 
@@ -103,7 +103,7 @@ class PowerUp extends PhysicsObject {
                 outlineWidth: 2 / renderScale, //px
             };
 
-            drawText(ctx, text, textPos, textStyle);
+            // drawText(ctx, text, textPos, textStyle);
             drawCircle(ctx, this.pos, 1 / renderScale / 2, "#ffffff", "#ffffff");
         }
     }

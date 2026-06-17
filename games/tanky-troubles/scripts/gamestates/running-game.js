@@ -1,4 +1,4 @@
-import { getGlobal, GLOBAL_COLOR_KEYS, recordDebugFrame, flushSpawnQueue } from '../global-state.js';
+import { getGlobal, GLOBAL_COLOR_KEYS, recordDebugFrame, flushSpawnQueue, cleanupInactiveEntries as cleanupInactiveEntities } from '../global-state.js';
 import { drawRect, drawCircle, drawText, drawRegPolygon, drawVectorArrow} from '../utils/graphics-utils.js';
 import { signedPower, Vec2 } from '../utils/math-utils.js';
 import { generateMaze} from '../generate-maze.js';
@@ -57,6 +57,20 @@ function updateGame(currentTime) {
     }
 }
 
+function setCameraTargets() {
+    const { tanks, bullets } = getGlobal().entities;
+    const playerTanks = new Set([tanks[0], tanks[1]]);
+    const targets = [
+        ...playerTanks,
+        ...bullets.filter(bullet => playerTanks.has(bullet.owner)),
+        getGlobal().entities.bullets[6],
+    ];
+
+    const a = 
+
+    camera.setTargets(targets);
+}
+
 let spawns = 0;
 function spawnPowerUp() {
     spawns += 1
@@ -72,58 +86,41 @@ async function startGame() {
 //     console.log(missileImage); // Should log the cached scaled image
 }
 
-// Clean up inactive objects of an array (non-splice edition :D)
-function cleanupInactiveEntries(arr) {
-    let write = 0;
-    for (let read = 0; read < arr.length; read++) {
-        if (arr[read].active) {
-            arr[write++] = arr[read];
-        }
-    }
-    arr.length = write;
-}
-
-function processEntities(ctx, gameDeltaTime, debugActive, timers) {
+function updateEntities(systems, ctx, gameDeltaTime, debugActive, calcTimer) {
     // console.log(`processEntities() at frame ${getGlobal().frameCount}`);
     // console.log(`BulletArray (${getGlobal().entities.bullets.length-0}): ${getGlobal().entities.bullets.slice(0, 20).map(b => b.shortName).join(", ")}`);
-
-    const systems = [
-        entities.bullets,
-        entities.tanks,
-        entities.particles,
-        entities.utilities
-    ];
     
     systems.forEach(array =>
         array.forEach(entity => {
             let t0 = performance.now();
 
             entity.update(gameDeltaTime);
-            timers.calc += performance.now() - t0;
+            calcTimer += performance.now() - t0;
 
-            t0 = performance.now();
+            if (windEnabled) {
+                updateWindEffect(entity, gameDeltaTime); // should not move tanks etc, lets see
+            }
+        })
+    );
+}
+
+function renderEntities(systems, ctx, gameDeltaTime, debugActive, renderTimer) {
+    // console.log(`processEntities() at frame ${getGlobal().frameCount}`);
+    // console.log(`BulletArray (${getGlobal().entities.bullets.length-0}): ${getGlobal().entities.bullets.slice(0, 20).map(b => b.shortName).join(", ")}`);
+    
+    systems.forEach(array =>
+        array.forEach(entity => {
+            let t0 = performance.now();
             entity.render(ctx, gameDeltaTime);
-            timers.render += performance.now() - t0;
+            renderTimer += performance.now() - t0;
 
             if (debugActive) {
                 t0 = performance.now();
                 entity.debugrender(ctx, gameDeltaTime);
-                timers.render += performance.now() - t0;
+                renderTimer += performance.now() - t0;
             }
-            if (windEnabled) {
-                updateWindEffect(entity, gameDeltaTime); // should not move tanks etc, lets see
-            }
-
         })
     );
-
-    // Iterate Spawn Queue
-    flushSpawnQueue();
-
-    // Cleanup inactive entities (every frame single for now)
-    for (const array of systems) {
-        cleanupInactiveEntries(array);
-    }
 }
 
 function updateAndRenderWind(ctx, gameDeltaTime) {
@@ -289,7 +286,7 @@ export function initializeWorld() {
     // Cam
     let targets = [tank0, tank1]
     // targets.push(...getGlobal().entities.tanks)
-    camera.setTargets(targets);
+    // camera.setTargets(targets);
     // camera.setTargets([getGlobal().entities.particles[1]])
     camera.pos.set(1.5,1.5);
     camera.zoomLevel = 1/8;;
@@ -319,31 +316,56 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
         const timers = { calc: 0, render: 0 };
         const debugActive = getGlobal().debugOverlays.show
 
-        // Camera Translations
+        const systems = [
+            entities.bullets,
+            entities.tanks,
+            entities.particles,
+            entities.utilities
+        ];
+
+        // === 1. UPDATE WORLD STATE (LOGIC) ===
+
+        // updateGame(currentTime);
+        updateGlobalVariables();
+        updateEntities(systems, ctx, gameDeltaTime, debugActive, timers.calc);
+
+
+
+        // === 2. RESOLVE EVENTS (SPAWNS, DEATHS, ETC.) ===
+
+        flushSpawnQueue();
+        cleanupInactiveEntities(systems);
+
+
+        // === 4. COMPUTE CAMERA AND TRANSLATE CANVAS ===
+
+        // Camera Update
+        setCameraTargets();
         camera.update(gameDeltaTime);
 
-        const g = getGlobal();
+        // World Space (affected by camera) (this is where we invert Y-axis)
         const canvasWidth = gameApi.canvasWidth;
         const canvasHeight = gameApi.canvasHeight;
         ctx.save();
 
-        // WORLD SPACE (affected by camera) (this is where we invert Y-axis)
+        const renderScale = getGlobal().renderScale;
         ctx.translate(canvasWidth / 2, canvasHeight / 2);
-        ctx.scale(g.renderScale, -g.renderScale);
+        ctx.scale(renderScale, -renderScale);
         ctx.rotate(camera.angle);
         ctx.translate(-camera.pos.x, -camera.pos.y);
 
+
+        // === 5. RENDER ===
+
         renderBackground(ctx);
-        updateGlobalVariables();
-
-        // Update and render tanks, bullets, other entities
-        processEntities(ctx, gameDeltaTime, debugActive, timers)
-
-        // updateGame(currentTime);
+        renderEntities(systems, ctx, gameDeltaTime, debugActive, timers.render)
 
         if (windEnabled) {
             updateAndRenderWind(ctx, gameDeltaTime);
         }
+
+
+        // === x. OTHERS ===
 
         // After everything is updated and rendered:
         recordDebugFrame(timers.calc, timers.render, 1000 / gameDeltaTime * getGlobal().gameTime.gameSpeed / 1000);

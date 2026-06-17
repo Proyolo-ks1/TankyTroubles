@@ -173,10 +173,25 @@ export function spawn(instance, targetArray) {
     getGlobal().spawnQueue.push({ instance, targetArray });
 }
 
+// spawn queue
 export function flushSpawnQueue() {
     const spawnQueue = getGlobal().spawnQueue
     for (const item of spawnQueue) {
         item.targetArray.push(item.instance);
     }
     spawnQueue.length = 0;
+}
+    
+// 'sort of' delete queue
+// Clean up inactive objects of an array (non-splice edition :D)
+export function cleanupInactiveEntries(systems) {
+    for (const array of systems) {
+        let write = 0;
+        for (let read = 0; read < array.length; read++) {
+            if (array[read].active) {
+                array[write++] = array[read];
+            }
+        }
+        array.length = write;
+    }
 }
