@@ -62,7 +62,7 @@ export class Tank extends PhysicsObject {
         this.color = color;
         this.controls = controls;
 
-        this.weapon = new WEAPONS.flameThrower(this); // Default weapon
+        this.weapon = new WEAPONS.chaingun(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
 
@@ -174,8 +174,8 @@ export class Tank extends PhysicsObject {
         ctx.rotate(this.angle);
 
         // Body
-        const BodyLength = this.length * this.radius;
-        const BodyWidth = this.width * this.radius;
+        const BodyLength = this.length * this.scale;
+        const BodyWidth = this.width * this.scale;
         drawRect(ctx, { x: -BodyLength / 2, y: -BodyWidth / 2 }, { w: BodyLength, h: BodyWidth }, this.color, "black", 0.02);
 
         // Tracks
@@ -228,40 +228,59 @@ export class Tank extends PhysicsObject {
     }
 
     debugrender(ctx, gameDeltaTime) {
-        // Velocity Arrow
-        drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 0.02);
+        if (!this.active) return;
 
-        // Heading Line
-        const headingLength = 1; // Adjust this value to control the length of the heading line
-        let heading = this.pos.add(Vec2.fromAngle(this.angle, headingLength));
+        if (getGlobal().debugOverlays.entityPhysics) {
+            // Velocity Arrow
+            drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 0.02);
 
-        // Draw the heading line
-        drawLine(ctx, this.pos, heading, "#808", 0.02);
+            // Heading Line
+            const heading = this.pos.add(Vec2.fromAngle(this.angle, 1));
+            drawLine(ctx, this.pos, heading, "#808", 0.02);
+        }
 
-        // Smiley :D
-        const renderScale = getGlobal().renderScale
-        const smileSize = 15 / renderScale; //px
-        drawSmiley(ctx, this.pos, smileSize)
+        if (getGlobal().debugOverlays.entityDetails) {
+            const renderScale = getGlobal().renderScale
 
-        // Draw the random indicator
-        const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
-        heading = this.pos.add(Vec2.fromAngle(randomAngle, headingLength));
-        drawLine(ctx, this.pos, heading, "#4c00ff", 0.02);
+            // Draw the random indicator
+            const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
+            const heading = this.pos.add(Vec2.fromAngle(randomAngle, 1));
+            drawLine(ctx, this.pos, heading, "#4c00ff", 0.02);
 
-        const text = `a: ${this.angle.toFixed(2)}π rad`;
-        const textPos = heading;
-        const textStyle = {
-            align: "center",
-            baseline: "bottom",
-            fontSize: 16 / renderScale, //px
-            font: "Consolas",
-            textColor: "#000000",
-            outlineColor: "#ffffff",
-            outlineWidth: 2 / renderScale, //px
-        };
-        ctx.save();
-        ctx.setTransform(1, 0, 0, 1, 0, 0); // reset naar screen space
-        drawText(ctx, text, textPos, textStyle);
-        ctx.restore();
+            const text = `a: ${this.angle.toFixed(2)}π rad`;
+            const textPos = heading;
+            const textStyle = {
+                align: "center",
+                baseline: "bottom",
+                fontSize: 16 / renderScale, //px
+                font: "Consolas",
+                textColor: "#000000",
+                outlineColor: "#ffffff",
+                outlineWidth: 2 / renderScale, //px
+            };
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0); // reset naar screen space
+            drawText(ctx, text, textPos, textStyle);
+            ctx.restore();
+        }
+
+        if (getGlobal().debugOverlays.hitboxes) {
+            
+            ctx.save();
+            ctx.translate(this.pos.x, this.pos.y);
+            ctx.rotate(this.angle);
+
+            const BodyLength = this.length * this.scale;
+            const BodyWidth = this.width * this.scale;
+            drawRect(ctx, { x: -BodyLength / 2, y: -BodyWidth / 2 }, { w: BodyLength, h: BodyWidth }, null, "#0a0", 0.01);
+
+            ctx.restore();
+        }
+
+        if (getGlobal().debugOverlays.miscellaneous) {
+            // Smiley :D
+            const renderScale = getGlobal().renderScale
+            drawSmiley(ctx, this.pos, this.radius / 15)
+        }
     }
 }

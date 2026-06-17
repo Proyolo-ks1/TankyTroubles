@@ -4,6 +4,7 @@ import { PhysicsObject } from './entity.js';
 import { spawnClassRelatively } from './spawner.js';
 import { randomSeeded, Vec2 } from "../utils/math-utils.js";
 import { hexToRGB } from "../utils/color-utils.js";
+import { drawHealthBar } from '../utils/graphics-structs.js';
 
 
 
@@ -68,51 +69,46 @@ class Particle extends PhysicsObject {
     }
     
     debugrender(ctx, gameDeltaTime) {
-        if (this.active && getGlobal().showParticles) {
-            
+        if (!this.active) return;
+
+        if (getGlobal().showParticles) {
             const renderScale = getGlobal().renderScale
 
-            // Velocity Arrow
-            drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 0.02);
-            
-            // Heading Line
-            const headingLength = 0.1;
-            let heading = this.pos.add(Vec2.fromAngle(this.angle, headingLength));
-            
-            // Draw the heading line
-            drawLine(ctx, this.pos, heading, "#FF0000", 0.02);
-            
-            // Draw the random indicator
-            const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
-            let labelPos = this.pos.add(Vec2.fromAngle(randomAngle, 1.2 * headingLength));
-            drawLine(ctx, this.pos, labelPos, "#4c00ff", 0.02);
+            if (getGlobal().debugOverlays.entityPhysics) {
+                 // Velocity Arrow
+                drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 0.02);
+                
+                // Heading Line
+                const heading = this.pos.add(Vec2.fromAngle(this.angle, 0.1));
+                
+                // Draw the heading line
+                drawLine(ctx, this.pos, heading, "#FF0000", 0.01);
+            }
 
-            // Text Info
-            const fontSize = 12 / renderScale; //px
-            const textStyle = {
-                align: "center",
-                baseline: "bottom",
-                fontSize: fontSize,
-                font: "Consolas",
-                textColor: "#000000",
-                outlineColor: "#ffffff",
-                outlineWidth: 2 / renderScale, //px
+            if (getGlobal().debugOverlays.entityDetails) {
+                // Draw the random indicator
+                const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
+                const labelPos = this.pos.add(Vec2.fromAngle(randomAngle, 0.1));
+                drawLine(ctx, this.pos, labelPos, "#4c00ff", 0.02);
 
-                debugBox: false, // no debugrender on the debugging text :D
-            };
+                // Text Info
+                const fontSize = 12 / renderScale; //px
+                const textStyle = {
+                    align: "center",
+                    baseline: "bottom",
+                    fontSize: fontSize,
+                    font: "Consolas",
+                    textColor: "#000000",
+                    outlineColor: "#ffffff",
+                    outlineWidth: 2 / renderScale, //px
 
-            const life = Math.min(1, Math.max(0, this.age / this.lifeSpan));
-            const fillColor =
-                life > 0.75 ? "#ff0000" :
-                life > 0.5 ? "#ffcc00" :
-                            "#00ff00";
+                    debugBox: false, // no debugrender on the debugging text :D
+                };
 
-            const barSize = { w: 50 / renderScale, h: fontSize }
-            const barPos = { x: labelPos.x - 0.5 * barSize.w, y: labelPos.y - barSize.h } // Center Bottom like the text.
-            drawRect(ctx, barPos, barSize, "#000000aa", "#555555", 2/ renderScale); // background
-            drawRect(ctx, barPos, { w: barSize.w * life, h: barSize.h }, fillColor, null, 0); // background
-            drawText(ctx, this.shortName, labelPos, textStyle);
-            drawCircle(ctx, this.pos, 1 / renderScale / 2, "#ffffff", "#ffffff");
+                drawHealthBar(ctx, labelPos, this.lifeSpan, this.age, fontSize)
+                
+                drawCircle(ctx, this.pos, 1 / renderScale / 2, "#ffffff", "#ffffff");
+            }
         }
     }
 }

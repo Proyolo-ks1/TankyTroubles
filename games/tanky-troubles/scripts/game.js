@@ -112,12 +112,22 @@ getGlobal().gameState = GAME_STATE_KEYS.RUNNING;
 getGlobal().overlayState = OVERLAY_STATE_KEYS.NONE;
 
 // Boolean Default = false
-getGlobal().debugMode = false;
+getGlobal().debugOverlays.show = false;
+getGlobal().debugOverlays.entityDetails = false;
+getGlobal().debugOverlays.entityPhysics = false;
+getGlobal().debugOverlays.hitboxes = false;
+getGlobal().debugOverlays.camera = false;
+getGlobal().debugOverlays.miscellaneous = false;
 getGlobal().showStatistics = false;
 getGlobal().showParticles = false;
 
 // Boolean Overwrite = true
-// getGlobal().debugMode = true;
+getGlobal().debugOverlays.show = true;
+getGlobal().debugOverlays.entityDetails = true;
+getGlobal().debugOverlays.entityPhysics = true;
+getGlobal().debugOverlays.hitboxes = true;
+// getGlobal().debugOverlays.camera = true;
+getGlobal().debugOverlays.miscellaneous = true;
 // getGlobal().showStatistics = true;
 getGlobal().showParticles = true;
 
@@ -233,7 +243,7 @@ function gameLoop(currentTime) {
             break;
     
     }
-    if (getGlobal().showStatistics) {
+    if (getGlobal().debugOverlays.show && getGlobal().debugOverlays.showStatistics) {
         renderGameStatistics(ctx, currentTime, realDeltaTime);
     }
     lastTime = currentTime;

@@ -15,11 +15,15 @@ const gameApi = document.getElementById("game-container").runningGameApi;
 const keyPressActions = {
     // Number Keys
     '1': () => {
-        getGlobal().debugMode = !getGlobal().debugMode;
-        console.log(`DB: toggled debugMode: ${getGlobal().debugMode}`);
+        getGlobal().debugOverlays.show = !getGlobal().debugOverlays.show;
+        console.log(`DB: toggled ShowDebugOverlays: ${getGlobal().debugOverlays.show}
+        (EntityPhysics: ${getGlobal().debugOverlays.entityPhysics},
+        EntityDetails: ${getGlobal().debugOverlays.entityDetails},
+        Hitboxes: ${getGlobal().debugOverlays.hitboxes},
+        Camera: ${getGlobal().debugOverlays.camera})`);
     },
     '2': () => {
-        getGlobal().showStatistics = !getGlobal().showStatistics;
+        getGlobal().debugOverlays.showStatistics = !getGlobal().debugOverlays.showStatistics;
         console.log(`DB: toggled showStatistics: ${getGlobal().showStatistics}`);
     },
     '3': () => {
@@ -32,13 +36,11 @@ const keyPressActions = {
         gt.paused = !gt.paused;
         console.log(`Time: paused = ${gt.paused}`);
     },
-
     ',': () => {
         const gt = getGlobal().gameTime;
         gt.gameSpeed = 1.0;
         console.log(`Time: speed = ${gt.gameSpeed}`);
     },
-
     '.': () => {
         const gt = getGlobal().gameTime;
         if (gt.paused) {
@@ -46,13 +48,11 @@ const keyPressActions = {
             console.log("Time: step once");
         }
     },
-
     '<': () => {
         const gt = getGlobal().gameTime;
         gt.gameSpeed = Math.max(gt.gameSpeed / 2, 0.03125);
         console.log(`Time: speed = ${gt.gameSpeed}`);
     },
-
     '>': () => {
         const gt = getGlobal().gameTime;
         gt.gameSpeed = Math.min(gt.gameSpeed * 2, 32);

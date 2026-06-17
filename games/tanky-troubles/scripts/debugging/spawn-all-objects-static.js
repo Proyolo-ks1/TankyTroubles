@@ -46,7 +46,7 @@ export function spawnAllTestObjects() {
             WeaponClass.name
         );
         tank.weapon = new WeaponClass(tank);
-        new TextBoxEntity(tank, new Vec2(0, 0.68 + i), 0, 1, WeaponClass.name)
+        // new TextBoxEntity(tank, new Vec2(0, 0.68 + i), 0, 1, WeaponClass.name)
     });
 
     const categories = [

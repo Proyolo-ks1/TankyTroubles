@@ -103,3 +103,20 @@ function getSmoothedValue(values, idx, window = 3) {
 
     return sum / count;
 }
+
+// position is the middle bottom
+export function drawHealthBar(ctx, Position, lifeSpan, age, barHeight) {
+    const renderScale = getGlobal().renderScale
+
+    const life = Math.min(1, Math.max(0, age / lifeSpan));
+    const fillColor =
+        life > 0.75 ? "#ff0000" :
+        life > 0.5 ? "#ffcc00" :
+                    "#00ff00";
+
+    const barSize = { w: 50 / renderScale, h: barHeight }
+    const barPos = { x: Position.x - 0.5 * barSize.w, y: Position.y - barSize.h } // Center Bottom like the text.
+    drawRect(ctx, barPos, barSize, "#000000aa", "#555555", 2/ renderScale); // background
+    drawRect(ctx, barPos, { w: barSize.w * life, h: barSize.h }, fillColor, null, 0); // background
+    // drawText(ctx, shortName, Position, textStyle);
+}

@@ -29,17 +29,17 @@ export function drawSmiley(ctx, pos = new Vec2(), smileSize) {
     const eyeOffsetY = faceRadius / 3;
     const eyeRadius = faceRadius / 10;
 
-    drawCircle(ctx, { x: pos.x - eyeOffsetX, y: pos.y - eyeOffsetY }, eyeRadius, "#000");
-    drawCircle(ctx, { x: pos.x + eyeOffsetX, y: pos.y - eyeOffsetY }, eyeRadius, "#000");
+    drawCircle(ctx, { x: pos.x - eyeOffsetX, y: pos.y + eyeOffsetY }, eyeRadius, "#000");
+    drawCircle(ctx, { x: pos.x + eyeOffsetX, y: pos.y + eyeOffsetY }, eyeRadius, "#000");
 
     // Mouth as a simple arc using vertices
     const mouthRadius = faceRadius / 2;
     const mouthVertices = [];
-    const smileArcPixelLength = 10; //MARK: TODO: accurately calculate smileArcPixelLength
-    const segments = Math.max(2, 2 / smileSize);
-    // console.log(`SmileSegments: ${segments.toFixed(1)}\nlength: ${smileArcPixelLength.toFixed(1)} px`);
-    const startAngle = Math.PI * 0.2; // slightly right of horizontal
-    const endAngle = Math.PI * 0.8;   // slightly left of horizontal
+    const segments = Math.round(Math.max(3, renderScale / 5 * smileSize)); // min 3 segments
+    // console.log(`SmileSegments: ${segments.toFixed(1)}`);
+    const smileArcRange = Math.PI * 0.7;
+    const startAngle = -Math.PI * 0.5 + smileArcRange / 2; // slightly right of horizontal
+    const endAngle = -Math.PI * 0.5 - smileArcRange / 2;   // slightly left of horizontal
 
     let segmentPos = new Vec2();
     for (let i = 0; i <= segments; i++) {
@@ -49,7 +49,7 @@ export function drawSmiley(ctx, pos = new Vec2(), smileSize) {
         mouthVertices.push(segmentPos); // relative to pos
     }
 
-    drawVertexLine(ctx, pos, 0, mouthVertices, "#000", 5 / renderScale);
+    drawVertexLine(ctx, pos, 0, mouthVertices, "#000", 0.15 * smileSize);
 }
 
 // MARK: drawRocket

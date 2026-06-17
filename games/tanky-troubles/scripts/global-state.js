@@ -44,6 +44,16 @@ export const HITBOX_TYPES = Object.freeze({
  */
 
 /**
+ * @typedef {Object} DebugOverlaysType
+ * @property {boolean} show
+ * @property {boolean} entityPhysics
+ * @property {boolean} entityDetails
+ * @property {boolean} camera
+ * @property {boolean} hitboxes
+ * @property {boolean} miscellaneous
+ */
+
+/**
  * @typedef {Object} EntityType
  * @property {Tank[]} tanks
  * @property {Bullet[]} bullets
@@ -77,7 +87,7 @@ export const HITBOX_TYPES = Object.freeze({
 /**
  * @typedef {Object} GlobalVariablesType
  * @property {number} frameCount
- * @property {boolean} debugMode
+ * @property {DebugOverlaysType} debugOverlays
  * @property {boolean} showStatistics
  * @property {boolean} showParticles
  * @property {number} canvasScale
@@ -96,8 +106,15 @@ const DEBUG_HISTORY_SIZE = 100;
 /** @type {GlobalVariablesType} */
 const GlobalVariables = {
     frameCount: 0,
-    debugMode: true,
-    showStatistics: true,
+    debugOverlays: {
+        show: false,
+        entityPhysics: true,
+        entityDetails: true,
+        camera: true,
+        hitboxes: true,
+        miscellaneous: false,
+    },
+    showStatistics: false,
     showParticles: true,
     canvasScale: 1280,  // dynamically scales with canvas width - canvas width in pixel
     renderScale: 128,  // is always calculated in updateGlobalVariables() every ExecuteGameLoop() - pixels per tile

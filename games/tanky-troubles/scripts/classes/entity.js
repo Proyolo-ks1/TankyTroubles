@@ -45,7 +45,7 @@ export class StaticEntity extends Entity {
     constructor({
         pos = new Vec2(),
         angle = 0,
-        scale: scale = 1,
+        scale = 1,
     } = {}) {
         super(ENTITY_TYPES.STATIC_ENTITY);
         this.pos = pos;
@@ -56,8 +56,10 @@ export class StaticEntity extends Entity {
     debugrender(ctx) {
         if (!this.active) return;
 
-        const len = 3;
-        drawLine(ctx, this.pos, this.pos.add(Vec2.fromAngle(this.angle, len)), "#FF0000", 0.02);
+        if (getGlobal().debugOverlays.entityPhysics) {
+            const len = 3;
+            drawLine(ctx, this.pos, this.pos.add(Vec2.fromAngle(this.angle, len)), "#FF0000", 0.02);
+        }
     }
 }
 
@@ -70,7 +72,7 @@ export class PhysicsObject extends Entity {
         angle = 0,
         angleVel = 0,
         angleAcc = 0,
-        scale: scale = 1,
+        scale = 1,
         lifeSpan = -1,
     } = {}) {
         super(ENTITY_TYPES.PHYSICS);
@@ -83,6 +85,7 @@ export class PhysicsObject extends Entity {
         this.angleVel = angleVel;
         this.angleAcc = angleAcc;
 
+        this.scale = scale;
         this.radius = scale;
 
         this.lifeSpan = lifeSpan;
@@ -139,9 +142,15 @@ export class PhysicsObject extends Entity {
     debugrender(ctx) {
         if (!this.active) return;
 
-        drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 2);
+        if (getGlobal().debugOverlays.entityPhysics) {
+            drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 2);
 
-        const len = 50;
-        drawLine(ctx, this.pos, this.pos.add(Vec2.fromAngle(this.angle, len)), "#FF0000", 2);
+            const len = 50;
+            drawLine(ctx, this.pos, this.pos.add(Vec2.fromAngle(this.angle, len)), "#FF0000", 2);
+        }
+
+        if (getGlobal().debugOverlays.hitboxes) {
+            drawCircle(ctx, this.pos, this.radius, null, "#0a0", 1)
+        }
     }
 }

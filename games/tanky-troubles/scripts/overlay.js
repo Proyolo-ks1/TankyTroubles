@@ -153,7 +153,7 @@ function renderOverlayVariables(ctx, ParentPanel, currentTime, realDeltaTime, te
     drawRect(ctx, buttonPos, { w: buttonWidth, h: buttonHeight }, "rgba(0, 0, 0, 0.7)", "white", 2 , 5 );
 
     // Button text (showing current state of debugMode)
-    const debugText = getGlobal().debugMode ? "Debug: ON" : "Debug: OFF";
+    const debugText = getGlobal().debugOverlays.ShowDebugOverlays ? "Debug: ON" : "Debug: OFF";
     drawText(ctx, debugText, { x: buttonPos.x + buttonWidth / 2, y: buttonPos.y + buttonHeight / 2 }, { ...textStyle, align: "center", baseline: "middle" });
 }
 

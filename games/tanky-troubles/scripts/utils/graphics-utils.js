@@ -52,7 +52,7 @@ export function drawText(ctx, text, pos, textStyle = {}) {
     }
 
     // Debugging - Textbox
-    if (getGlobal().debugMode && debugBox) {
+    if (getGlobal().debugOverlays.show && debugBox) {
         const metrics = ctx.measureText(text);
 
         const textWidth = metrics.width;
@@ -268,7 +268,7 @@ export function drawTextBox(ctx, text, pos, size, options = {}) {
         ...textStyle,
     });
 
-    if (getGlobal().debugMode) {
+    if (getGlobal().debugOverlays.miscellaneous) {
         const renderScale = getGlobal().renderScale
         drawRect(ctx, pos, size, null, "#8000ff", 1 / renderScale, 0);
     }

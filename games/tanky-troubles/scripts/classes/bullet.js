@@ -5,7 +5,7 @@ import { randomSeeded, randomRange, Vec2 } from "../utils/math-utils.js";
 import { drawRocket, drawNuclearIcon } from '../utils/graphics-shapes.js';
 import { PhysicsObject } from './entity.js';
 import { PARTICLES } from './particle.js';
-
+import { drawHealthBar } from '../utils/graphics-structs.js';
 
 
 
@@ -42,7 +42,6 @@ class Bullet extends PhysicsObject {
         this.owner = owner;
         
         this.scale = scaleSpawn;
-        this.radius = 1 / 12 * this.scale;
 
         this.active = true;
 
@@ -66,32 +65,36 @@ class Bullet extends PhysicsObject {
     }
     
     debugrender(ctx, gameDeltaTime) {
-        if (this.active) {
-            
-            const renderScale = getGlobal().renderScale
+        if (!this.active) return;
+        
+        const renderScale = getGlobal().renderScale
 
+        if (getGlobal().debugOverlays.entityPhysics) {
             // Velocity Arrow
             drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 0.02);
             
             // Heading Line
-            const headingLength = 1;
-            let heading = this.pos.add(Vec2.fromAngle(this.angle, headingLength));
+            const heading = this.pos.add(Vec2.fromAngle(this.angle, 1));
             
             // Draw the heading line
             drawLine(ctx, this.pos, heading, "#FF0000", 0.02);
-            
-            // Draw the random indicator
+        }
+
+        
+        if (getGlobal().debugOverlays.entityDetails) {
+                // Draw the random indicator
             const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
-            heading = this.pos.add(Vec2.fromAngle(randomAngle, 1.2 * headingLength));
+            const heading = this.pos.add(Vec2.fromAngle(randomAngle, 0.2));
             drawLine(ctx, this.pos, heading, "#4c00ff", 0.02);
 
             // name
             const text = `${this.shortName}(${this.age.toFixed(2)}/${this.lifeSpan.toFixed(2)})`;
             const textPos = heading;
+            const fontSize = 16 / renderScale; //px
             const textStyle = {
                 align: "center",
                 baseline: "bottom",
-                fontSize: 16 / renderScale, //px
+                fontSize: fontSize,
                 font: "Consolas",
                 textColor: "#000000",
                 outlineColor: "#ffffff",
@@ -99,8 +102,13 @@ class Bullet extends PhysicsObject {
             };
 
             drawText(ctx, text, textPos, textStyle);
+            drawHealthBar(ctx, textPos, this.lifeSpan, this.age, 5 / renderScale)
 
             drawCircle(ctx, this.pos, 1 / 2 / renderScale, "#ffffff", "#ffffff");
+        }
+
+        if (getGlobal().debugOverlays.hitboxes) {
+            drawCircle(ctx, this.pos, this.radius, null, "#0a0", 0.01)
         }
     }
 }
@@ -111,12 +119,12 @@ class DefaultBullet extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "DefaultBullet";
         this.scale = scaleSpawn;
-        this.radius = 1 / 12 * this.scale;
+        this.radius = 1 / 24 * this.scale;
     }
 
     render(ctx, gameDeltaTime) {
         if (this.active) {
-            drawCircle(ctx, this.pos, this.radius / 2, "#000", "#000");
+            drawCircle(ctx, this.pos, this.radius, "#000", "#000", 0.01);
         }
     }
 }
@@ -127,12 +135,12 @@ class ChaingunBullet extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ChaingunBullet";
         this.scale = scaleSpawn;
-        this.radius = 1 / 25 * this.scale;
+        this.radius = 1 / 50 * this.scale;
     }
 
     render(ctx, gameDeltaTime) {
         if (this.active) {
-            drawCircle(ctx, this.pos, this.radius / 2, "#333", "#000");
+            drawCircle(ctx, this.pos, this.radius, "#333", "#000", 0.01);
         }
     }
 }
@@ -143,12 +151,12 @@ class ShotgunBullet extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ShotgunBullet";
         this.scale = scaleSpawn;
-        this.radius = 1 / 20 * this.scale;
+        this.radius = 1 / 40 * this.scale;
     }
 
     render(ctx, gameDeltaTime) {
         if (this.active) {
-            drawCircle(ctx, this.pos, this.radius / 2, "#000", "#000");
+            drawCircle(ctx, this.pos, this.radius, "#000", "#000", 0.01);
         }
     }
 }
@@ -159,7 +167,7 @@ class Shrapnel extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "Shrapnel";
         this.scale = scaleSpawn;
-        this.radius = 1 / 20 * this.scale;
+        this.radius = 1 / 40 * this.scale;
     }
 
     update(gameDeltaTime) {
@@ -172,7 +180,7 @@ class Shrapnel extends Bullet {
 
     render(ctx, gameDeltaTime) {
         if (this.active) {
-            drawRegPolygon(ctx, this.pos, this.radius / 2, 3, this.angle, "#000", "#000"); // Triangle
+            drawRegPolygon(ctx, this.pos, this.radius, 3, this.angle, "#000", "#000", 0.01); // Triangle
         }
     }
 }
@@ -183,7 +191,7 @@ class ShrapnelBomb extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "ShrapnelBomb";
         this.scale = scaleSpawn;
-        this.radius = 1 / 8 * this.scale;
+        this.radius = 1 / 16 * this.scale;
     }
 
     update(gameDeltaTime) {
@@ -208,7 +216,7 @@ class ShrapnelBomb extends Bullet {
 
     render(ctx, gameDeltaTime) {
         if (this.active) {
-            drawRegPolygon(ctx, this.pos, this.radius / 2, 5, this.angle, "#000", "#000"); // Pentagon
+            drawRegPolygon(ctx, this.pos, this.radius, 5, this.angle, "#000", "#000", 0.01); // Pentagon
         }
     }
 }
@@ -219,7 +227,7 @@ class FireBullet extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "FireBullet";
         this.scale = scaleSpawn;
-        this.radius = 1 / 12 * this.scale;
+        this.radius = 1 / 24 * this.scale;
 
         this.color = "#FFA500";
         this.alpha = 1.0;
@@ -259,7 +267,7 @@ class FireBullet extends Bullet {
 
     render(ctx, gameDeltaTime) {
         if (this.active) {
-            drawCircle(ctx, this.pos, this.radius / 2, this.color);
+            drawCircle(ctx, this.pos, this.radius, this.color);
         }
     }
 }
@@ -368,8 +376,8 @@ class OppenheimerBullet extends Bullet {
     render(ctx, gameDeltaTime) {
         if (this.active) {
             drawRocket(ctx, this.pos, this.angle, this.radius, this.color);
-            const radius = this.radius / 3;
-            drawNuclearIcon(ctx, this.pos, this.angle, radius, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW, "#000");
+            const iconRadius = this.radius / 3;
+            drawNuclearIcon(ctx, this.pos, this.angle, iconRadius, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW, "#000");
         }
     }
 }
@@ -380,14 +388,14 @@ class OppenheimerNeutron extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "OppenheimerNeutron";
         this.scale = scaleSpawn;
-        this.radius = 1 / 8 * this.scale;
+        this.radius = 1 / 24 * this.scale;
     }
 
     update(gameDeltaTime) {
         super.update(gameDeltaTime);
         this.vel.x *= 1 - 0.9 * gameDeltaTime;
         this.vel.y *= 1 - 0.9 * gameDeltaTime;
-        console.log(`${this.shortName}'s age: ${this.age}`);
+        // console.log(`${this.shortName}'s age: ${this.age}`);
     }
     
     destroy() {
@@ -404,8 +412,7 @@ class OppenheimerNeutron extends Bullet {
 
     render(ctx, gameDeltaTime) {
         if (this.active) {
-            const radius = this.radius / 3;
-            drawNuclearIcon(ctx, this.pos, this.angle, radius, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW, "#000");
+            drawNuclearIcon(ctx, this.pos, this.angle, this.radius, GLOBAL_COLOR_KEYS.ATOMIC_YELLOW, "#000");
         }
     }
 }
@@ -416,7 +423,7 @@ class RocketBomb extends Bullet {
         super(owner, posSpawn, angleSpawn, scaleSpawn, speedSpawn, angleVel, lifeSpan);
         this.type = "RocketBomb";
         this.scale = scaleSpawn;
-        this.radius = 1 / 8 * this.scale;
+        this.radius = 1 / 16 * this.scale;
     }
 
     update(gameDeltaTime) {
@@ -442,7 +449,7 @@ class RocketBomb extends Bullet {
 
     render(ctx, gameDeltaTime) {
         if (this.active) {
-            drawRegPolygon(ctx, this.pos, this.radius / 2, 5, this.angle, "#000", "#000"); // Pentagon
+            drawRegPolygon(ctx, this.pos, this.radius, 5, this.angle, "#000", "#000", 0.01); // Pentagon
         }
     }
 }

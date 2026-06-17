@@ -70,23 +70,24 @@ class PowerUp extends PhysicsObject {
     }
     
     debugrender(ctx, gameDeltaTime) {
-        if (this.active) {
+        if (!this.active) return;
             
-            const renderScale = getGlobal().renderScale
+        const renderScale = getGlobal().renderScale
 
+        if (getGlobal().debugOverlays.entityPhysics) {
             // Velocity Arrow
             drawVectorArrow(ctx, this.pos, this.vel, "#0000FF", 0.02);
             
             // Heading Line
-            const headingLength = 1;
-            let heading = this.pos.add(Vec2.fromAngle(this.angle, headingLength));
-            
-            // Draw the heading line
+            const heading = this.pos.add(Vec2.fromAngle(this.angle, 1));
             drawLine(ctx, this.pos, heading, "#FF0000", 0.02);
+        }
+
+        if (getGlobal().debugOverlays.entityDetails) {
             
             // Draw the random indicator
             const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
-            heading = this.pos.add(Vec2.fromAngle(randomAngle, headingLength));
+            const heading = this.pos.add(Vec2.fromAngle(randomAngle, 1));
             drawLine(ctx, this.pos, heading, "#4c00ff", 0.02);
 
             // name

@@ -98,7 +98,6 @@ function processEntities(ctx, gameDeltaTime, debugActive, timers) {
         array.forEach(entity => {
             let t0 = performance.now();
 
-            // here the problem MUST lie
             entity.update(gameDeltaTime);
             timers.calc += performance.now() - t0;
 
@@ -251,12 +250,10 @@ let windJerk = new Vec2();
 // Boolean Default = false
 let windEnabled = false;
 let iniDebugging = false;
-let debugCamera = false;
 
 // Boolean Overwrite = true
 // windEnabled = true;
 iniDebugging = true;
-debugCamera = true;
 
 // Support Variables
 let lastPowerUpSpawnTime = 0;
@@ -320,7 +317,7 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
         
         //debugging
         const timers = { calc: 0, render: 0 };
-        const debugActive = getGlobal().debugMode
+        const debugActive = getGlobal().debugOverlays.show
 
         // Camera Translations
         camera.update(gameDeltaTime);
@@ -353,7 +350,7 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
 
         // Debugging ?
         // drawWindowDebug(ctx, canvasWidth, canvasHeight, gameDeltaTime); // ?
-        if (debugActive && debugCamera) {
+        if (debugActive && getGlobal().debugOverlays.camera) {
             const t0 = performance.now();
             camera.debugrender(ctx, gameDeltaTime, canvasWidth, canvasHeight);
             timers.render += performance.now() - t0;
