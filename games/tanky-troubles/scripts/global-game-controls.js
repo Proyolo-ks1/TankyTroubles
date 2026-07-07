@@ -99,11 +99,13 @@ const keyHoldActions = {
         console.log(`DB: Increased Cam.pos changed by ${move} -> ${camera.pos}`);
     },
     'b': (realDeltaTime) => {
-        camera.angle -= 2 * realDeltaTime;
-        console.log(`DB: Decreased Cam.angle by 2: ${camera.angle.toFixed(2)}`);
+        // Rotate left
+        camera.angle += 2 * realDeltaTime;
+        console.log(`DB: Decreased Cam.angle by 1: ${camera.angle.toFixed(2)}`);
     },
     'n': (realDeltaTime) => {
-        camera.angle += 2 * realDeltaTime;
+        // Rotate right
+        camera.angle -= 2 * realDeltaTime;
         console.log(`DB: Increased Cam.angle by 2: ${camera.angle.toFixed(2)}`);
     },
     

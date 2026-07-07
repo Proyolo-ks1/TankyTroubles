@@ -57,12 +57,13 @@ function updateGame(currentTime) {
     }
 }
 
-function setCameraTargets() {
+function updateCameraTargets() {
     const { tanks, bullets } = getGlobal().entities;
     const playerTanks = new Set([tanks[0], tanks[1]]);
     const targets = [
+        // tanks[0],
         ...playerTanks,
-        ...bullets.filter(bullet => playerTanks.has(bullet.owner)),
+        // ...bullets.filter(bullet => playerTanks.has(bullet.owner)),
         // getGlobal().entities.bullets[6],
     ];
 
@@ -292,8 +293,9 @@ export function initializeWorld() {
     camera.zoomLevel = 1/8;;
     // camera.setTargets([getGlobal().entities.bullets[3], tank0]) // nuclear rocket
     camera.padding = 1;
-    camera.zoomMax = 0.5;
+    camera.zoomMax = //0.5;
     camera.doTrackPosition = true;
+    // camera.doTrackRotation = true;
     camera.doTrackZoom = true;
 }
 
@@ -316,26 +318,26 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
         const timers = { calc: 0, render: 0 };
         const debugActive = getGlobal().debugOverlays.show
 
-        const systems = [
+        const updateSystems = [
             entities.bullets,
             entities.tanks,
             entities.particles,
-            entities.utilities
+            entities.utilities,
         ];
 
         // === 1. UPDATE WORLD STATE (LOGIC) ===
         // updateGame(currentTime);
         updateGlobalVariables();
-        updateEntities(systems, ctx, gameDeltaTime, debugActive, timers);
+        updateEntities(updateSystems, ctx, gameDeltaTime, debugActive, timers);
 
         // === 2. RESOLVE EVENTS (SPAWNS, DEATHS, ETC.) ===
         flushSpawnQueue();
-        cleanupInactiveEntities(systems);
+        cleanupInactiveEntities(updateSystems);
 
 
         // === 3. COMPUTE CAMERA AND TRANSLATE CANVAS ===
         // Camera Update
-        setCameraTargets();
+        updateCameraTargets();
         camera.update(gameDeltaTime);
 
         // World Space (affected by camera) (this is where we invert Y-axis)
@@ -346,19 +348,26 @@ export function ExecuteGameLoop(ctx, gameDeltaTime) {
         const renderScale = getGlobal().renderScale;
         ctx.translate(canvasWidth / 2, canvasHeight / 2);
         ctx.scale(renderScale, -renderScale);
-        ctx.rotate(camera.angle);
+        ctx.rotate(-camera.angle);
         ctx.translate(-camera.pos.x, -camera.pos.y);
 
         // === 5. RENDER ===
-        renderBackground(ctx);
-        renderEntities(systems, ctx, gameDeltaTime, debugActive, timers)
-
-        if (windEnabled) {
-            updateAndRenderWind(ctx, gameDeltaTime);
+        const renderSystems = [
+            entities.bullets,
+            entities.tanks,
+            entities.utilities,
+        ];
+        if (getGlobal().showParticles) {
+            renderSystems.push(entities.particles);
         }
 
+        renderBackground(ctx);
+        renderEntities(renderSystems, ctx, gameDeltaTime, debugActive, timers)
 
         // === x. OTHERS ===
+        // if (windEnabled) {
+        //     updateAndRenderWind(ctx, gameDeltaTime);
+        // }
 
         // After everything is updated and rendered:
         recordDebugFrame(timers.calc, timers.render, 1000 / gameDeltaTime * getGlobal().gameTime.gameSpeed / 1000);

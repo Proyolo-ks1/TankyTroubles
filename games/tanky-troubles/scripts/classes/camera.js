@@ -55,8 +55,14 @@ class Camera {
 
         // Positon
         if (this.doTrackPosition) {
-            this.posTarget.set(center.x, center.y);
-            this.pos.lerp(this.posTarget, this.smoothness);
+            if (this.targetEntities.length === 1) {
+                console.log(` this.targetEntities[0].vel: ${ this.targetEntities[0].vel}`);
+                this.posTarget = new Vec2(center.x, center.y).add(this.targetEntities[0].vel.scaleMut(0.5));
+                this.pos.lerp(this.posTarget, this.smoothness);
+            } else {
+                this.posTarget.set(center.x, center.y);
+                this.pos.lerp(this.posTarget, this.smoothness);
+            }
         }
 
         // Zoom
@@ -71,18 +77,18 @@ class Camera {
         if (this.doTrackRotation) {
             if (this.targetEntities.length > 2) return;
             if (this.targetEntities.length === 1) {
-                this.angleTarget = this.targetEntities[0].angle
+                this.angleTarget = this.targetEntities[0].angle - 0.5*Math.PI;
                 this.angle = normalizeAngle(this.angle);
                 this.angle = lerpAngle(this.angle, this.angleTarget, this.smoothness * 2);
             }
             if (this.targetEntities.length === 2) {
                 const dx = this.targetEntities[1].pos.x - this.targetEntities[0].pos.x;
                 const dy = this.targetEntities[1].pos.y - this.targetEntities[0].pos.y;
-                this.angleTarget = Math.atan2(-dy, dx);
+                this.angleTarget = Math.atan2(dy, dx);
                 this.angle = normalizeAngle(this.angle);
                 this.angle = lerpAngle(this.angle, this.angleTarget, this.smoothness);
             }
-            console.log(`this.angle: ${this.angle}`);
+            console.log(`Cam.angle: ${this.angle.toFixed(3)} rad`);
         }
     }
 
@@ -156,6 +162,17 @@ function getBoundsAndCenter(entities) {
             center: new Vec2(),
             bounds: {
                 pos: new Vec2(),
+                size: { w: 0, h: 0 }
+            }
+        };
+    }
+
+    if (entities.length === 1) {
+        const pos = entities[0].pos;
+        return {
+            center: pos.clone(),
+            bounds: {
+                pos: pos.clone(),
                 size: { w: 0, h: 0 }
             }
         };

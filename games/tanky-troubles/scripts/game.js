@@ -113,20 +113,22 @@ getGlobal().overlayState = OVERLAY_STATE_KEYS.NONE;
 
 // Boolean Default = false
 getGlobal().debugOverlays.show = false;
-getGlobal().debugOverlays.entityDetails = false;
-getGlobal().debugOverlays.entityPhysics = false;
-getGlobal().debugOverlays.hitboxes = false;
 getGlobal().debugOverlays.camera = false;
+getGlobal().debugOverlays.entityPhysics = false;
+getGlobal().debugOverlays.entityDetails = false;
+getGlobal().debugOverlays.hitboxes = false;
 getGlobal().debugOverlays.miscellaneous = false;
+
 getGlobal().showStatistics = false;
 getGlobal().showParticles = false;
 
+
+
 // Boolean Overwrite = true
 getGlobal().debugOverlays.show = true;
-// getGlobal().debugOverlays.entityDetails = true;
+getGlobal().debugOverlays.camera = true;
 getGlobal().debugOverlays.entityPhysics = true;
 getGlobal().debugOverlays.hitboxes = true;
-// getGlobal().debugOverlays.camera = true;
 getGlobal().debugOverlays.miscellaneous = true;
 
 getGlobal().showStatistics = true;

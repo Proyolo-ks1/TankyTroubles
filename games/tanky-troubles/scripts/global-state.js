@@ -46,9 +46,9 @@ export const HITBOX_TYPES = Object.freeze({
 /**
  * @typedef {Object} DebugOverlaysType
  * @property {boolean} show
+ * @property {boolean} camera
  * @property {boolean} entityPhysics
  * @property {boolean} entityDetails
- * @property {boolean} camera
  * @property {boolean} hitboxes
  * @property {boolean} miscellaneous
  */
@@ -107,9 +107,9 @@ const GlobalVariables = {
     frameCount: 0,
     debugOverlays: {
         show: false,
+        camera: true,
         entityPhysics: true,
         entityDetails: true,
-        camera: true,
         hitboxes: true,
         miscellaneous: false,
     },
