@@ -109,19 +109,28 @@ function renderEntities(systems, ctx, gameDeltaTime, debugActive, timers) {
     // console.log(`processEntities() at frame ${getGlobal().frameCount}`);
     // console.log(`BulletArray (${getGlobal().entities.bullets.length-0}): ${getGlobal().entities.bullets.slice(0, 20).map(b => b.shortName).join(", ")}`);
     
-    systems.forEach(array =>
-        array.forEach(entity => {
-            let t0 = performance.now();
-            entity.render(ctx, gameDeltaTime);
-            timers.render += performance.now() - t0;
+    systems.forEach(system =>
+        system.forEach(entity => {
 
-            if (debugActive) {
-                t0 = performance.now();
-                entity.debugrender(ctx, gameDeltaTime);
+            // Check if entity is on screen, with a certain renderRadius? around it.
+            // - KOSC TODO: improve accuracy, not just radius, but rectangle etc.
+            if (isEntityOnScreen(entity)) {
+                let t0 = performance.now();
+                entity.render(ctx, gameDeltaTime);
                 timers.render += performance.now() - t0;
+
+                if (debugActive) {
+                    t0 = performance.now();
+                    entity.debugrender(ctx, gameDeltaTime);
+                    timers.render += performance.now() - t0;
+                }
             }
         })
     );
+}
+
+function isEntityOnScreen(entity) {
+    return Vec2.distanceBetween(entity.pos, camera.pos) < camera.renderRadius + entity.renderRadius;
 }
 
 function updateAndRenderWind(ctx, gameDeltaTime) {

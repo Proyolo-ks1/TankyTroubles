@@ -106,6 +106,11 @@ class PowerUp extends PhysicsObject {
             // drawText(ctx, text, textPos, textStyle);
             drawCircle(ctx, this.pos, 1 / renderScale / 2, "#ffffff", "#ffffff");
         }
+
+        if (getGlobal().debugOverlays.cullingBoxes) {
+            // Culling
+            drawCircle(ctx, this.pos, this.renderRadius, null, "rgb(150, 200, 200)", 0.01)
+        }
     }
 }
 

@@ -110,6 +110,9 @@ class Bullet extends PhysicsObject {
         // Hitboxes
         if (getGlobal().debugOverlays.hitboxes) {
             drawCircle(ctx, this.pos, this.radius, null, "#0a0", 0.01)
+        // Culling
+        if (getGlobal().debugOverlays.cullingBoxes) {
+            drawCircle(ctx, this.pos, this.renderRadius, null, "rgb(150, 200, 200)", 0.01)
         }
     }
 }

@@ -62,7 +62,7 @@ export class Tank extends PhysicsObject {
         this.color = color;
         this.controls = controls;
 
-        this.weapon = new WEAPONS.shrapnelBomb(this); // Default weapon
+        this.weapon = new WEAPONS.rocketBomb(this); // Default weapon
         this.maxBullets = 5;       // Only applies to "default" powerup
         this.ammo = -1;            // -1 means infinite "default" ammo
 
@@ -264,8 +264,8 @@ export class Tank extends PhysicsObject {
             ctx.restore();
         }
 
+        // Hitboxes
         if (getGlobal().debugOverlays.hitboxes) {
-            
             ctx.save();
             ctx.translate(this.pos.x, this.pos.y);
             ctx.rotate(this.angle);
@@ -277,13 +277,19 @@ export class Tank extends PhysicsObject {
             ctx.restore();
         }
 
+        // Miscellaneous
         if (getGlobal().debugOverlays.miscellaneous) {
             // Smiley :D
             const renderScale = getGlobal().renderScale
             drawSmiley(ctx, this.pos, this.radius / 15)
         }
+
+        // Culling
+        if (getGlobal().debugOverlays.cullingBoxes) {
+            drawCircle(ctx, this.pos, this.renderRadius, null, "rgb(150, 200, 200)", 0.01)
+        }
         
-        // Turret
+        // Turret - child
         this.weapon.debugrender(ctx, gameDeltaTime);
     }
 }

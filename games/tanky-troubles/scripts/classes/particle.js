@@ -109,6 +109,11 @@ class Particle extends PhysicsObject {
                 
                 drawCircle(ctx, this.pos, 1 / renderScale / 2, "#ffffff", "#ffffff");
             }
+
+            // Culling
+            if (getGlobal().debugOverlays.cullingBoxes) {
+                // drawCircle(ctx, this.pos, this.renderRadius, null, "#96C8C820", 0.01)
+            }
         }
     }
 }

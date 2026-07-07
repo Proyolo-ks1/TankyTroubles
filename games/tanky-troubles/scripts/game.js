@@ -117,6 +117,7 @@ getGlobal().debugOverlays.camera = false;
 getGlobal().debugOverlays.entityPhysics = false;
 getGlobal().debugOverlays.entityDetails = false;
 getGlobal().debugOverlays.hitboxes = false;
+getGlobal().debugOverlays.cullingBoxes = false,
 getGlobal().debugOverlays.miscellaneous = false;
 
 getGlobal().showStatistics = false;
@@ -130,6 +131,7 @@ getGlobal().debugOverlays.camera = true;
 getGlobal().debugOverlays.entityPhysics = true;
 // getGlobal().debugOverlays.entityDetails = true;
 getGlobal().debugOverlays.hitboxes = true;
+getGlobal().debugOverlays.cullingBoxes = true,
 getGlobal().debugOverlays.miscellaneous = true;
 
 getGlobal().showStatistics = true;

@@ -29,6 +29,7 @@ class Camera {
         this.padding = 1; // tiles
         this.zoomMax = 1; // tiles
         this.zoomMin = 0.01; //tiles
+        this.renderRadius = 1
     }
 
     // so its probably smarter to not use scale -1 so it flips y, because now text is upside down, but to just 
@@ -136,6 +137,9 @@ class Camera {
         drawRect(ctx, screenCenter.sub({ x: zoomTargetRectSize.w / 2, y: zoomTargetRectSize.h / 2 }), zoomTargetRectSize, undefined, "rgb(80, 133, 124)", 5 / renderScale)
         const zoomCurrentRectSize = zoomDebugRectSize(this.zoomLevel, renderScale)
         drawRect(ctx, screenCenter.sub({ x: zoomCurrentRectSize.w / 2, y: zoomCurrentRectSize.h / 2 }), zoomCurrentRectSize, undefined, "rgb(122, 36, 221)", 5 / renderScale)
+
+        // Culling
+        drawCircle(ctx, screenCenter, this.renderRadius, null, "rgb(150, 200, 200)", 0.02)
     }
 }
 

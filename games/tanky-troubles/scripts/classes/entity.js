@@ -1,6 +1,7 @@
 import { getGlobal, ENTITY_TYPES } from '../global-state.js';
 import { drawRect, drawCircle, drawRegPolygon, drawLine, drawVectorArrow} from '../utils/graphics-utils.js';
-import { spawnClassRelatively } from './spawner.js';
+// import { spawnClassRelatively } from './spawner.js';
+import { COLLISIONSHAPES } from './collision.js';
 import { Vec2 } from "../utils/math-utils.js";
 
 
@@ -46,11 +47,13 @@ export class StaticEntity extends Entity {
         pos = new Vec2(),
         angle = 0,
         scale = 1,
+        renderRadius = 1,
     } = {}) {
         super(ENTITY_TYPES.STATIC_ENTITY);
         this.pos = pos;
         this.angle = angle;
         this.scale = scale;
+        this.renderRadius = renderRadius;
     }
 
     debugrender(ctx) {
@@ -73,6 +76,7 @@ export class PhysicsObject extends Entity {
         angleVel = 0,
         angleAcc = 0,
         scale = 1,
+        renderRadius = 1,
         lifeSpan = -1,
     } = {}) {
         super(ENTITY_TYPES.PHYSICS);
@@ -87,6 +91,8 @@ export class PhysicsObject extends Entity {
 
         this.scale = scale;
         this.radius = scale;
+
+        this.renderRadius = renderRadius;
 
         this.lifeSpan = lifeSpan;
         this.age = 0;

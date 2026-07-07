@@ -50,6 +50,7 @@ export const HITBOX_TYPES = Object.freeze({
  * @property {boolean} entityPhysics
  * @property {boolean} entityDetails
  * @property {boolean} hitboxes
+ * @property {boolean} cullingBoxes
  * @property {boolean} miscellaneous
  */
 
@@ -111,6 +112,7 @@ const GlobalVariables = {
         entityPhysics: true,
         entityDetails: true,
         hitboxes: true,
+        cullingBoxes: false,
         miscellaneous: false,
     },
     showStatistics: false,
