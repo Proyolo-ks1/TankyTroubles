@@ -92,7 +92,6 @@ class NoWeapon extends Weapon {
 class Chaingun extends Weapon {
     constructor(tank) {
         super(tank);
-        this.barrelLength = this.tank.length * 0.7;
         this.turretSize = { w: this.tank.length * 0.7, h: this.tank.width * 4 / 15 };
 
         this.isCharging = false;
@@ -118,7 +117,6 @@ class Chaingun extends Weapon {
     hold(gameDeltaTime) {
         if (!this.isCharging) return;
 
-        const angle = this.tank.angle;
         const bulletSpeed = 2.75; // tiles per second
         const spreadAngle = 10;// Spread angle in degrees
         const spreadAngleRadians = spreadAngle * (Math.PI / 180);
@@ -136,7 +134,7 @@ class Chaingun extends Weapon {
 
                 // Calculate compensated position
                 const extraDistance = bulletSpeed * shotTimeAgo;
-                const compensatedPos = new Vec2(this.barrelLength + extraDistance, 0);
+                const compensatedPos = new Vec2(this.turretSize.w + extraDistance, 0);
     
                 const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
 
@@ -169,9 +167,8 @@ class Chaingun extends Weapon {
         drawRect(ctx, { x: 0, y: -this.turretSize.h / 2 }, this.turretSize, turretColor, "#000", 0.02);
     
         // Calculate barrel dimensions
-        const barrelWidthDefault = this.tank.width * 4 / 15;
         const subBarrelWidth = this.turretSize.w / 2;
-        const subBarrelHeight = barrelWidthDefault / 3;
+        const subBarrelHeight = this.turretSize.h / 3;
     
         // Draw barrels spaced evenly across the turret
         const barrelAngles = [0, 180, 120, 60];
@@ -181,7 +178,7 @@ class Chaingun extends Weapon {
             const flippedAngle = 30 - Math.abs(30 - barrelAngle);
             const barrelPositionX = Math.cos((flippedAngle + barrelAngles[i]) * Math.PI / 180) * (flipped === 0 ? 1 : -1);
             const barrelPositionY = Math.sin((flippedAngle + barrelAngles[i]) * Math.PI / 180);
-            const barrelY = barrelPositionX * (barrelWidthDefault - subBarrelHeight) * 0.5 - subBarrelHeight * 0.5;
+            const barrelY = barrelPositionX * (this.turretSize.h - subBarrelHeight) * 0.5 - subBarrelHeight * 0.5;
             const barrelPos = new Vec2(this.turretSize.w / 2, barrelY);
             
             const min = 0;
@@ -212,8 +209,8 @@ class Chaingun extends Weapon {
 
     debugrender(ctx, gameDeltaTime) {
         if (getGlobal().debugOverlays.hitboxes) {
-            drawCircle(ctx, this.tank.pos, this.tank.radius, null, "#0a0", 0.01)
-            drawRect(ctx, { x: 0, y: -this.turretSize.h / 2 }, this.turretSize, null, "#0a0", 0.02);
+            drawCircle(ctx, this.tank.pos, this.tank.radius / 2, null, "#0a0", 0.01)
+            drawRect(ctx, { x: 0, y: -this.turretSize.h / 2 }, this.turretSize, null, "#0a0", 0.01);
         }
     }
 }
@@ -441,6 +438,138 @@ class ChainShotgun extends Weapon {
         }
     }
 }
+
+// MARK: ChainFuturuGun
+class ChainFuturuGun extends Weapon {
+    constructor(tank) {
+        super(tank);
+        this.turretSize = { w: this.tank.length * 0.7, h: this.tank.width * 4 / 15 };
+
+        this.isCharging = false;
+        this.timeSinceChargeStarted = 0; // Time since charging started
+        this.isReadyToFire = false; // Tracks whether the chaingun is ready to fire
+
+        this.fireRate = 10; // Bullets per second
+        this.fireRateCooldown = 1 / this.fireRate; // Time between shots in seconds
+        this.timeSinceLastShot = 0; // Tracks time since last bullet
+        this.chargeTime = 1; // Time (in seconds) to charge before firing
+        this.barrelRotation = 0; // somehow still in degrees
+        this.barrelRotationSpeed = 0; // somehow still in degrees per second
+        this.barrelRotationSpeedMax = 60 * this.fireRate; // somehow still in degrees per second
+    }
+
+    press() {
+        // Start charging the chaingun when the button is pressed
+        this.isCharging = true;
+        this.timeSinceChargeStarted = 0; // Reset charge time
+        this.isReadyToFire = false; // Reset firing state
+    }
+
+    hold(gameDeltaTime) {
+        if (!this.isCharging) return;
+
+        const bulletSpeed = 2.75; // tiles per second
+        const spreadAngle = 10;// Spread angle in degrees
+        const spreadAngleRadians = spreadAngle * (Math.PI / 180);
+        this.barrelRotationSpeed += Math.min(this.barrelRotationSpeedMax - this.barrelRotationSpeed, 2 * this.barrelRotationSpeedMax / this.chargeTime * gameDeltaTime); // 2x because fighting the slow down.
+
+
+        // If shooting barrel rotation speed has been reached, start shooting
+        if (this.barrelRotationSpeed >= this.barrelRotationSpeedMax) {
+            this.timeSinceLastShot += gameDeltaTime; // Accumulate time for rapid fire
+
+            while (this.timeSinceLastShot > this.fireRateCooldown) {
+                this.timeSinceLastShot -= this.fireRateCooldown; // Reduce accumulated time
+                
+                const shotTimeAgo = this.timeSinceLastShot;
+
+                // Calculate compensated position
+                const extraDistance = bulletSpeed * shotTimeAgo;
+                const compensatedPos = new Vec2(this.turretSize.w + extraDistance, 0);
+    
+                const randomBulletAngleOffset = (Math.random() - 0.5) * spreadAngleRadians;
+
+                // Fire the bullet at the corrected position
+                spawnClassRelatively(BULLETS.chaingun, this.tank, this.tank.pos, this.tank.angle, this.tank.scale, compensatedPos, randomBulletAngleOffset, bulletSpeed);
+            }
+        }
+    }
+
+    release() {
+    }
+
+    update(gameDeltaTime) {
+        this.barrelRotationSpeed += Math.max(0 - this.barrelRotationSpeed, -(this.barrelRotationSpeedMax / this.chargeTime * gameDeltaTime)); // self slowing
+        this.barrelRotation += this.barrelRotationSpeed * gameDeltaTime;
+        this.barrelRotation %= 60;
+    }
+
+    renderTurret(ctx, gameDeltaTime) {
+        
+        // Dome
+        const domeRadius = this.tank.width / 3;
+        drawCircle(ctx, new Vec2(), domeRadius, this.tank.color, "#000", 0.02);
+
+        // Draw the base of the chaingun turret
+        let turretColor = this.tank.color
+        if (globalKeys[this.tank.controls.shoot]) {
+            turretColor = "orange"
+        }
+        drawRect(ctx, { x: 0, y: -this.turretSize.h / 2 }, this.turretSize, turretColor, "#000", 0.02);
+    
+        // Calculate barrel dimensions
+        const subBarrelWidth = this.turretSize.w / 2;
+        const subBarrelHeight = this.turretSize.h / 3;
+    
+        // Draw barrels spaced evenly across the turret
+        const barrelAngles = [0, 180, 120, 60];
+        for (let i = 0; i < 4; i++) {
+            const barrelAngle = this.barrelRotation
+            const flipped = this.barrelRotation < 30 ? 0 : 1;
+            const flippedAngle = 30 - Math.abs(30 - barrelAngle);
+            const barrelPositionX = Math.cos((flippedAngle + barrelAngles[i]) * Math.PI / 180) * (flipped === 0 ? 1 : -1);
+            const barrelPositionY = Math.sin((flippedAngle + barrelAngles[i]) * Math.PI / 180);
+            if (this.tank.shortName === 't1') {
+                console.log(`this.barrelRotationSpeed: ${this.barrelRotationSpeed}`);
+                console.log(`this.barrelRotationSpeed2: ${Math.sqrt(this.barrelRotationSpeed / 600)}`);
+            }
+            const barrelY = barrelPositionX * (this.turretSize.h + Math.pow(this.barrelRotationSpeed / 600, 2)/2 - subBarrelHeight) * 0.5 - subBarrelHeight * 0.5;
+            const barrelPos = new Vec2(this.turretSize.w / 2, barrelY);
+            
+            const min = 0;
+            const max = 200;
+            const gray = Math.round(min + (barrelPositionY + 1) * 0.5 * (max - min));
+            let barrelColor = `rgb(${gray}, ${gray}, ${gray})`;
+
+            // paint sketch demo
+            const showPaintSketchDemo = false;
+            if (showPaintSketchDemo && this.tank.shortName === 't1') {
+                console.log(`barrelPositionX: ${barrelPositionX.toFixed(2)}, barrelPositionY: ${barrelPositionY.toFixed(2)}`);
+                if (i === 0) {
+                    barrelColor = `#22B14C`;
+                }
+                if (i === 1) {
+                    barrelColor = `#FFF200`;
+                }
+                if (i === 2) {
+                    barrelColor = `#FF7F27`;
+                }
+                if (i === 3) {
+                    barrelColor = `#ED1C24`;
+                }
+            }
+            drawRect(ctx, barrelPos, { w: subBarrelWidth, h: subBarrelHeight }, barrelColor, "#000", 0.005); // thinner outline for barrels
+        }
+    }
+
+    debugrender(ctx, gameDeltaTime) {
+        if (getGlobal().debugOverlays.hitboxes) {
+            drawCircle(ctx, this.tank.pos, this.tank.radius / 2, null, "#0a0", 0.01)
+            drawRect(ctx, { x: 0, y: -this.turretSize.h / 2 }, this.turretSize, null, "#0a0", 0.01);
+        }
+    }
+}
+
 
 // MARK: ShrepnalBombWeapon
 class ShrepnalBombWeapon extends Weapon {
@@ -734,7 +863,7 @@ class RocketBombWeapon extends Weapon {
 // MARK: Export: WEAPONS 
 
 export const WEAPONS = {
-    noWeapon: NoWeapon,
+    default: NoWeapon,
     chaingun: Chaingun,
     shotgun: Shotgun,
     flameThrower: FlameThrower,
@@ -744,4 +873,5 @@ export const WEAPONS = {
     chainShotgunBoom: ChainShotgunBoom,
     missileLauncher: MissileLauncher,
     rocketBomb: RocketBombWeapon,
+    ChainFuturuGun: ChainFuturuGun,
 };
