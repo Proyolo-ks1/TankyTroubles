@@ -128,6 +128,7 @@ getGlobal().showParticles = false;
 getGlobal().debugOverlays.show = true;
 getGlobal().debugOverlays.camera = true;
 getGlobal().debugOverlays.entityPhysics = true;
+// getGlobal().debugOverlays.entityDetails = true;
 getGlobal().debugOverlays.hitboxes = true;
 getGlobal().debugOverlays.miscellaneous = true;
 
