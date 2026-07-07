@@ -15,7 +15,7 @@ import { Vec2, lerp, lerpAngle, normalizeAngle } from "../utils/math-utils.js";
 
 class Camera {
     constructor() {
-        this.pos = new Vec2();
+        this.pos = new Vec2(); // World Space
         this.posTarget = new Vec2();
         this.zoomLevel = 1 / 8;
         this.zoomLevelTarget = 1 / 8;

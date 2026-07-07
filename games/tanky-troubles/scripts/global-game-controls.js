@@ -1,5 +1,6 @@
 import { getGlobal } from "./global-state.js";
 import { camera } from './classes/camera.js';
+import { Vec2 } from "./utils/math-utils.js";
 
 // RunningGameApi
 const gameApi = document.getElementById("game-container").runningGameApi;
@@ -60,31 +61,42 @@ const keyPressActions = {
     },
 };
 
+const cameraSpeed = 1;
 const keyHoldActions = {
     // Camera Control
     'u': (realDeltaTime) => {
+        // Zoom in
         camera.zoomLevel *= Math.pow(0.5, realDeltaTime);
         console.log(`DB: Decreased Cam.zoomLevel by 1%: ${Math.round(camera.zoomLevel*1000) / 10}%`);
     },
     't': (realDeltaTime) => {
+        // Zoom out
         camera.zoomLevel *= Math.pow(2, realDeltaTime);
         console.log(`DB: Increased Cam.zoomLevel by 1%: ${Math.round(camera.zoomLevel*1000) / 10}%`);
     },
     'g': (realDeltaTime) => {
-        camera.pos.x -= 1 / camera.zoomLevel * realDeltaTime;
-        console.log(`DB: Decreased Cam.x by 2: ${camera.pos.x.toFixed(2)}`);
+        // Move left
+        const move = Vec2.fromAngle(camera.angle + Math.PI, cameraSpeed / camera.zoomLevel * realDeltaTime);
+        camera.pos.addMut(move);
+        console.log(`DB: Increased Cam.pos changed by ${move} -> ${camera.pos}`);
     },
     'j': (realDeltaTime) => {
-        camera.pos.x += 1 / camera.zoomLevel * realDeltaTime;
-        console.log(`DB: Increased Cam.x by 2: ${camera.pos.x.toFixed(2)}`);
+        // Move right
+        const move = Vec2.fromAngle(camera.angle, cameraSpeed / camera.zoomLevel * realDeltaTime);
+        camera.pos.addMut(move);
+        console.log(`DB: Increased Cam.pos changed by ${move} -> ${camera.pos}`);
     },
     'h': (realDeltaTime) => {
-        camera.pos.y -= 1 / camera.zoomLevel * realDeltaTime;
-        console.log(`DB: Decreased Cam.y by 2: ${camera.pos.y.toFixed(2)}`);
+        // Move down
+        const move = Vec2.fromAngle(camera.angle + 1.5*Math.PI, cameraSpeed / camera.zoomLevel * realDeltaTime);
+        camera.pos.addMut(move);
+        console.log(`DB: Increased Cam.pos changed by ${move} -> ${camera.pos}`);
     },
     'y': (realDeltaTime) => {
-        camera.pos.y += 1 / camera.zoomLevel * realDeltaTime;
-        console.log(`DB: Increased Cam.y by 2: ${camera.pos.y.toFixed(2)}`);
+        // Move up
+        const move = Vec2.fromAngle(camera.angle + 0.5*Math.PI, cameraSpeed / camera.zoomLevel * realDeltaTime);
+        camera.pos.addMut(move);
+        console.log(`DB: Increased Cam.pos changed by ${move} -> ${camera.pos}`);
     },
     'b': (realDeltaTime) => {
         camera.angle -= 2 * realDeltaTime;

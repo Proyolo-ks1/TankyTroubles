@@ -1,3 +1,5 @@
+// MARK: Functions
+
 export function signedSquare(x) {
     return Math.sign(x) * x * x;
 }
@@ -48,6 +50,9 @@ export function normalizeAngle(a) {
     return (a + Math.PI) % (Math.PI * 2) - Math.PI;
 }
 
+
+
+// MARK: Classes
 export class Vec2 {
     constructor(x = 0, y = 0) {
         this.x = x;
@@ -56,6 +61,14 @@ export class Vec2 {
 
     static fromAngle(angle, length = 1) {
         return new Vec2(Math.cos(angle), Math.sin(angle)).scale(length);
+    }
+
+    static distanceBetween(v1, v2) {
+        return Math.hypot(v1.x - v2.x, v1.y - v2.y);
+    }
+
+    toString() {
+        return `Vec2(${this.x.toFixed(3)}, ${this.y.toFixed(3)})`;
     }
 
     // Geometry
@@ -80,6 +93,10 @@ export class Vec2 {
         return Math.hypot(this.x, this.y);
     }
 
+    distanceTowards(v) {
+        return Math.hypot(this.x - v.x, this.y - v.y);
+    }
+
     normalize() {
         const len = this.length() || 1;
         return new Vec2(this.x / len, this.y / len);
@@ -90,16 +107,36 @@ export class Vec2 {
     set(x, y) {
         this.x = x;
         this.y = y;
+        return this;
     }
 
     zero() {
         this.x = 0;
         this.y = 0;
+        return this;
     }
 
-    lerp(target, t) {
-        this.x += (target.x - this.x) * t;
-        this.y += (target.y - this.y) * t;
+    addMut(v) {
+        this.x += v.x;
+        this.y += v.y;
+        return this;
+    }
+
+    subMut(v) {
+        this.x -= v.x;
+        this.y -= v.y;
+        return this;
+    }
+
+    scaleMut(s = 1) {
+        this.x *= s;
+        this.y *= s;
+        return this;
+    }
+
+    addMutScaled(v, t) {
+        this.x += v.x * t;
+        this.y += v.y * t;
         return this;
     }
 
@@ -115,9 +152,17 @@ export class Vec2 {
         return this;
     }
 
-    addScaled(v, t) {
-        this.x += v.x * t;
-        this.y += v.y * t;
+    lerp(target, t) {
+        this.x += (target.x - this.x) * t;
+        this.y += (target.y - this.y) * t;
         return this;
     }
+}
+
+export class Size2 extends Vec2 {
+    get w() { return this.x; }
+    set w(v) { this.x = v; }
+
+    get h() { return this.y; }
+    set h(v) { this.y = v; }
 }

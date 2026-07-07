@@ -28,7 +28,7 @@ class Bullet extends PhysicsObject {
         scaleSpawn = 1,
         speedSpawn = 1,
         angleVel = 0,
-        lifeSpan = -1
+        lifeSpan = -1,
     ) {
         super({ // PhysicsObject
             pos: posSpawn,
@@ -82,7 +82,7 @@ class Bullet extends PhysicsObject {
 
         
         if (getGlobal().debugOverlays.entityDetails) {
-                // Draw the random indicator
+            // Draw the random indicator
             const randomAngle = (randomSeeded(this.id) - 0.5) * 2 * Math.PI;
             const heading = this.pos.add(Vec2.fromAngle(randomAngle, 0.2));
             drawLine(ctx, this.pos, heading, "#4c00ff", 0.02);
@@ -107,6 +107,7 @@ class Bullet extends PhysicsObject {
             drawCircle(ctx, this.pos, 1 / 2 / renderScale, "#ffffff", "#ffffff");
         }
 
+        // Hitboxes
         if (getGlobal().debugOverlays.hitboxes) {
             drawCircle(ctx, this.pos, this.radius, null, "#0a0", 0.01)
         }

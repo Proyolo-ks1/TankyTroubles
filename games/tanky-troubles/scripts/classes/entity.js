@@ -105,7 +105,7 @@ export class PhysicsObject extends Entity {
     }
 
     updatePosition(gameDeltaTime) {
-        this.pos.addScaled(this.vel, gameDeltaTime)
+        this.pos.addMutScaled(this.vel, gameDeltaTime)
     }
 
     updateVelocity(gameDeltaTime) {
@@ -115,7 +115,7 @@ export class PhysicsObject extends Entity {
         // if (this.shortName === "p1") {
         //     const a = 1;
         // }
-        this.vel.addScaled(this.acc, gameDeltaTime)
+        this.vel.addMutScaled(this.acc, gameDeltaTime)
     }
 
     updateRotation(gameDeltaTime) {

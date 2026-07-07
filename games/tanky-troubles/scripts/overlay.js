@@ -1,7 +1,8 @@
 import { drawRect, drawVertexPolygon, drawCircle, drawText, drawLine, drawRegPolygon, drawVectorArrow} from './utils/graphics-utils.js';
 import { GAME_STATE_KEYS, OVERLAY_STATE_KEYS, getGlobal } from './global-state.js';
 import { drawGraphBarsTYPEringBuffer } from './utils/graphics-structs.js';
-import { Vec2 } from "./utils/math-utils.js";
+import { Vec2, Size2 } from "./utils/math-utils.js";
+import { camera } from './classes/camera.js';
 
 
 
@@ -69,7 +70,7 @@ export function renderGameStatistics(ctx, currentTime, realDeltaTime) {
 // LEFT PANEL
 function renderOverlayLeftPanel(ctx, currentTime, realDeltaTime, dbg, textStyle) {
     const DebugPanelSize = { w: 250, h: 250 }; // px
-    const DebugPanelPos = { x: 0, y: 0 };
+    const DebugPanelPos = new Vec2;
     const DebugLeftPanel = {
         pos: DebugPanelPos,
         size: DebugPanelSize,
@@ -83,10 +84,10 @@ function renderOverlayLeftPanel(ctx, currentTime, realDeltaTime, dbg, textStyle)
 
 
 // GRAPHS
+let currentSmoothedValues = [{ min: null, max: null }, { min: null, max: null }, { min: null, max: null }];
 function renderOverlayGraphs(ctx, ParentPanel, dbg, textStyle) {
     // Panel padding
-    ParentPanel.cursor.x += ParentPanel.padding;
-    ParentPanel.cursor.y += ParentPanel.padding;
+    ParentPanel.cursor.add(new Vec2(ParentPanel.padding, ParentPanel.padding));
     const availableWidth = ParentPanel.size.w - 2 * ParentPanel.padding;
 
     const graphHeight = 100; // px
@@ -94,22 +95,22 @@ function renderOverlayGraphs(ctx, ParentPanel, dbg, textStyle) {
 
     // Graphs Container
     let graphsContainer = {
-        pos: { ...ParentPanel.cursor },
+        pos: ParentPanel.cursor.clone(),
         size: { w: availableWidth, h: 0 },
-        cursor: { ...ParentPanel.cursor },
+        cursor: ParentPanel.cursor.clone(),
         gap: 5,
     };
     graphsContainer.size.h = amountOfGraphs * graphHeight + (amountOfGraphs - 1) * graphsContainer.gap;
     drawRect(ctx, graphsContainer.pos, graphsContainer.size, "rgba(0,0,0,0.5)", null, 1 , 5 );
 
-    let defaultGraph = { pos: { x: 0, y: 0 }, size: { w: availableWidth, h: graphHeight } };
+    let defaultGraph = { pos: new Vec2, size: new Size2(availableWidth, graphHeight) };
 
     // Draw Bar Graphs
-    drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 30 }, dbg.calculationDurations, dbg.index, dbg.count, "#0f0", "calcTime", "ms");
+    drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 5, mode: "auto" }, dbg.calculationDurations, dbg.index, dbg.count, "#0f0", "calcTime", "ms", currentSmoothedValues[0]);
     graphsContainer.cursor.y += defaultGraph.size.h + graphsContainer.gap;
-    drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 30 }, dbg.renderingDurations, dbg.index, dbg.count, "#0ff", "renderTime", "ms");
+    drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: -5, max: 5, mode: "auto" }, dbg.renderingDurations, dbg.index, dbg.count, "#0ff", "renderTime", "ms", currentSmoothedValues[1]);
     graphsContainer.cursor.y += defaultGraph.size.h + graphsContainer.gap;
-    drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 150 }, dbg.fps, dbg.index, dbg.count, "#fa0", "frames", "fps");
+    drawGraphBarsTYPEringBuffer(ctx, graphsContainer.cursor, defaultGraph.size, { min: 0, max: 300, mode: "auto" }, dbg.fps, dbg.index, dbg.count, "#fa0", "frames", "fps", currentSmoothedValues[2]);
     graphsContainer.cursor.y += defaultGraph.size.h;
     ParentPanel.size.h = graphsContainer.cursor.y;
 
@@ -136,7 +137,8 @@ function renderOverlayVariables(ctx, ParentPanel, currentTime, realDeltaTime, te
     // Values
     // Calculate FPS with smoothing
     const smoothing = 0.3; // more is smoother
-    const fps = (overlayFps * smoothing) + (1 / realDeltaTime * (1 - smoothing));
+    const exactFps = 1 / realDeltaTime
+    const fps = (overlayFps * smoothing) + (exactFps * (1 - smoothing));
 
     // Update overlay values only at defined intervals
     if (currentTime - lastRenderStatisticsTime >= 1000 / statisticUpdatesPerSecond) {
@@ -161,6 +163,7 @@ function renderOverlayVariables(ctx, ParentPanel, currentTime, realDeltaTime, te
     drawNextLine(`canvasScale:  ${getGlobal().canvasScale} px horizontal`);
     drawNextLine(`TileScale:    ${getGlobal().renderScale.toFixed(2)} px/tile`);
     drawNextLine(`RenderScale:  ${getGlobal().renderScale.toFixed(2)} px/tile`);
+    drawNextLine(`CameraZoom:   ${camera.zoomLevel.toFixed(2)} 1/tiles`);
     drawNextLine("")
     drawNextLine(`Tanks:        ${getGlobal().entities.tanks.length}`);
     drawNextLine(`Bullets:      ${getGlobal().entities.bullets.length}`);
@@ -279,6 +282,9 @@ function renderOverlayRightPanel(ctx, currentTime, realDeltaTime, dbg, textStyle
     renderOverlayVariables(ctx, DebugRightPanel, currentTime, realDeltaTime, textStyle);
 }
 
+let averageCalcSmoothed = 0;
+let averageRenderSmoothed = 0;
+
 // GRAPHS
 function renderCalcandRenderAverage(ctx, ParentPanel, currentTime, realDeltaTime, textStyle) {
     
@@ -299,12 +305,16 @@ function renderCalcandRenderAverage(ctx, ParentPanel, currentTime, realDeltaTime
     const drawNextLine = createOverlayTextDrawer(ctx, pos, textStyle, textSpacing);
 
     const debugSRBs = getGlobal().statsRingBuffers;
-    const averageCalc = ringAverageFromIndex(debugSRBs.calculationDurations, debugSRBs.index, debugSRBs.count);
-    const averageRender = ringAverageFromIndex(debugSRBs.renderingDurations, debugSRBs.index, debugSRBs.count);
+    const averageCalcRaw = ringAverageFromIndex(debugSRBs.calculationDurations, debugSRBs.index, debugSRBs.count);
+    const averageRenderRaw = ringAverageFromIndex(debugSRBs.renderingDurations, debugSRBs.index, debugSRBs.count);
+
+    const smoothing = 0.2;
+    averageCalcSmoothed += (averageCalcRaw - averageCalcSmoothed) * smoothing;
+    averageRenderSmoothed += (averageRenderRaw - averageRenderSmoothed) * smoothing;
 
     drawNextLine(`== Averages ==`);
-    drawNextLine(`ΔCalc:   ${averageCalc.toFixed(2)} ms`);
-    drawNextLine(`ΔRender: ${averageRender.toFixed(2)} ms`);
+    drawNextLine(`ΔCalc:   ${averageCalcSmoothed.toFixed(3)} ms`);
+    drawNextLine(`ΔRender: ${averageRenderSmoothed.toFixed(3)} ms`);
 
     ParentPanel.pos.y += backgroundHeight + padding;
 }
