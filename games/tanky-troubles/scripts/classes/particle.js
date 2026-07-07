@@ -40,7 +40,7 @@ class Particle extends PhysicsObject {
         // if (this.shortName === "p1") {
         //     const a = 1;
         // }
-        this.owner = owner;
+        this.color = owner.color;
         
         this.scale = scaleSpawn;
         this.radius = 1 / 12 * this.scale;
@@ -140,13 +140,11 @@ class TankTrackMarkParticle extends Particle {
 
     update(gameDeltaTime) {
         super.update(gameDeltaTime);
-        // this.angle = this.owner.angle;
-        // this.vel = this.owner.vel.scale(0.5);
     }
 
     render(ctx, gameDeltaTime) {
         if (this.active && getGlobal().showParticles) {
-            drawRectRotated(ctx, this.pos, this.angle, { w: this.diameter, h: this.diameter }, "#33333333");
+            drawRectRotated(ctx, this.pos, this.angle, { w: this.diameter, h: this.diameter }, "#3333");
         }
     }
 }
@@ -159,7 +157,7 @@ class RocketExhaustParticle extends Particle {
         this.scale = scaleSpawn;
         this.radius = 1 / 20 * this.scale;
         this.alpha = 1.0;
-        this.initialColor = hexToRGB(this.owner.color); //{ r: 255, g: 165, b: 0 };
+        this.initialColor = hexToRGB(this.color); //{ r: 255, g: 165, b: 0 };
         this.currentColor = { ...this.initialColor };
     }
 
